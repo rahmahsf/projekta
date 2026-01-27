@@ -1,0 +1,68 @@
+{% load static %}
+<aside
+  class="fixed inset-y-0 left-0 my-4 ml-4 w-64 rounded-2xl bg-white shadow-xl">
+
+  <!-- Logo -->
+  <div class="flex items-center px-6 py-6">
+    <img src="{% static 'assets/img/logo-rs.png' %}" class="h-10" alt="RS Logo">
+    <div class="ml-3">
+      <p class="text-sm font-bold text-slate-700">Rumah Sakit</p>
+      <p class="text-xs font-semibold text-slate-600">PKU Rogojampi</p>
+    </div>
+  </div>
+
+  <!-- Menu -->
+  <ul class="px-3 mt-2 space-y-1">
+
+    <!-- Dashboard -->
+    <li>
+      <a href="{% url 'dashboard' %}"
+         class="flex items-center px-4 py-3 text-sm font-semibold text-white rounded-xl bg-blue-600">
+        <i class="fa fa-home mr-3"></i>
+        Dashboard
+      </a>
+    </li>
+
+    <!-- Rekomendasi -->
+    <li>
+      <a href="#"
+         class="flex items-center px-4 py-3 text-sm text-slate-600 rounded-xl hover:bg-gray-100">
+        <i class="fa fa-lightbulb mr-3"></i>
+        Rekomendasi
+      </a>
+    </li>
+
+    <!-- Riwayat -->
+    <li>
+      <a href="#"
+         class="flex items-center px-4 py-3 text-sm text-slate-600 rounded-xl hover:bg-gray-100">
+        <i class="fa fa-history mr-3"></i>
+        Riwayat rekomendasi
+      </a>
+    </li>
+  </ul>
+
+  <!-- Account Pages -->
+  <div class="px-6 mt-6">
+    <p class="text-xs font-bold text-slate-400 uppercase">Account Pages</p>
+  </div>
+
+  <ul class="px-3 mt-2">
+    <li>
+      <a href="#"
+         class="flex items-center px-4 py-3 text-sm text-slate-600 rounded-xl hover:bg-gray-100">
+        <i class="fa fa-user mr-3"></i>
+        Profile
+      </a>
+    </li>
+  </ul>
+
+  <!-- Logout -->
+  <div class="absolute bottom-6 w-full px-6">
+    <a href="{% url 'logout' %}"
+       class="block w-full py-3 text-sm font-bold text-center text-white bg-red-600 rounded-xl hover:bg-red-700">
+      LOG OUT
+    </a>
+  </div>
+
+</aside>
