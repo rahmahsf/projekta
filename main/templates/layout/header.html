@@ -1,0 +1,19 @@
+{% load static %}
+<nav class="mx-6 my-4 px-4 py-2 rounded-2xl bg-white flex justify-between items-center">
+
+  <div>
+    <h6 class="font-bold">Dashboard</h6>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <input
+      type="text"
+      placeholder="Search..."
+      class="px-3 py-2 border rounded-lg text-sm">
+
+    <a href="{% url 'logout' %}" class="text-sm font-semibold text-red-500">
+      Logout
+    </a>
+  </div>
+
+</nav>

@@ -1,64 +1,228 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends "layout/base.html" %}
 
-<!-- HEADER -->
-{% include 'partials/header.html' %}
+{% block title %}Dashboard{% endblock %}
 
-<body class="m-0 font-sans antialiased bg-gray-50 text-slate-500">
+{% block content %}
+<div class="w-full px-6 py-6">
 
-  <!-- SIDENAV -->
-  {% include 'partials/sidenav.html' %}
 
-  <main class="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
+  <!-- ===== CARD RINGKASAN ===== -->
+ <!-- cards -->
+   <div class="flex flex-wrap -mx-3">
 
-    <!-- NAVBAR -->
-    {% include 'partials/navbar.html' %}
-
-    <!-- ====== ISI DASHBOARD ====== -->
-    <div class="w-full px-6 py-6 mx-auto">
-
-      <h1 class="text-xl font-bold mb-4">Dashboard</h1>
-
-      <div class="flex flex-wrap -mx-3">
-        <div class="w-full sm:w-1/2 xl:w-1/4 px-3 mb-6">
-          <div class="bg-white rounded-2xl shadow-soft-xl p-4">
-            <p class="text-sm font-semibold">Today's Users</p>
-            <h5 class="font-bold">2,300</h5>
+  <!-- card 1 -->
+  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+    <div class="relative flex flex-col bg-white shadow-soft-xl rounded-2xl">
+      <div class="p-4">
+        <div class="flex -mx-3">
+          <div class="w-2/3 px-3">
+            <p class="mb-0 text-sm font-semibold">BOR</p>
+            <h5 class="font-bold">
+              67,5%
+              <span class="text-lime-500 text-sm font-bold">+6%</span>
+            </h5>
+          </div>
+          <div class="w-1/3 px-3 text-right">
+            <div
+              class="inline-block w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 text-center">
+              <i class="ni ni-money-coins text-white relative top-3.5"></i>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="bg-white rounded-2xl shadow-soft-xl p-4 mt-6">
-        <canvas id="chart-line" height="300"></canvas>
+  <!-- card 2 -->
+  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+    <div class="relative flex flex-col bg-white shadow-soft-xl rounded-2xl">
+      <div class="p-4">
+        <div class="flex -mx-3">
+          <div class="w-2/3 px-3">
+            <p class="mb-0 text-sm font-semibold">LOS</p>
+            <h5 class="font-bold">
+              2,3
+              <span class="text-lime-500 text-sm font-bold">+1</span>
+            </h5>
+          </div>
+          <div class="w-1/3 px-3 text-right">
+            <div
+              class="inline-block w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 text-center">
+              <i class="ni ni-world text-white relative top-3.5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- card 3 -->
+  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+    <div class="relative flex flex-col bg-white shadow-soft-xl rounded-2xl">
+      <div class="p-4">
+        <div class="flex -mx-3">
+          <div class="w-2/3 px-3">
+            <p class="mb-0 text-sm font-semibold">GDR</p>
+            <h5 class="font-bold">
+              4,5
+              <span class="text-red-600 text-sm font-bold">-2</span>
+            </h5>
+          </div>
+          <div class="w-1/3 px-3 text-right">
+            <div
+              class="inline-block w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 text-center">
+              <i class="ni ni-paper-diploma text-white relative top-3.5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== GRAFIK ===== -->
+  <div class="bg-white rounded-2xl p-6 shadow mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h6 class="font-bold">Grafik indikator evaluasi Rawat Inap</h6>
+      <select class="border rounded-lg px-3 py-2 text-sm">
+        <option>2025</option>
+        <option>2024</option>
+      </select>
+    </div>
+
+    <canvas id="indikatorChart" height="120"></canvas>
+  </div>
+
+ 
+        <!-- cards row 4 -->
+
+        <div class="flex flex-wrap my-6 -mx-3">
+          <!-- card 1 -->
+
+          <div
+            class="w-full max-w-full px-3 mt-0 mb-6 md:mb-0 md:w-1/2 md:flex-none lg:w-2/3 lg:flex-none">
+              <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow">
+      <div class="flex justify-between mb-4">
+        <h6 class="font-bold">Data</h6>
+        <a href="#" class="text-blue-600 text-sm font-semibold">selengkapnya</a>
       </div>
 
+      <table class="w-full text-sm">
+        <thead class="text-slate-400 border-b">
+          <tr>
+            <th class="py-2 text-left">Bulan</th>
+            <th class="py-2 text-center">BOR</th>
+            <th class="py-2 text-center">LOS</th>
+            <th class="py-2 text-center">GDR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b">
+            <td class="py-3">Januari</td>
+            <td class="text-center">70%</td>
+            <td class="text-center">6,7</td>
+            <td class="text-center">6,7</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3">Februari</td>
+            <td class="text-center">65%</td>
+            <td class="text-center">8,9</td>
+            <td class="text-center">8,9</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3">Maret</td>
+            <td class="text-center">85%</td>
+            <td class="text-center">8,6</td>
+            <td class="text-center">8,6</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-3">April</td>
+            <td class="text-center">90%</td>
+            <td class="text-center">6,5</td>
+            <td class="text-center">6,5</td>
+          </tr>
+          <tr>
+            <td class="py-3">Mei</td>
+            <td class="text-center">50%</td>
+            <td class="text-center">9,8</td>
+            <td class="text-center">9,8</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <!-- ====== END DASHBOARD ====== -->
+          </div>
 
-    <!-- FOOTER -->
-    {% include 'partials/footer.html' %}
+          <!-- card 2 -->
 
-  </main>
+          <div
+            class="w-full max-w-full px-3 md:w-1/2 md:flex-none lg:w-1/3 lg:flex-none">
+           <div class="bg-white rounded-2xl p-6 shadow">
+      <div class="flex justify-between mb-4">
+        <h6 class="font-bold">Rekomendasi bulan ini</h6>
+        <a href="#" class="text-blue-600 text-sm font-semibold">selengkapnya</a>
+      </div>
 
-  <!-- JS -->
-  <script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
-  <script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
-  <script src="{% static 'assets/js/soft-ui-dashboard-tailwind.js' %}"></script>
+      <h6 class="font-semibold mb-3">
+        Optimalisasi alur pelayanan rawat inap
+      </h6>
 
-  <script>
-    const ctx = document.getElementById("chart-line");
-    new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: ["Jan", "Feb", "Mar", "Apr"],
-        datasets: [{
-          data: [120, 200, 150, 300],
-          borderWidth: 3
-        }]
+      <div class="bg-blue-50 p-4 rounded-xl text-sm">
+        <p class="mb-2">✔ BOR berada dalam batas ideal</p>
+        <p class="mb-2">✔ LOS menunjukkan efisiensi pelayanan</p>
+        <p>✔ GDR berada dalam ambang aman</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+          </div>
+        </div>
+      </div>
+      <!-- end cards -->
+
+   
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const ctx = document.getElementById("indikatorChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [
+        {
+          label: "BOR",
+          data: [150, 400, 200, 80, 500, 600, 300, 280, 700],
+          borderColor: "#2563eb",
+          tension: 0.4
+        },
+        {
+          label: "LOS",
+          data: [20, 50, 300, 200, 700, 300, 500, 260, 650],
+          borderColor: "#db2777",
+          tension: 0.4
+        },
+        {
+          label: "GDR",
+          data: [10, 80, 180, 30, 120, 70, 240, 50, 520],
+          borderColor: "#111827",
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom"
+        }
       }
-    });
-  </script>
-
-</body>
-</html>
+    }
+  });
+});
+</script>
+{% endblock %}

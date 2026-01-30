@@ -4,5 +4,3 @@ python manage.py makemigrations pilih 1 lalu '-'
 python manage.py migrate
 3. python manage.py seed_users
 4. python manage.py runserver
-
-
