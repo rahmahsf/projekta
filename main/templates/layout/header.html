@@ -1,19 +1,24 @@
-{% load static %}
-<nav class="mx-6 my-4 px-4 py-2 rounded-2xl bg-white flex justify-between items-center">
+<nav class="relative flex flex-wrap items-center px-0 py-2 mx-6 rounded-2xl">
 
-  <div>
-    <h6 class="font-bold">Dashboard</h6>
-  </div>
+  <div class="flex items-center w-full px-4 py-1 mx-auto">
+    <nav>
+      <!-- breadcrumb -->
+      <ol class="flex flex-wrap pt-1 bg-transparent rounded-lg">
+        <li class="leading-normal text-sm">
+          <span class="opacity-50 text-slate-700">Pages</span>
+        </li>
+        <li
+          class="text-sm pl-2 capitalize leading-normal text-slate-700
+                 before:pr-2 before:text-gray-600 before:content-['/']">
+          {{ page_name|default:"Dashboard" }}
+        </li>
+      </ol>
 
-  <div class="flex items-center gap-4">
-    <input
-      type="text"
-      placeholder="Search..."
-      class="px-3 py-2 border rounded-lg text-sm">
-
-    <a href="{% url 'logout' %}" class="text-sm font-semibold text-red-500">
-      Logout
-    </a>
+      <!-- page title -->
+      <h6 class="mb-0 font-bold capitalize">
+        {{ page_title|default:"Dashboard" }}
+      </h6>
+    </nav>
   </div>
 
 </nav>

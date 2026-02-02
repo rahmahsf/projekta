@@ -6,7 +6,20 @@
   <title>{% block title %}Dashboard{% endblock %}</title>
 
   <link rel="icon" href="{% static 'assets/img/logo-rs.png' %}">
-  <link href="{% static 'assets/css/soft-ui-dashboard-tailwind.css' %}" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'assets/css/rekomendasi.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/revise.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/soft-ui-dashboard-tailwind.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/nucleo-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/nucleo-svg.css' %}">
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+    rel="stylesheet">
+
+  <!-- FontAwesome (cukup sekali) -->
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
 </head>
 
@@ -18,13 +31,10 @@
   <!-- MAIN CONTENT -->
   <main class="xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all">
 
-
     <!-- HEADER -->
     {% include "layout/header.html" %}
 
     <!-- PAGE CONTENT -->
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'assets/js/soft-ui-dashboard-tailwind.js' %}"></script>
     {% block content %}{% endblock %}
 
     <!-- FOOTER -->
@@ -32,7 +42,13 @@
 
   </main>
 
+  <!-- JS (letakkan DI BAWAH) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'assets/js/plugins/perfect-scrollbar.min.js' %}"></script>
+    <script src="{% static 'assets/js/plugins/sidenav-burger.js' %}"></script>
   <script src="{% static 'assets/js/soft-ui-dashboard-tailwind.js' %}"></script>
+
+  <!-- JS tambahan per halaman -->
   {% block extra_js %}{% endblock %}
 </body>
 </html>

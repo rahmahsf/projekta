@@ -1,0 +1,92 @@
+{% extends "layout/base.html" %}
+{% block title %}Riwayat Rekomendasi{% endblock %}
+
+{% block content %}
+<div class="w-full px-6 py-6 mx-auto">
+  <div class="flex flex-wrap -mx-3">
+    <div class="flex-none w-full max-w-full px-3">
+      <div class="relative flex flex-col min-w-0 mb-6 bg-white rounded-2xl shadow-soft-xl">
+        
+        <div class="p-6 pb-0 flex justify-between items-center">
+          <h6 class="font-bold text-slate-700">Riwayat Rekomendasi</h6>
+          <div class="flex items-center">
+            <span class="text-sm mr-2 text-slate-500">Tahun</span>
+            <select class="text-sm border rounded-lg px-3 py-1 text-slate-500 focus:outline-none">
+              <option>All</option>
+              <option>2025</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex-auto px-0 pt-0 pb-2">
+          <div class="overflow-x-auto">
+            <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+              <thead class="align-bottom">
+                <tr>
+                  <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Bulan</th>
+                  <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Tahun</th>
+                  <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">BOR</th>
+                  <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">LOS</th>
+                  <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">GDR</th>
+                  <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Rekomendasi</th>
+                  <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-gray-200 border-solid shadow-none tracking-none whitespace-nowrap text-slate-400 opacity-70"></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <p class="mb-0 text-xs font-bold uppercase text-slate-400">Januari</p>
+                  </td>
+                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <p class="mb-0 text-xs font-semibold leading-tight text-slate-400">2025</p>
+                  </td>
+                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <span class="text-xs font-semibold leading-tight text-slate-400">45%</span>
+                  </td>
+                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
+                  </td>
+                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
+                  </td>
+                  <td class="p-4 align-middle bg-transparent border-b shadow-transparent">
+                    <span class="text-sm font-bold text-slate-600">Optimalisasi alur pelayanan rawat inap</span>
+                  </td>
+                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <a href="{%url 'detail'%}" class="text-xs font-semibold leading-tight text-slate-400"> Detail </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <p class="mb-0 text-xs font-bold uppercase text-slate-400">Februari</p>
+                  </td>
+                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <p class="mb-0 text-xs font-semibold leading-tight text-slate-400">2025</p>
+                  </td>
+                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <span class="text-xs font-semibold leading-tight text-slate-400">45%</span>
+                  </td>
+                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
+                  </td>
+                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
+                  </td>
+                  <td class="p-4 align-middle bg-transparent border-b shadow-transparent">
+                    <span class="text-sm font-bold text-slate-600">Optimalisasi alur pelayanan rawat inap</span>
+                  </td>
+                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                    <a href="javascript:;" class="text-xs font-semibold leading-tight text-slate-400"> Detail </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
