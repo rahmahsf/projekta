@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
-
 
 # Create your views here.
 from django.shortcuts import render
@@ -37,4 +36,16 @@ def detail(request):
     return render(request, 'main/detail-data.html',{
         "page_name": "Riwayat Rekomendasi",
         "page_title":"Riwayat Rekomendasi"
+    })
+
+User = get_user_model()   # ⬅️ INI KUNCI UTAMA
+
+@login_required(login_url='login')
+def akun(request):
+    users = User.objects.all()
+
+    return render(request, 'main/kelola-akun.html', {
+        "page_name": "Mengelola Akun",
+        "page_title": "Mengelola Akun",
+        "users": users
     })
