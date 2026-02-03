@@ -51,6 +51,7 @@ def akun(request):
 
 @login_required(login_url='login')
 def tambah_akun(request):
+
     if request.method == "POST":
         email = request.POST.get("email")
         nama_lengkap = request.POST.get("nama_lengkap")
@@ -63,7 +64,7 @@ def tambah_akun(request):
             messages.error(request, "Semua field wajib diisi")
             return redirect("tambah_akun")
 
-        # BLOK ROLE DIREKTUR
+        # blok role direktur
         if role == "direktur":
             messages.error(request, "Role direktur tidak bisa ditambahkan")
             return redirect("tambah_akun")
@@ -73,21 +74,23 @@ def tambah_akun(request):
             messages.error(request, "Username sudah digunakan")
             return redirect("tambah_akun")
 
-        # BUAT USER
+        # buat user
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
-
         user.nama_lengkap = nama_lengkap
         user.role = role
         user.save()
 
         messages.success(request, "Akun berhasil ditambahkan")
         return redirect("akun")
-
-    return render(request, "main/tambah-akun.html")
+    
+    return render(request, 'main/tambah-akun.html', {
+        "page_name": "Mengelola Akun",
+        "page_title": "Mengelola Akun",
+    })
 
 @login_required(login_url='login')
 def edit_akun(request, user_id):
@@ -106,7 +109,7 @@ def edit_akun(request, user_id):
         user.nama_lengkap = nama_lengkap
         user.role = role
 
-        # 🔐 LOGIKA PASSWORD
+        # LOGIKA PASSWORD
         if password_baru:
             if not password_lama:
                 messages.error(request, "Password lama wajib diisi")
@@ -123,6 +126,8 @@ def edit_akun(request, user_id):
         return redirect("akun")
 
     return render(request, "main/edit-akun.html", {
+        "page_name": "Mengelola Akun",
+        "page_title": "Mengelola Akun",
         "user_edit": user
     })
 
