@@ -5,62 +5,110 @@
 {% block content %}
 <div class="w-full px-6 py-6 mx-auto">
 
-  <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
-    
-    <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl flex justify-between items-center">
+  <div
+    class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+
+    <!-- HEADER CARD -->
+    <div
+      class="p-6 pb-0 mb-0 bg-white rounded-t-2xl flex justify-between items-center">
       <h5 class="font-bold text-slate-700">Kelola Akun</h5>
-      <a href="#" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-gradient-to-tl from-blue-600 to-cyan-400 leading-pro text-xs ease-soft-in tracking-tight-soft hover:scale-102 active:opacity-85 hover:shadow-soft-xs">
-        Tambah akun
+      <a href="{%url 'tambah_akun' %}"
+        class="inline-block px-6 py-3 font-bold text-white uppercase text-xs rounded-lg shadow-soft-md bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 transition-all">
+        Tambah Akun
       </a>
     </div>
 
+    <!-- TABLE -->
     <div class="flex-auto px-0 pt-0 pb-2">
-      <div class="p-0 overflow-x-auto">
-        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-          <thead class="align-bottom">
+      <div class="overflow-x-auto">
+        <table class="w-full mb-0 align-top border-gray-200 text-slate-500">
+
+          <!-- THEAD -->
+          <thead>
             <tr>
-              <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Nama Lengkap</th>
-              <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Username</th>
-              <th class="px-6 py-3 pl-2 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Email</th>
-              <th class="px-6 py-3 pl-2 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Role</th>
-              <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Aksi</th>
+              <th
+                class="px-6 py-3 text-left text-xxs font-bold uppercase text-slate-400 border-b">
+                Nama Lengkap
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xxs font-bold uppercase text-slate-400 border-b">
+                Username
+              </th>
+              <th
+                class="px-6 py-3 text-center text-xxs font-bold uppercase text-slate-400 border-b">
+                Email
+              </th>
+              <th
+                class="px-6 py-3 text-center text-xxs font-bold uppercase text-slate-400 border-b">
+                Role
+              </th>
+              <th
+                class="px-6 py-3 text-center text-xxs font-bold uppercase text-slate-400 border-b">
+                Aksi
+              </th>
             </tr>
           </thead>
+
+          <!-- TBODY -->
           <tbody>
             {% for user in users %}
             <tr>
-              <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                <div class="flex px-4 py-1">
-                  <div class="flex flex-col justify-center">
-                    <h6 class="mb-0 text-sm leading-normal font-semibold text-slate-400">{{ user.nama_lengkap }}</h6>
-                  </div>
+
+              <!-- Nama -->
+              <td class="p-2 border-b">
+                <div class="px-4 py-1">
+                  <h6 class="text-sm font-semibold text-slate-400">
+                    {{ user.nama_lengkap }}
+                  </h6>
                 </div>
               </td>
-              <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                <p class="mb-0 text-xs font-semibold leading-tight text-slate-400">{{ user.username }}</p>
+
+              <!-- Username -->
+              <td class="p-2 border-b">
+                <p class="text-xs font-semibold text-slate-400">
+                  {{ user.username }}
+                </p>
               </td>
-              <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                <span class="text-xs font-bold leading-tight text-slate-700">{{ user.email }}</span>
+
+              <!-- Email -->
+              <td class="p-2 text-center border-b">
+                <span class="text-xs font-bold text-slate-700">
+                  {{ user.email }}
+                </span>
               </td>
-              <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                <span class="text-xs font-semibold leading-tight text-blue-400">{{ user.role }}</span>
+
+              <!-- Role -->
+              <td class="p-2 text-center border-b">
+                <span class="text-xs font-semibold text-blue-400">
+                  {{ user.role }}
+                </span>
               </td>
-             <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-  <div class="flex items-center gap-4 px-4"> 
-    <a href="#" class="text-xs font-semibold leading-tight text-slate-400 hover:text-blue-500">
-      Edit
-    </a>
-    <a href="#" class="text-xs font-semibold leading-tight text-red-500 opacity-80 hover:opacity-100">
-      hapus
-    </a>
-  </div>
-</td>
+
+              <!-- Aksi -->
+              <td class="p-2 text-center border-b">
+                <div class="inline-flex items-center">
+                  <a href="#"
+                    class="text-xs font-semibold text-slate-400 hover:text-blue-500">
+                    Edit
+                  </a>
+
+                  <span class="mx-3 text-slate-300">|</span>
+
+                  <a href="#"
+                    class="text-xs font-semibold text-red-500 hover:opacity-100">
+                    hapus
+                  </a>
+                </div>
+              </td>
+
             </tr>
             {% endfor %}
           </tbody>
+
         </table>
       </div>
     </div>
+
   </div>
 </div>
 {% endblock %}

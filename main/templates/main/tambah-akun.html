@@ -1,0 +1,76 @@
+{% extends "layout/base.html" %}
+{% block title %}Tambah Akun{% endblock %}
+
+{% block content %}
+<div class="w-full px-6 py-6">
+
+  <p class="text-sm text-slate-400 mb-2">
+    <a href="{% url 'akun' %}" class="hover:underline">&lt; Kembali</a>
+  </p>
+
+  <h3 class="text-xl font-bold text-slate-800 mb-6">
+    Tambah Akun
+  </h3>
+
+  <form method="POST" class="max-w-3xl">
+    {% csrf_token %}
+
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-slate-600 mb-2">Email</label>
+      <input type="email" name="email"
+        class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-slate-600 mb-2">Nama Lengkap</label>
+      <input type="text" name="nama_lengkap"
+        class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-slate-600 mb-2">Username</label>
+      <input type="text" name="username"
+        class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="mb-5">
+  <label class="block text-sm font-medium text-slate-600 mb-2">
+    Role
+  </label>
+
+  <select name="role"
+    class="w-full rounded-xl border border-slate-200 px-4 py-3
+           focus:outline-none focus:ring-2 focus:ring-blue-500
+           bg-white text-slate-700">
+    <option value="">-- Pilih Role --</option>
+    <option value="yangmed">Yangmed</option>
+    <option value="kepegawaian">Kepegawaian</option>
+  </select>
+</div>
+
+
+    <div class="mb-8">
+      <label class="block text-sm font-medium text-slate-600 mb-2">Password</label>
+      <input type="password" name="password"
+        class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+  <div class="form-actions">
+  <button type="submit" class="btn-submit">
+    Simpan
+  </button>
+</div>
+
+
+  </form>
+
+</div>
+<style>
+.btn-submit {
+  background: #2563eb;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+}
+</style>
+{% endblock %}

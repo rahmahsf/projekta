@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # Create your views here.
 from django.shortcuts import render
@@ -48,4 +49,41 @@ def akun(request):
         "page_name": "Mengelola Akun",
         "page_title": "Mengelola Akun",
         "users": users
+    })
+
+User = get_user_model()
+
+@login_required(login_url='login')
+def tambah_akun(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        nama = request.POST.get("nama_lengkap")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        # validasi sederhana
+        if not all([email, nama, username, password]):
+            messages.error(request, "Semua field wajib diisi.")
+            return redirect("tambah_akun")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username sudah digunakan.")
+            return redirect("tambah_akun")
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        # kalau kamu punya field nama lengkap
+        user.nama_lengkap = nama
+        user.save()
+
+        messages.success(request, "Akun berhasil ditambahkan.")
+        return redirect("akun")  # balik ke list akun
+
+    return render(request, "main/tambah-akun.html", {
+        "page_name": "Kelola Akun",
+        "page_title": "Tambah Akun"
     })
