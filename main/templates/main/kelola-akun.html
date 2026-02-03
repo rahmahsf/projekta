@@ -5,110 +5,117 @@
 {% block content %}
 <div class="w-full px-6 py-6 mx-auto">
 
-  <div
-    class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+  <!-- CARD -->
+  <div class="bg-white rounded-2xl shadow-soft-xl">
 
-    <!-- HEADER CARD -->
-    <div
-      class="p-6 pb-0 mb-0 bg-white rounded-t-2xl flex justify-between items-center">
-      <h5 class="font-bold text-slate-700">Kelola Akun</h5>
-      <a href="{%url 'tambah_akun' %}"
-        class="inline-block px-6 py-3 font-bold text-white uppercase text-xs rounded-lg shadow-soft-md bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 transition-all">
+    <!-- HEADER -->
+    <div class="p-6 flex justify-between items-center">
+      <h5 class="font-bold text-slate-700 text-lg">Kelola Akun</h5>
+      <a href="{% url 'tambah_akun' %}"
+         class="px-6 py-3 text-xs font-bold text-white rounded-lg
+                bg-gradient-to-tl from-blue-600 to-cyan-400 shadow-soft-md
+                hover:scale-105 transition">
         Tambah Akun
       </a>
     </div>
 
     <!-- TABLE -->
-    <div class="flex-auto px-0 pt-0 pb-2">
-      <div class="overflow-x-auto">
-        <table class="w-full mb-0 align-top border-gray-200 text-slate-500">
+    <div class="overflow-x-auto px-6 pb-6">
+      <table class="w-full text-sm text-slate-600">
 
-          <!-- THEAD -->
-          <thead>
-            <tr>
-              <th
-                class="px-6 py-3 text-left text-xxs font-bold uppercase text-slate-400 border-b">
-                Nama Lengkap
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xxs font-bold uppercase text-slate-400 border-b">
-                Username
-              </th>
-              <th
-                class="px-6 py-3 text-center text-xxs font-bold uppercase text-slate-400 border-b">
-                Email
-              </th>
-              <th
-                class="px-6 py-3 text-center text-xxs font-bold uppercase text-slate-400 border-b">
-                Role
-              </th>
-              <th
-                class="px-6 py-3 text-center text-xxs font-bold uppercase text-slate-400 border-b">
-                Aksi
-              </th>
-            </tr>
-          </thead>
+        <thead>
+          <tr class="border-b text-xs uppercase text-slate-400">
+            <th class="py-3 text-left">Nama Lengkap</th>
+            <th class="py-3 text-left">Username</th>
+            <th class="py-3 text-center">Email</th>
+            <th class="py-3 text-center">Role</th>
+            <th class="py-3 text-center">Aksi</th>
+          </tr>
+        </thead>
 
-          <!-- TBODY -->
-          <tbody>
-            {% for user in users %}
-            <tr>
+        <tbody>
+          {% for user in users %}
+          <tr class="border-b">
 
-              <!-- Nama -->
-              <td class="p-2 border-b">
-                <div class="px-4 py-1">
-                  <h6 class="text-sm font-semibold text-slate-400">
-                    {{ user.nama_lengkap }}
-                  </h6>
-                </div>
-              </td>
+            <td class="py-3">{{ user.nama_lengkap }}</td>
+            <td class="py-3">{{ user.username }}</td>
 
-              <!-- Username -->
-              <td class="p-2 border-b">
-                <p class="text-xs font-semibold text-slate-400">
-                  {{ user.username }}
-                </p>
-              </td>
+            <td class="py-3 text-center font-semibold">
+              {{ user.email }}
+            </td>
 
-              <!-- Email -->
-              <td class="p-2 text-center border-b">
-                <span class="text-xs font-bold text-slate-700">
-                  {{ user.email }}
-                </span>
-              </td>
+            <td class="py-3 text-center">
+              <span class="text-blue-500 font-semibold">
+                {{ user.get_role_display }}
+              </span>
+            </td>
 
-              <!-- Role -->
-              <td class="p-2 text-center border-b">
-                <span class="text-xs font-semibold text-blue-400">
-                  {{ user.role }}
-                </span>
-              </td>
+            <td class="py-3 text-center">
+              <a href="{% url 'edit_akun' user.id %}"
+                 class="text-xs font-semibold text-slate-500 hover:text-blue-600">
+                Edit
+              </a>
 
-              <!-- Aksi -->
-              <td class="p-2 text-center border-b">
-                <div class="inline-flex items-center">
-                  <a href="#"
-                    class="text-xs font-semibold text-slate-400 hover:text-blue-500">
-                    Edit
-                  </a>
+              <span class="mx-2 text-slate-300">|</span>
 
-                  <span class="mx-3 text-slate-300">|</span>
+              {% if user.role != "direktur" %}
+              <button type="button"
+                onclick="openDeleteModal('{{ user.id }}','{{ user.nama_lengkap }}')"
+                class="text-xs font-semibold text-red-500 hover:opacity-80">
+                Hapus
+              </button>
+              {% else %}
+              <span class="text-xs italic text-slate-300">
+                Tidak bisa dihapus
+              </span>
+              {% endif %}
+            </td>
 
-                  <a href="#"
-                    class="text-xs font-semibold text-red-500 hover:opacity-100">
-                    hapus
-                  </a>
-                </div>
-              </td>
+          </tr>
+          {% endfor %}
+        </tbody>
 
-            </tr>
-            {% endfor %}
-          </tbody>
-
-        </table>
-      </div>
+      </table>
     </div>
 
   </div>
 </div>
+
+<!-- ================= MODAL HAPUS ================= -->
+<div id="deleteModal" class="delete-modal">
+  <div class="delete-box">
+    <h5 class="delete-title">Hapus Akun</h5>
+
+    <p class="delete-text">
+      Apakah kamu yakin ingin menghapus akun
+      <strong id="deleteUserName">nama</strong>?
+    </p>
+
+    <div class="delete-actions">
+      <button type="button" onclick="closeDeleteModal()" class="btn-cancel">
+        Batal
+      </button>
+      <a id="confirmDeleteBtn" href="#" class="btn-danger">
+        Ya, Hapus
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+  function openDeleteModal(id, name) {
+    const modal = document.getElementById('deleteModal')
+    modal.classList.add('show')
+
+    document.getElementById('deleteUserName').innerText = name
+    document.getElementById('confirmDeleteBtn').href = `/hapus-akun/${id}/`
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show')
+  }
+</script>
+
+
 {% endblock %}

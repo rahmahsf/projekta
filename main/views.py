@@ -1,12 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 # Create your views here.
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
+User = get_user_model()  
 @login_required(login_url='login')
 def dashboard(request):
     return render(request, 'main/dashboard.html')
@@ -39,7 +37,7 @@ def detail(request):
         "page_title":"Riwayat Rekomendasi"
     })
 
-User = get_user_model()   # ⬅️ INI KUNCI UTAMA
+
 
 @login_required(login_url='login')
 def akun(request):
@@ -51,39 +49,91 @@ def akun(request):
         "users": users
     })
 
-User = get_user_model()
-
 @login_required(login_url='login')
 def tambah_akun(request):
     if request.method == "POST":
         email = request.POST.get("email")
-        nama = request.POST.get("nama_lengkap")
+        nama_lengkap = request.POST.get("nama_lengkap")
         username = request.POST.get("username")
         password = request.POST.get("password")
+        role = request.POST.get("role")
 
-        # validasi sederhana
-        if not all([email, nama, username, password]):
-            messages.error(request, "Semua field wajib diisi.")
+        # validasi kosong
+        if not all([email, nama_lengkap, username, password, role]):
+            messages.error(request, "Semua field wajib diisi")
             return redirect("tambah_akun")
 
+        # BLOK ROLE DIREKTUR
+        if role == "direktur":
+            messages.error(request, "Role direktur tidak bisa ditambahkan")
+            return redirect("tambah_akun")
+
+        # validasi username
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username sudah digunakan.")
+            messages.error(request, "Username sudah digunakan")
             return redirect("tambah_akun")
 
+        # BUAT USER
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
 
-        # kalau kamu punya field nama lengkap
-        user.nama_lengkap = nama
+        user.nama_lengkap = nama_lengkap
+        user.role = role
         user.save()
 
-        messages.success(request, "Akun berhasil ditambahkan.")
-        return redirect("akun")  # balik ke list akun
+        messages.success(request, "Akun berhasil ditambahkan")
+        return redirect("akun")
 
-    return render(request, "main/tambah-akun.html", {
-        "page_name": "Kelola Akun",
-        "page_title": "Tambah Akun"
+    return render(request, "main/tambah-akun.html")
+
+@login_required(login_url='login')
+def edit_akun(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        email = request.POST.get("email")
+        nama_lengkap = request.POST.get("nama_lengkap")
+        role = request.POST.get("role")
+
+        password_lama = request.POST.get("password_lama")
+        password_baru = request.POST.get("password_baru")
+
+        # update data dasar
+        user.email = email
+        user.nama_lengkap = nama_lengkap
+        user.role = role
+
+        # 🔐 LOGIKA PASSWORD
+        if password_baru:
+            if not password_lama:
+                messages.error(request, "Password lama wajib diisi")
+                return redirect("edit_akun", user_id=user.id)
+
+            if not user.check_password(password_lama):
+                messages.error(request, "Password lama salah")
+                return redirect("edit_akun", user_id=user.id)
+
+            user.set_password(password_baru)
+
+        user.save()
+        messages.success(request, "Data akun berhasil diperbarui")
+        return redirect("akun")
+
+    return render(request, "main/edit-akun.html", {
+        "user_edit": user
     })
+
+@login_required(login_url='login')
+def hapus_akun(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if user.role == "direktur":
+        messages.error(request, "Akun direktur tidak dapat dihapus")
+        return redirect("akun")
+
+    user.delete()
+    messages.success(request, "Akun berhasil dihapus")
+    return redirect("akun")

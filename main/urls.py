@@ -11,6 +11,8 @@ urlpatterns = [
     path('detail', views.detail, name='detail'),
     path('akun', views.akun, name='akun'),
     path('akun/tambah/', views.tambah_akun, name='tambah_akun'),
+    path('akun/edit/<int:user_id>/', views.edit_akun, name='edit_akun'),
+    path('akun/hapus/<int:user_id>/', views.hapus_akun, name='hapus_akun'),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
