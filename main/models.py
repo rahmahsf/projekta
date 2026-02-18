@@ -62,3 +62,18 @@ class Rekomendasi(models.Model):
     
     class Meta:
         db_table = 'rekomendasi'
+class KasusRekomendasi(models.Model):
+    kasus = models.ForeignKey(
+        Kasus,
+        on_delete=models.CASCADE,
+        db_column='id_kasus'
+    )
+    rekomendasi = models.ForeignKey(
+        Rekomendasi,
+        on_delete=models.CASCADE,
+        db_column='rekomendasi_id'
+    )
+
+    class Meta:
+        db_table = 'kasus_rekomendasi'
+        unique_together = ('kasus', 'rekomendasi')
