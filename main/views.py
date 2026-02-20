@@ -13,29 +13,85 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def rekomendasi(request):
+
     hasil = None
     indikator = None
 
     if request.method == "POST":
-        bor = 48.0
-        los = 2.9
-        gdr = 2.3
 
-        indikator = {
-            "bor": bor,
-            "los": los,
-            "gdr": gdr
-        }
+        action = request.POST.get("action")
+        # GENERATE
+        if action == "generate":
 
-        hasil = proses_cbr(bor, los, gdr)
+            bor = 48.0
+            los = 2.9
+            gdr = 2.3
+
+            indikator = {
+                "bor": bor,
+                "los": los,
+                "gdr": gdr
+            }
+
+            hasil = proses_cbr(bor, los, gdr)
+
+            # simpan session
+            request.session["revise_data"] = {
+                "bor": bor,
+                "los": los,
+                "gdr": gdr,
+                "top_kasus": [
+                    {
+                        "id": k["kasus"].id,
+                        "bulan": k["kasus"].bulan,
+                        "tahun": k["kasus"].tahun,
+                        "bor": k["kasus"].bor,
+                        "los": k["kasus"].los,
+                        "gdr": k["kasus"].gdr,
+                        "distance": k["distance"]
+                    }
+                    for k in hasil["top_kasus"]
+                ]
+            }
+
+        # SAVE
+        elif action == "save":
+
+            bor = float(request.POST.get("bor"))
+            los = float(request.POST.get("los"))
+            gdr = float(request.POST.get("gdr"))
+            kasus_id = request.POST.get("kasus_id")
+
+            kasus_baru = Kasus.objects.create(
+                bulan="6",
+                tahun="2026",
+                bor=bor,
+                los=los,
+                gdr=gdr
+            )
+
+            kasus_lama = Kasus.objects.get(id=kasus_id)
+            relasi = KasusRekomendasi.objects.filter(kasus=kasus_lama)
+
+            for r in relasi:
+                KasusRekomendasi.objects.create(
+                    kasus=kasus_baru,
+                    rekomendasi=r.rekomendasi
+                )
+
+            return redirect("rekomendasi")
+        
+        # REVISE
+        elif action == "revise":
+            return redirect("revise")
 
     return render(request, "main/rekomendasi.html", {
         "hasil": hasil,
-        "indikator": indikator
-        
+        "indikator": indikator,
+        "page_name": "Rekomendasi",
+        "page_title":"Rekomendasi"
     })
-
-
+    
 @login_required(login_url='login')
 def riwayat_rekomendasi(request):
     return render(request, 'main/riwayat-rekomendasi.html',{
@@ -44,7 +100,97 @@ def riwayat_rekomendasi(request):
     })
 
 @login_required(login_url='login')
-def revise(request, kasus_id):
+def revise(request):
+
+    data = request.session.get("revise_data")
+
+    if not data:
+        return redirect("rekomendasi")
+
+    top_kasus = data.get("top_kasus", [])
+
+    # ambil rekomendasi dari kasus paling mirip (index 0)
+    kasus_utama_id = top_kasus[0]["id"]
+    relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_utama_id)
+
+    rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
+    semua_rekomendasi = Rekomendasi.objects.all()
+
+    return render(request, "main/revise.html", {
+        "indikator": {
+            "bor": data["bor"],
+            "los": data["los"],
+            "gdr": data["gdr"],
+        },
+        "top_kasus": top_kasus,
+        "semua_rekomendasi": semua_rekomendasi,
+        "rekomendasi_terpilih": rekomendasi_terpilih,
+        "page_name": "Rekomendasi",
+        "page_title":"Rekomendasi"
+    })
+
+    data = request.session.get("revise_data")
+
+    if not data:
+        return redirect("rekomendasi")
+
+    kasus_lama = Kasus.objects.get(id=data["kasus_id"])
+    relasi = KasusRekomendasi.objects.filter(kasus=kasus_lama)
+
+    rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
+    semua_rekomendasi = Rekomendasi.objects.all()
+
+    return render(request, "main/revise.html", {
+        "indikator": {
+            "bor": data["bor"],
+            "los": data["los"],
+            "gdr": data["gdr"],
+        },
+        "kasus": kasus_lama,
+        "distance": data.get("distance", 0),
+        "semua_rekomendasi": semua_rekomendasi,
+        "rekomendasi_terpilih": rekomendasi_terpilih
+    })
+
+    data = request.session.get("revise_data")
+
+    if not data:
+        return redirect("rekomendasi")
+
+    kasus_lama = Kasus.objects.get(id=data["kasus_id"])
+    relasi = KasusRekomendasi.objects.filter(kasus=kasus_lama)
+
+    rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
+    semua_rekomendasi = Rekomendasi.objects.all()
+
+    # SIMPAN HASIL REVISI
+    if request.method == "POST":
+
+        dipilih = request.POST.getlist("rekomendasi")
+
+        kasus_baru = Kasus.objects.create(
+            bulan="6",
+            tahun="2026",
+            bor=data["bor"],
+            los=data["los"],
+            gdr=data["gdr"]
+        )
+
+        for r_id in dipilih:
+            KasusRekomendasi.objects.create(
+                kasus=kasus_baru,
+                rekomendasi_id=r_id
+            )
+
+        del request.session["revise_data"]
+
+        return redirect("rekomendasi")
+
+    return render(request, "main/revise.html", {
+        "indikator": data,
+        "semua_rekomendasi": semua_rekomendasi,
+        "rekomendasi_terpilih": rekomendasi_terpilih
+    })
 
     kasus = Kasus.objects.get(id=kasus_id)
 

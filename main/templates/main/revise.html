@@ -48,7 +48,7 @@
 
       <div class="p-4">
         <p class="label-indikator">BOR Bulan Ini</p>
-        <h5 class="value-indikator">48%</h5>
+        <h5 class="value-indikator">{{ indikator.bor}}%</h5>
       </div>
     </div>
   </div>
@@ -60,9 +60,7 @@
 
       <div class="p-4">
         <p class="label-indikator">LOS Bulan Ini</p>
-        <h5 class="value-indikator">
-          2,9 <span class="text-sm font-medium">hari</span>
-        </h5>
+        <h5 class="value-indikator">{{ indikator.los }} hari</h5>
       </div>
     </div>
   </div>
@@ -74,7 +72,7 @@
 
       <div class="p-4">
         <p class="label-indikator">GDR Bulan Ini</p>
-        <h5 class="value-indikator">2,3%</h5>
+       <h5 class="value-indikator">{{ indikator.gdr }}%</h5>
       </div>
     </div>
   </div>
@@ -101,40 +99,27 @@
           <th></th>
         </tr>
       </thead>
-      <tbody class="text-slate-700">
-        <tr class="border-b">
-          <td class="py-3">Jun 2025</td>
-          <td class="text-center">48%</td>
-          <td class="text-center">2,9</td>
-          <td class="text-center">36%</td>
-          <td class="text-center">0,4</td>
-          <td class="text-right text-blue-600 font-semibold">Lihat Detail</td>
-        </tr>
-        <tr class="border-b">
-          <td class="py-3">Feb 2025</td>
-          <td class="text-center">47%</td>
-          <td class="text-center">3,0</td>
-          <td class="text-center">2,3%</td>
-          <td class="text-center">0,8</td>
-          <td class="text-right text-blue-600 font-semibold">Lihat Detail</td>
-        </tr>
-        <tr>
-          <td class="py-3">Mar 2025</td>
-          <td class="text-center">47%</td>
-          <td class="text-center">3,0</td>
-          <td class="text-center">2,3%</td>
-          <td class="text-center">0,9</td>
-          <td class="text-right text-blue-600 font-semibold">Lihat Detail</td>
-        </tr>
-      </tbody>
+   <tbody class="text-slate-700">
+  {% for k in top_kasus %}
+  <tr class="border-b">
+    <td class="py-3">
+      {{ k.bulan }}-{{ k.tahun }}
+    </td>
+    <td class="text-center">{{ k.bor|floatformat:3}}%</td>
+    <td class="text-center">{{ k.los|floatformat:3}}</td>
+    <td class="text-center">{{ k.gdr|floatformat:3}}%</td>
+    <td class="text-center">{{ k.distance|floatformat:3 }}</td>
+      <td class="text-right text-blue-600 font-semibold">Lihat Detail</td>
+  </tr>
+  {% endfor %}
+</tbody>
     </table>
   </div>
 
   <!-- REKOMENDASI -->
    <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
-  <h6 class="font-bold text-[#344767] mb-6 text-base">Rekomendasi Operasional</h6>
+  <h6 class="font-bold text-[#344767] mb-6 text-base">Perbaikan Operasional yang perlu diperhatikan</h6>
 
-<form method="post">
   {% csrf_token %}
 
   <div class="rekomendasi-container">
@@ -148,8 +133,6 @@
       </label>
     {% endfor %}
   </div>
-
-</form>
 <div class="action-wrapper">
   <div class="action-buttons">
     <button class="btn-primary">Simpan Hasil</button>
@@ -158,6 +141,8 @@
     </a>
   </div>
 </div>
+</form>
+
 
 
 </div>

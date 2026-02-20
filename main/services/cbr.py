@@ -4,13 +4,18 @@ from main.models import Kasus, KasusRekomendasi
 
 
 def proses_cbr(bor_input, los_input, gdr_input):
-    # Ambil semua kasus dari database
+
     kasus_qs = Kasus.objects.all()
 
+    # kalau belum ada data kasus
     if not kasus_qs.exists():
-        return None
+        return {
+            "top_kasus": [],
+            "kasus_utama": None,
+            "rekomendasi": [],
+            "rekomendasi_ids": []
+        }
 
-    #  Bentuk array data historis
     data_kasus = []
     daftar_kasus = []
 
@@ -20,35 +25,47 @@ def proses_cbr(bor_input, los_input, gdr_input):
 
     data_kasus = np.array(data_kasus)
 
-    # Normalisasi
     scaler = MinMaxScaler()
     data_scaled = scaler.fit_transform(data_kasus)
-
     input_scaled = scaler.transform([[bor_input, los_input, gdr_input]])
 
-    # Hitung Euclidean Distance
     distances = np.sqrt(np.sum((data_scaled - input_scaled) ** 2, axis=1))
 
-    #Ambil index jarak terkecil
-    idx_terdekat = np.argmin(distances)
-    kasus_terdekat = daftar_kasus[idx_terdekat]
-    jarak = float(distances[idx_terdekat])
+   
+    # Ambil 3 kasus terdekat
+   
+    idx_sorted = np.argsort(distances)[:3]
 
-    # Ambil rekomendasi dari kasus tersebut
+    hasil_kasus = []
+
+    for i in idx_sorted:
+        hasil_kasus.append({
+            "kasus": daftar_kasus[i],
+            "distance": float(distances[i])
+        })
+
+    # Ambil rekomendasi dari kasus paling mirip (index 0)
+
+    kasus_utama = hasil_kasus[0]["kasus"]
+
     rekom_relasi = KasusRekomendasi.objects.filter(
-        kasus=kasus_terdekat
-    ).select_related('rekomendasi')
+        kasus=kasus_utama
+    ).select_related("rekomendasi")
 
-    rekom_list = [
-        {
+    rekom_list = []
+    rekom_ids = []
+
+    for r in rekom_relasi:
+        rekom_list.append({
+            "id": r.rekomendasi.id,
             "nama": r.rekomendasi.rekomendasi,
             "jenis": r.rekomendasi.jenis_rekomendasi
-        }
-        for r in rekom_relasi
-    ]
+        })
+        rekom_ids.append(r.rekomendasi.id)
 
     return {
-        "kasus": kasus_terdekat,
-        "distance": jarak,
-        "rekomendasi": rekom_list
+        "top_kasus": hasil_kasus,
+        "kasus_utama": kasus_utama,
+        "rekomendasi": rekom_list,
+        "rekomendasi_ids": rekom_ids
     }

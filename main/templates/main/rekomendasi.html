@@ -18,7 +18,7 @@
     <!-- BUTTON GENERATE -->
     <form method="post" style="display:inline-block;">
   {% csrf_token %}
-  <button type="submit"
+  <button type="submit"name="action" value="generate"
     style="
       background: linear-gradient(135deg, #2563eb, #1e40af);
       color: white;
@@ -56,7 +56,7 @@
           <p class="label-indikator">BOR Bulan Ini</p>
           <h5 class="value-indikator">
             {% if indikator %}
-              {{ indikator.bor }}%
+              {{ indikator.bor}}%
             {% else %}
               —
             {% endif %}
@@ -75,7 +75,7 @@
           <p class="label-indikator">LOS Bulan Ini</p>
           <h5 class="value-indikator">
             {% if indikator %}
-              {{ indikator.los }} hari
+              {{ indikator.los}} hari
             {% else %}
               —
             {% endif %}
@@ -94,7 +94,7 @@
           <p class="label-indikator">GDR Bulan Ini</p>
           <h5 class="value-indikator">
             {% if indikator %}
-              {{ indikator.gdr }}%
+              {{ indikator.gdr}}%
             {% else %}
               —
             {% endif %}
@@ -144,20 +144,20 @@
           </tr>
         </thead>
         <tbody>
-          {% if hasil %}
-          <tr>
-            <td>{{ hasil.kasus.bulan }}-{{ hasil.kasus.tahun }}</td>
-            <td>{{ hasil.kasus.bor }}%</td>
-            <td>{{ hasil.kasus.los }}</td>
-            <td>{{ hasil.kasus.gdr }}%</td>
-            <td>{{ hasil.distance|floatformat:3 }}</td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="5" class="text-center text-slate-400">
-              Belum tersedia
-            </td>
-          </tr>
+        {% if hasil %}
+<tr>
+  <td>{{ hasil.top_kasus.0.kasus.bulan }}-{{ hasil.top_kasus.0.kasus.tahun }}</td>
+  <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
+  <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2  }}</td>
+  <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>
+  <td>{{ hasil.top_kasus.0.distance|floatformat:3 }}</td>
+</tr>
+{% else %}
+<tr>
+  <td colspan="5" class="text-center text-slate-400">
+    Belum tersedia
+  </td>
+</tr>
           {% endif %}
         </tbody>
       </table>
