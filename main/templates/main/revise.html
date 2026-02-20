@@ -134,32 +134,22 @@
    <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
   <h6 class="font-bold text-[#344767] mb-6 text-base">Rekomendasi Operasional</h6>
 
+<form method="post">
+  {% csrf_token %}
+
   <div class="rekomendasi-container">
-    <label class="rekomendasi-row">
-      <input type="checkbox">
-      <span>Pengelolaan Kesiapan Layanan Rawat Inap</span>
-    </label>
-
-    <label class="rekomendasi-row">
-      <input type="checkbox" checked>
-      <span>Perbaikan Pelayanan Rumah Sakit</span>
-    </label>
-
-    <label class="rekomendasi-row">
-      <input type="checkbox">
-      <span>Manajemen Tenaga Medis dan Jadwal Layanan</span>
-    </label>
-
-    <label class="rekomendasi-row">
-      <input type="checkbox" checked>
-      <span>Memperbaiki Ketepatan Penanganan Medis</span>
-    </label>
-
-    <label class="rekomendasi-row">
-      <input type="checkbox" checked>
-      <span>Peningkatan Strategi Pemasaran</span>
-    </label>
+    {% for r in semua_rekomendasi %}
+      <label class="rekomendasi-row">
+        <input type="checkbox"
+               name="rekomendasi"
+               value="{{ r.id }}"
+               {% if r.id in rekomendasi_terpilih %}checked{% endif %}>
+        <span>{{ r.rekomendasi }}</span>
+      </label>
+    {% endfor %}
   </div>
+
+</form>
 <div class="action-wrapper">
   <div class="action-buttons">
     <button class="btn-primary">Simpan Hasil</button>

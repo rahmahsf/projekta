@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
+from .services.cbr import proses_cbr
 from django.contrib import messages
+from .models import Kasus, Rekomendasi, KasusRekomendasi
 
 # Create your views here.
 User = get_user_model()  
@@ -11,10 +13,28 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def rekomendasi(request):
+    hasil = None
+    indikator = None
+
+    if request.method == "POST":
+        bor = 48.0
+        los = 2.9
+        gdr = 2.3
+
+        indikator = {
+            "bor": bor,
+            "los": los,
+            "gdr": gdr
+        }
+
+        hasil = proses_cbr(bor, los, gdr)
+
     return render(request, "main/rekomendasi.html", {
-        "page_name": "Rekomendasi",
-        "page_title": "Rekomendasi"
+        "hasil": hasil,
+        "indikator": indikator
+        
     })
+
 
 @login_required(login_url='login')
 def riwayat_rekomendasi(request):
@@ -24,10 +44,36 @@ def riwayat_rekomendasi(request):
     })
 
 @login_required(login_url='login')
-def revise(request):
-    return render(request, 'main/revise.html',{
-        "page_name": "Riwayat Rekomendasi",
-        "page_title":"Riwayat Rekomendasi"
+def revise(request, kasus_id):
+
+    kasus = Kasus.objects.get(id=kasus_id)
+
+    semua_rekomendasi = Rekomendasi.objects.all()
+
+    relasi = KasusRekomendasi.objects.filter(kasus=kasus)
+    rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
+
+    if request.method == "POST":
+
+        # ambil checkbox yang dipilih
+        dipilih = request.POST.getlist("rekomendasi")
+
+        # hapus relasi lama
+        KasusRekomendasi.objects.filter(kasus=kasus).delete()
+
+        # simpan relasi baru
+        for r_id in dipilih:
+            KasusRekomendasi.objects.create(
+                kasus=kasus,
+                rekomendasi_id=r_id
+            )
+
+        return redirect("rekomendasi")
+
+    return render(request, "main/revise.html", {
+        "kasus": kasus,
+        "semua_rekomendasi": semua_rekomendasi,
+        "rekomendasi_terpilih": rekomendasi_terpilih
     })
 
 @login_required(login_url='login')
