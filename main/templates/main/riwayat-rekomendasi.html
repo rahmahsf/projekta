@@ -33,55 +33,66 @@
                 </tr>
               </thead>
 
-              <tbody>
-                <tr>
-                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <p class="mb-0 text-xs font-bold uppercase text-slate-400">Januari</p>
-                  </td>
-                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <p class="mb-0 text-xs font-semibold leading-tight text-slate-400">2025</p>
-                  </td>
-                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <span class="text-xs font-semibold leading-tight text-slate-400">45%</span>
-                  </td>
-                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
-                  </td>
-                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
-                  </td>
-                  <td class="p-4 align-middle bg-transparent border-b shadow-transparent">
-                    <span class="text-sm font-bold text-slate-600">Optimalisasi alur pelayanan rawat inap</span>
-                  </td>
-                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <a href="{%url 'detail'%}" class="text-xs font-semibold leading-tight text-slate-400"> Detail </a>
-                  </td>
-                </tr>
+             <tbody>
+{% for item in riwayat %}
+<tr>
+  <td class="p-4 border-b">
+    <p class="mb-0 text-xs font-bold uppercase text-slate-400">
+      {{ item.bulan }}
+    </p>
+  </td>
 
-                <tr>
-                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <p class="mb-0 text-xs font-bold uppercase text-slate-400">Februari</p>
-                  </td>
-                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <p class="mb-0 text-xs font-semibold leading-tight text-slate-400">2025</p>
-                  </td>
-                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <span class="text-xs font-semibold leading-tight text-slate-400">45%</span>
-                  </td>
-                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
-                  </td>
-                  <td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <span class="text-xs font-semibold leading-tight text-slate-400">4,7</span>
-                  </td>
-                  <td class="p-4 align-middle bg-transparent border-b shadow-transparent">
-                    <span class="text-sm font-bold text-slate-600">Optimalisasi alur pelayanan rawat inap</span>
-                  </td>
-                  <td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                    <a href="javascript:;" class="text-xs font-semibold leading-tight text-slate-400"> Detail </a>
-                  </td>
-                </tr>
-              </tbody>
+  <td class="p-4 border-b">
+    <p class="mb-0 text-xs font-semibold text-slate-400">
+      {{ item.tahun }}
+    </p>
+  </td>
+
+  <td class="p-4 text-center border-b">
+    <span class="text-xs font-semibold text-slate-400">
+      {{ item.bor|floatformat:2}}%
+    </span>
+  </td>
+
+  <td class="p-4 text-center border-b">
+    <span class="text-xs font-semibold text-slate-400">
+      {{ item.los|floatformat:2}}
+    </span>
+  </td>
+
+  <td class="p-4 text-center border-b">
+    <span class="text-xs font-semibold text-slate-400">
+      {{ item.gdr|floatformat:2}}%
+    </span>
+  </td>
+
+  <td class="p-4 border-b">
+    {% for r in item.rekomendasi %}
+      <div class="text-sm font-semibold text-slate-600">
+        • {{ r }}
+      </div>
+    {% empty %}
+      <span class="text-xs text-slate-400">
+        Tidak ada rekomendasi
+      </span>
+    {% endfor %}
+  </td>
+
+  <td class="p-4 border-b">
+    <a href="{% url 'detail' item.id %}"
+       class="text-xs font-semibold text-blue-500">
+       Detail
+    </a>
+  </td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="7" class="text-center p-4 text-slate-400">
+    Belum ada data riwayat
+  </td>
+</tr>
+{% endfor %}
+</tbody>
             </table>
           </div>
         </div>

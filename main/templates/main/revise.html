@@ -109,7 +109,12 @@
     <td class="text-center">{{ k.los|floatformat:3}}</td>
     <td class="text-center">{{ k.gdr|floatformat:3}}%</td>
     <td class="text-center">{{ k.distance|floatformat:3 }}</td>
-      <td class="text-right text-blue-600 font-semibold">Lihat Detail</td>
+    <td class="text-right">
+  <a href="{% url 'detail' k.id %}"
+     class="text-blue-600 font-semibold hover:underline">
+     Lihat Detail
+  </a>
+</td>
   </tr>
   {% endfor %}
 </tbody>

@@ -91,11 +91,37 @@ def rekomendasi(request):
         "page_name": "Rekomendasi",
         "page_title":"Rekomendasi"
     })
-    
+
 @login_required(login_url='login')
 def riwayat_rekomendasi(request):
-    return render(request, 'main/riwayat-rekomendasi.html',{
-        "page_name": "Riwayat Rekomendasi",
+
+    tahun_filter = request.GET.get("tahun")
+
+    if tahun_filter and tahun_filter != "All":
+        daftar_kasus = Kasus.objects.filter(tahun=tahun_filter).order_by("-tahun", "-bulan")
+    else:
+        daftar_kasus = Kasus.objects.all().order_by("-tahun", "-bulan")
+
+    data_riwayat = []
+
+    for k in daftar_kasus:
+        relasi = KasusRekomendasi.objects.filter(kasus=k).select_related("rekomendasi")
+
+        rekom_list = [r.rekomendasi.rekomendasi for r in relasi]
+
+        data_riwayat.append({
+            "id": k.id,
+            "bulan": k.bulan,
+            "tahun": k.tahun,
+            "bor": k.bor,
+            "los": k.los,
+            "gdr": k.gdr,
+            "rekomendasi": rekom_list
+        })
+
+    return render(request, "main/riwayat-rekomendasi.html", {
+        "riwayat": data_riwayat,
+          "page_name": "Riwayat Rekomendasi",
         "page_title":"Riwayat Rekomendasi"
     })
 
@@ -223,10 +249,21 @@ def revise(request):
     })
 
 @login_required(login_url='login')
-def detail(request):
-    return render(request, 'main/detail-data.html',{
-        "page_name": "Riwayat Rekomendasi",
-        "page_title":"Riwayat Rekomendasi"
+def detail(request, kasus_id):
+
+    kasus = get_object_or_404(Kasus, id=kasus_id)
+
+    relasi = KasusRekomendasi.objects.filter(
+        kasus=kasus
+    ).select_related("rekomendasi")
+
+    rekomendasi_list = [r.rekomendasi for r in relasi]
+
+    return render(request, "main/detail-data.html", {
+        "kasus": kasus,
+        "rekomendasi": rekomendasi_list,
+        "page_name": "Rekomendasi",
+        "page_title":"Rekomendasi"
     })
 
 

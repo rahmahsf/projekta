@@ -7,13 +7,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         data = [
-            ('Kerja Sama', 'pelayanan medis'),
-            ('Triase IGD', 'pelayanan medis'),
-            ('Sistem Rujukan', 'pelayanan medis'),
-            ('Alat Medis', 'pelayanan medis'),
+            ('Meningkatkan Kerja Sama dengan instansi lain', 'pelayanan medis'),
+            ('Memperbaiki Triase IGD', 'pelayanan medis'),
+            ('Memperbaiki Sistem Rujukan', 'pelayanan medis'),
+            ('Penambahan Alat Medis', 'pelayanan medis'),
             ('Pelatihan Dokter', 'kepegawaian'),
-            ('Kualifikasi Staf', 'kepegawaian'),
-            ('Pelayanan Pasien', 'pelayanan medis'),
+            ('Perbaikan Kualifikasi Staf', 'kepegawaian'),
+            ('Perbaikan Pelayanan Pasien', 'pelayanan medis'),
         ]
 
         for nama, jenis in data:
