@@ -3,87 +3,81 @@
 
 {% block content %}
 <div class="w-full px-6 py-6">
- <!-- Tombol Kembali -->
-        <a href="{%url 'riwayat'%}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 mb-4">
-            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Kembali
-        </a>
+
+  <!-- Tombol Kembali -->
+  <a href="{% url 'riwayat' %}"
+     class="inline-flex items-center text-gray-600 hover:text-indigo-600 mb-4">
+      ← Kembali
+  </a>
+
   <!-- PAGE TITLE -->
-  <h2 class="text-xl font-bold text-[#344767] mb-6">DETAIL DATA</h2>
+  <h2 class="text-xl font-bold text-[#344767] mb-6">
+    Detail Data Bulan {{ kasus.bulan }} Tahun {{ kasus.tahun }}
+  </h2>
 
-  <!-- CARD UTAMA -->
-    <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
+  <!-- CARD INDIKATOR -->
+  <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
 
-    <!-- HEADER CARD -->
     <h6 class="font-semibold text-[#344767] mb-5">
-      Indikator Operasional Bulan Juni 2025
+      Indikator Operasional Bulan {{ kasus.bulan }} Tahun {{ kasus.tahun }}
     </h6>
 
-    <!-- INDIKATOR -->
-   <div class="flex flex-wrap -mx-3 mb-6">
+    <div class="flex flex-wrap -mx-3 mb-6">
 
-  <!-- BOR -->
-  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-    <div class="card-indikator">
-      <span class="badge-normal">Normal</span>
-
-      <div class="p-4">
-        <p class="label-indikator">BOR Bulan Ini</p>
-        <h5 class="value-indikator">48%</h5>
+      <!-- BOR -->
+      <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+        <div class="card-indikator p-4">
+          <p class="label-indikator">BOR</p>
+          <h5 class="value-indikator">
+            {{ kasus.bor|floatformat:2 }}%
+          </h5>
+        </div>
       </div>
+
+      <!-- LOS -->
+      <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+        <div class="card-indikator p-4">
+          <p class="label-indikator">LOS</p>
+          <h5 class="value-indikator">
+            {{ kasus.los|floatformat:2 }} hari
+          </h5>
+        </div>
+      </div>
+
+      <!-- GDR -->
+      <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+        <div class="card-indikator p-4">
+          <p class="label-indikator">GDR</p>
+          <h5 class="value-indikator">
+            {{ kasus.gdr|floatformat:2 }}%
+          </h5>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- LOS -->
-  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-    <div class="card-indikator">
-      <span class="badge-normal">Normal</span>
+  <!-- REKOMENDASI -->
+  <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
+    <h6 class="font-bold text-[#344767] mb-6 text-base">
+      Rekomendasi Operasional
+    </h6>
 
-      <div class="p-4">
-        <p class="label-indikator">LOS Bulan Ini</p>
-        <h5 class="value-indikator">
-          2,9 <span class="text-sm font-medium">hari</span>
-        </h5>
-      </div>
+    <div class="rekomendasi-container">
+      {% for r in rekomendasi %}
+        <div class="rekomendasi-row mb-2">
+          • {{ r.rekomendasi }}
+          <span class="text-sm text-slate-400">
+            ({{ r.jenis_rekomendasi }})
+          </span>
+        </div>
+      {% empty %}
+        <div class="text-slate-400">
+          Tidak ada rekomendasi
+        </div>
+      {% endfor %}
     </div>
   </div>
-
-  <!-- GDR -->
-  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-    <div class="card-indikator">
-      <span class="badge-normal">Normal</span>
-
-      <div class="p-4">
-        <p class="label-indikator">GDR Bulan Ini</p>
-        <h5 class="value-indikator">2,3%</h5>
-      </div>
-    </div>
-  </div>
-
-</div>
-</div>
-    <!-- REKOMENDASI -->
-   <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
-  <h6 class="font-bold text-[#344767] mb-6 text-base">Rekomendasi Operasional</h6>
-
-  <div class="rekomendasi-container">
-    <label class="rekomendasi-row">
-      <span class="rekomendasi-text">Pengelolaan Kesiapan Layanan Rawat Inap</span>
-    </label>
-    <label class="rekomendasi-row">
-      <span class="rekomendasi-text">Memperbaiki ketepatan Penanganan Medis</span>
-    </label>
-
-    <label class="rekomendasi-row">
-      <span class="rekomendasi-text">Kerjasama dengan pihak rumah sakit lain</span>
-    </label>
-  </div>
-
-</div>
-
-  
 
 </div>
 {% endblock %}
