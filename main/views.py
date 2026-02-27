@@ -7,6 +7,30 @@ from .models import Kasus, Rekomendasi, KasusRekomendasi
 
 # Create your views here.
 User = get_user_model()  
+def evaluasi_indikator(bor, los, gdr):
+
+    hasil = {}
+    # BOR
+    if 60 <= bor <= 85:
+        hasil["bor"] = {"status": "Ideal", "warna": "green"}
+    elif bor < 60:
+        hasil["bor"] = {"status": "Dibawah Ideal", "warna": "red"}
+    else:
+        hasil["bor"] = {"status": "Terlalu Tinggi", "warna": "red"}
+
+    # LOS
+    if 3 <= los <= 12:
+        hasil["los"] = {"status": "Ideal", "warna": "green"}
+    else:
+        hasil["los"] = {"status": "Tidak Ideal", "warna": "red"}
+
+    # GDR
+    if gdr < 45:
+        hasil["gdr"] = {"status": "Ideal", "warna": "green"}
+    else:
+        hasil["gdr"] = {"status": "Tidak Ideal", "warna": "red"}
+
+    return hasil
 @login_required(login_url='login')
 def dashboard(request):
     return render(request, 'main/dashboard.html')
@@ -16,6 +40,7 @@ def rekomendasi(request):
 
     hasil = None
     indikator = None
+    status = None
 
     if request.method == "POST":
 
@@ -32,6 +57,7 @@ def rekomendasi(request):
                 "los": los,
                 "gdr": gdr
             }
+            status = evaluasi_indikator(bor, los, gdr)
 
             hasil = proses_cbr(bor, los, gdr)
 
@@ -84,12 +110,14 @@ def rekomendasi(request):
         # REVISE
         elif action == "revise":
             return redirect("revise")
+        
 
     return render(request, "main/rekomendasi.html", {
         "hasil": hasil,
         "indikator": indikator,
         "page_name": "Rekomendasi",
-        "page_title":"Rekomendasi"
+        "page_title":"Rekomendasi",
+        "status": status
     })
 
 @login_required(login_url='login')
@@ -258,10 +286,17 @@ def detail(request, kasus_id):
     ).select_related("rekomendasi")
 
     rekomendasi_list = [r.rekomendasi for r in relasi]
+    status = evaluasi_indikator(
+        kasus.bor,
+        kasus.los,
+        kasus.gdr
+    )
+
 
     return render(request, "main/detail-data.html", {
         "kasus": kasus,
         "rekomendasi": rekomendasi_list,
+        "status": status,
         "page_name": "Rekomendasi",
         "page_title":"Rekomendasi"
     })

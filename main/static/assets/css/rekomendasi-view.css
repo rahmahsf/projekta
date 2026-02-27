@@ -17,7 +17,17 @@
   padding: 4px 12px;
   border-radius: 999px;
 }
-
+.badge-anormal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
 .label-indikator {
   font-size: 14px;
   font-weight: 600;
@@ -203,12 +213,4 @@
   border-color: #6366f1;
   font-weight: 600;
   box-shadow: 0 6px 12px rgba(99, 102, 241, 0.25);
-}
-.badge-normal {
-  background-color: #dcfce7;
-  color: #16a34a;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  font-weight: 600;
 }
