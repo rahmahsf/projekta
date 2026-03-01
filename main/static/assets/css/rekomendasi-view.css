@@ -143,9 +143,8 @@
   justify-content: center;
 }
 
-/* PRIMARY */
 .btn-primary {
-  flex: 1;            /* ⬅️ BIAR PROPORSIONAL */
+  flex: 1;
   height: 48px;
   border-radius: 12px;
   background: #2563eb;
@@ -156,6 +155,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  cursor: pointer;     
+  appearance: none;             
+  -webkit-appearance: none;  
 }
 
 /* SECONDARY */

@@ -186,12 +186,49 @@
     </div>
 
     <!-- BUTTON -->
+ {% if hasil %}
+<form method="post">
+  {% csrf_token %}
+
+  <input type="hidden" name="bor" value="{{ indikator.bor }}">
+  <input type="hidden" name="los" value="{{ indikator.los }}">
+  <input type="hidden" name="gdr" value="{{ indikator.gdr }}">
+  <input type="hidden" name="kasus_id" value="{{ hasil.top_kasus.0.kasus.id }}">
+
   <div class="action-wrapper">
     <div class="action-buttons">
-      <button class="btn-primary">Simpan Hasil</button>
-       <a href="{% url 'revise' %}" class="btn-secondary">Evaluasi Hasil</a>
+
+      <button type="submit"
+              name="action"
+              value="save"
+              style="
+                flex:1;
+                height:48px;
+                border-radius:12px;
+                background:#2563eb;
+                color:white;
+                font-weight:600;
+                border:none;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                cursor:pointer;
+                transition:0.2s;
+              ">
+        Simpan Hasil
+      </button>
+
+      <button type="submit"
+              name="action"
+              value="revise"
+              class="btn-secondary">
+        Evaluasi Hasil
+      </button>
+
     </div>
-</div>
+  </div>
+</form>
+{% endif %}
     <div class="text-center mt-4">
       <a href="{% url 'riwayat' %}" class="link-riwayat">Lihat Riwayat Rekomendasi</a>
     </div>

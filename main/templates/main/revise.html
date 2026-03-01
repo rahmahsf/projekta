@@ -124,7 +124,18 @@
   <!-- REKOMENDASI -->
    <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
   <h6 class="font-bold text-[#344767] mb-6 text-base">Perbaikan Operasional yang perlu diperhatikan</h6>
+<form method="post">
+    {% csrf_token %}
 
+    {% for r in semua_rekomendasi %}
+        <label>
+            <input type="checkbox"
+                   name="rekomendasi"
+                   value="{{ r.id }}"
+                   {% if r.id in rekomendasi_terpilih %}checked{% endif %}>
+            {{ r.rekomendasi }}
+        </label><br>
+    {% endfor %}
   {% csrf_token %}
 
   <div class="rekomendasi-container">
@@ -140,7 +151,28 @@
   </div>
 <div class="action-wrapper">
   <div class="action-buttons">
-    <button class="btn-primary">Simpan Hasil</button>
+    <button type="submit"
+        name="action"
+        value="save"
+        style="
+          flex:1;
+          height:48px;
+          border-radius:12px;
+          background:#2563eb;
+          color:white;
+          font-weight:600;
+          border:none;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+          transition:0.2s;
+        "
+        onmouseover="this.style.background='#1e40af'"
+        onmouseout="this.style.background='#2563eb'">
+  Simpan Hasil
+</button>
+</form>
     <a href="{% url 'rekomendasi' %}" class="btn-secondary">
       Batalkan Perubahan
     </a>
