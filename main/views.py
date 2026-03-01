@@ -3,7 +3,9 @@ from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
 from .services.cbr import proses_cbr
 from django.contrib import messages
-from .models import Kasus, Rekomendasi, KasusRekomendasi
+from django.db.models import Max
+from main.services.indikator import hitung_indikator
+from main.models import Kasus, KasusRekomendasi, Rekomendasi, RawatInap
 
 # Create your views here.
 User = get_user_model()  
@@ -31,10 +33,12 @@ def evaluasi_indikator(bor, los, gdr):
         hasil["gdr"] = {"status": "Tidak Ideal", "warna": "red"}
 
     return hasil
+
 @login_required(login_url='login')
 def dashboard(request):
     return render(request, 'main/dashboard.html')
 
+@login_required(login_url='login')
 @login_required(login_url='login')
 def rekomendasi(request):
 
@@ -48,21 +52,34 @@ def rekomendasi(request):
         # GENERATE
         if action == "generate":
 
-            bor = 48.0
-            los = 2.9
-            gdr = 2.3
+            # Ambil tanggal keluar terbaru
+            latest = RawatInap.objects.aggregate(
+                Max("tgl_keluar")
+            )["tgl_keluar__max"]
 
-            indikator = {
-                "bor": bor,
-                "los": los,
-                "gdr": gdr
-            }
+            if not latest:
+                return redirect("rekomendasi")
+
+            bulan = latest.month
+            tahun = latest.year
+
+            # Hitung indikator dari database
+            indikator = hitung_indikator(bulan, tahun)
+
+            bor = indikator["bor"]
+            los = indikator["los"]
+            gdr = indikator["gdr"]
+
+            # Evaluasi status indikator
             status = evaluasi_indikator(bor, los, gdr)
 
+            # Proses CBR
             hasil = proses_cbr(bor, los, gdr)
 
-            # simpan session
+            # Simpan ke session untuk revise
             request.session["revise_data"] = {
+                "bulan": bulan,
+                "tahun": tahun,
                 "bor": bor,
                 "los": los,
                 "gdr": gdr,
@@ -80,24 +97,37 @@ def rekomendasi(request):
                 ]
             }
 
-        # SAVE
+        # SAVE LANGSUNG
         elif action == "save":
 
-            bor = float(request.POST.get("bor"))
-            los = float(request.POST.get("los"))
-            gdr = float(request.POST.get("gdr"))
-            kasus_id = request.POST.get("kasus_id")
+            data = request.session.get("revise_data")
+
+            if not data:
+                return redirect("rekomendasi")
+
+            # Cegah duplikasi bulan
+            sudah_ada = Kasus.objects.filter(
+                bulan=data["bulan"],
+                tahun=data["tahun"]
+            ).exists()
+
+            if sudah_ada:
+                return redirect("rekomendasi")
 
             kasus_baru = Kasus.objects.create(
-                bulan="1",
-                tahun="2026",
-                bor=bor,
-                los=los,
-                gdr=gdr
+                bulan=data["bulan"],
+                tahun=data["tahun"],
+                bor=data["bor"],
+                los=data["los"],
+                gdr=data["gdr"]
             )
 
-            kasus_lama = Kasus.objects.get(id=kasus_id)
-            relasi = KasusRekomendasi.objects.filter(kasus=kasus_lama)
+            # Ambil rekom dari kasus paling mirip
+            kasus_lama_id = data["top_kasus"][0]["id"]
+
+            relasi = KasusRekomendasi.objects.filter(
+                kasus_id=kasus_lama_id
+            )
 
             for r in relasi:
                 KasusRekomendasi.objects.create(
@@ -105,19 +135,19 @@ def rekomendasi(request):
                     rekomendasi=r.rekomendasi
                 )
 
+            del request.session["revise_data"]
+
             return redirect("rekomendasi")
-        
-        # REVISE
+        # MASUK REVISE
         elif action == "revise":
             return redirect("revise")
-        
 
     return render(request, "main/rekomendasi.html", {
         "hasil": hasil,
         "indikator": indikator,
+        "status": status,
         "page_name": "Rekomendasi",
-        "page_title":"Rekomendasi",
-        "status": status
+        "page_title": "Rekomendasi"
     })
 
 @login_required(login_url='login')
