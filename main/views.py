@@ -179,7 +179,7 @@ def revise(request):
         dipilih = request.POST.getlist("rekomendasi")
 
         kasus_baru = Kasus.objects.create(
-            bulan="6",
+            bulan="1",
             tahun="2026",
             bor=data["bor"],
             los=data["los"],
