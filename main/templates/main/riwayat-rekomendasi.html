@@ -11,10 +11,21 @@
           <h6 class="font-bold text-slate-700">Riwayat Rekomendasi</h6>
           <div class="flex items-center">
             <span class="text-sm mr-2 text-slate-500">Tahun</span>
-            <select class="text-sm border rounded-lg px-3 py-1 text-slate-500 focus:outline-none">
-              <option>All</option>
-              <option>2025</option>
-            </select>
+           <form method="get">
+<select name="tahun"
+        onchange="this.form.submit()"
+        class="text-sm border rounded-lg px-3 py-1 text-slate-500 focus:outline-none">
+
+  <option value="All">All</option>
+
+  {% for t in daftar_tahun %}
+  <option value="{{ t }}" {% if tahun_filter == t|stringformat:"s" %}selected{% endif %}>
+    {{ t }}
+  </option>
+  {% endfor %}
+
+</select>
+</form>
           </div>
         </div>
 
@@ -94,6 +105,60 @@
 {% endfor %}
 </tbody>
             </table>
+            <div class="flex justify-end mt-6 pr-6">
+  <nav>
+    <ul class="inline-flex items-center gap-3">
+
+      {% if riwayat.has_previous %}
+      <li>
+        <a href="?page={{ riwayat.previous_page_number }}"
+           style="padding:6px 10px;border-radius:9999px;border:1px solid #e5e7eb;background:white;color:#374151;font-weight:500;">
+           &laquo;
+        </a>
+      </li>
+      {% else %}
+      <li>
+        <span style="padding:6px 10px;border-radius:9999px;background:#e5e7eb;color:#9ca3af;">
+          &laquo;
+        </span>
+      </li>
+      {% endif %}
+
+      {% for num in riwayat.paginator.page_range %}
+        {% if riwayat.number == num %}
+        <li>
+          <span style="padding:6px 10px;border-radius:9999px;background:#2563eb;color:white;font-weight:600;">
+            {{ num }}
+          </span>
+        </li>
+        {% else %}
+        <li>
+          <a href="?page={{ num }}"
+             style="padding:6px 10px;border-radius:9999px;border:1px solid #e5e7eb;background:white;color:#374151;font-weight:500;">
+             {{ num }}
+          </a>
+        </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if riwayat.has_next %}
+      <li>
+        <a href="?page={{ riwayat.next_page_number }}"
+           style="padding:6px 10px;border-radius:9999px;border:1px solid #e5e7eb;background:white;color:#374151;font-weight:500;">
+           &raquo;
+        </a>
+      </li>
+      {% else %}
+      <li>
+        <span style="padding:6px 10px;border-radius:9999px;background:#e5e7eb;color:#9ca3af;">
+          &raquo;
+        </span>
+      </li>
+      {% endif %}
+
+    </ul>
+  </nav>
+</div>
           </div>
         </div>
       </div>

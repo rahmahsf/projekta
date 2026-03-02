@@ -3,7 +3,8 @@ from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
 from .services.cbr import proses_cbr
 from django.contrib import messages
-from django.db.models import Max
+from django.db.models import Max,  Value
+from django.core.paginator import Paginator
 from main.services.indikator import hitung_indikator
 from main.models import Kasus, KasusRekomendasi, Rekomendasi, RawatInap
 
@@ -155,6 +156,9 @@ def riwayat_rekomendasi(request):
 
     tahun_filter = request.GET.get("tahun")
 
+    # ambil daftar tahun unik dari database
+    daftar_tahun = Kasus.objects.values_list("tahun", flat=True).distinct().order_by("-tahun")
+
     if tahun_filter and tahun_filter != "All":
         daftar_kasus = Kasus.objects.filter(tahun=tahun_filter).order_by("-tahun", "-bulan")
     else:
@@ -177,10 +181,16 @@ def riwayat_rekomendasi(request):
             "rekomendasi": rekom_list
         })
 
+    paginator = Paginator(data_riwayat, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "main/riwayat-rekomendasi.html", {
-        "riwayat": data_riwayat,
-          "page_name": "Riwayat Rekomendasi",
-        "page_title":"Riwayat Rekomendasi"
+        "riwayat": page_obj,
+        "daftar_tahun": daftar_tahun,
+        "tahun_filter": tahun_filter,
+        "page_name": "Riwayat Rekomendasi",
+        "page_title": "Riwayat Rekomendasi"
     })
 
 @login_required(login_url='login')
