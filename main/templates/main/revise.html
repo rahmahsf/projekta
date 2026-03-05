@@ -44,7 +44,11 @@
   <!-- BOR -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
     <div class="card-indikator">
-      <span class="badge-normal">Normal</span>
+       {% if status.bor.warna == "green" %}
+    <span class="badge-normal">{{ status.bor.status }}</span>
+  {% else %}
+    <span class="badge-anormal">{{ status.bor.status }}</span>
+  {% endif %}
 
       <div class="p-4">
         <p class="label-indikator">BOR Bulan Ini</p>
@@ -56,7 +60,11 @@
   <!-- LOS -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
     <div class="card-indikator">
-      <span class="badge-normal">Normal</span>
+      {% if status.los.warna == "green" %}
+        <span class="badge-normal">{{ status.los.status }}</span>
+      {% else %}
+        <span class="badge-anormal">{{ status.los.status }}</span>
+      {% endif %}
 
       <div class="p-4">
         <p class="label-indikator">LOS Bulan Ini</p>
@@ -68,7 +76,11 @@
   <!-- GDR -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
     <div class="card-indikator">
-      <span class="badge-normal">Normal</span>
+      {% if status.gdr.warna == "green" %}
+        <span class="badge-normal">{{ status.gdr.status }}</span>
+      {% else %}
+        <span class="badge-anormal">{{ status.gdr.status }}</span>
+      {% endif %}
 
       <div class="p-4">
         <p class="label-indikator">GDR Bulan Ini</p>

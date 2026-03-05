@@ -40,7 +40,6 @@ def dashboard(request):
     return render(request, 'main/dashboard.html')
 
 @login_required(login_url='login')
-@login_required(login_url='login')
 def rekomendasi(request):
 
     hasil = None
@@ -237,12 +236,20 @@ def revise(request):
         return redirect("riwayat")
 
     # TAMPIL HALAMAN REVISE
+    # Hitung status indikator
+    status = evaluasi_indikator(
+        data["bor"],
+        data["los"],
+        data["gdr"]
+    )
+    
     return render(request, "main/revise.html", {
         "indikator": {
             "bor": data["bor"],
             "los": data["los"],
             "gdr": data["gdr"],
         },
+        "status": status,
         "top_kasus": top_kasus,
         "semua_rekomendasi": semua_rekomendasi,
         "rekomendasi_terpilih": rekomendasi_terpilih,

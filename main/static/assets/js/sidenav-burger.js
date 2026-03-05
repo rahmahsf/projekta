@@ -1,11 +1,8 @@
 // sidenav transition-burger
 
 var sidenav = document.querySelector("aside");
-var sidenav_trigger = document.querySelector("[sidenav-trigger]");
+var sidenav_trigger = document.querySelector("[sidenav-open]");
 var sidenav_close_button = document.querySelector("[sidenav-close]");
-var burger = sidenav_trigger.firstElementChild;
-var top_bread = burger.firstElementChild;
-var bottom_bread = burger.lastElementChild;
 
 sidenav_trigger.addEventListener("click", function () {
   if (page == "virtual-reality") {
