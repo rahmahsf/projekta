@@ -24,7 +24,7 @@ if (!aux.includes("pages")) {
 }
 
 loadStylesheet(to_build + "assets/css/perfect-scrollbar.css");
-loadJS(to_build + "assets/js/perfect-scrollbar.js", true);
+loadJS(to_build + "assets/js/plugins/perfect-scrollbar.js", true);
 
 if (document.querySelector("nav [navbar-trigger]")) {
   loadJS(to_build + "assets/js/navbar-collapse.js", true);

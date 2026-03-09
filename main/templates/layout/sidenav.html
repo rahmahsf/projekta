@@ -1,19 +1,15 @@
  {% load static %}
 <aside class="max-w-62.5 ease-nav-brand fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full xl:translate-x-0 rounded-2xl bg-white shadow-lg transition-transform duration-200 z-50">
-  <div class="h-19.5">
-    <i
-      class="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden"
-      sidenav-close>
-    </i>
-
+  <div class="h-19.5 flex justify-between items-center px-4">
+    <!-- Logo Container -->
     <a
       href="{% url 'dashboard' %}"
-      class="flex items-center gap-3 px-8 py-6 text-sm text-slate-700 whitespace-nowrap hover:bg-slate-50 transition-colors rounded-lg mx-4">
+      class="flex items-center gap-3 py-6 text-sm text-slate-700 whitespace-nowrap hover:bg-slate-50 transition-colors rounded-lg">
 
       <!-- LOGO -->
       <img
         src="{% static 'assets/img/logo-rs.png' %}"
-        class="h-8 w-8 transition-all duration-200 ease-nav-brand"
+        class="h-8 w-8 transition-all duration-200 mr-2 ease-nav-brand"
         alt="main_logo" />
 
       <!-- TEXT -->
@@ -25,8 +21,13 @@
           PKU Rogojampi
         </span>
       </div>
-
     </a>
+
+    <!-- Close Button -->
+    <i
+      class="hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden"
+      sidenav-close>
+    </i>
   </div>
 
   <hr
