@@ -20,8 +20,16 @@
           <div class="w-2/3 px-3">
             <p class="mb-0 text-sm font-semibold">BOR</p>
             <h5 class="font-bold">
-              67,5%
-              <span class="text-lime-500 text-sm font-bold">+6%</span>
+              {% if latest_indikator %}{{ latest_indikator.bor|floatformat:1 }}%{% else %}-%{% endif %}
+              {% if indikator_changes %}
+              {% if indikator_changes.bor > 0 %}
+              <span class="text-lime-500 text-sm font-bold">+{{ indikator_changes.bor|floatformat:1 }}%</span>
+              {% elif indikator_changes.bor < 0 %}
+              <span class="text-red-600 text-sm font-bold">{{ indikator_changes.bor|floatformat:1 }}%</span>
+              {% else %}
+              <span class="text-gray-500 text-sm font-bold">0%</span>
+              {% endif %}
+              {% endif %}
             </h5>
           </div>
           <div class="w-1/3 px-3 text-right">
@@ -43,8 +51,16 @@
           <div class="w-2/3 px-3">
             <p class="mb-0 text-sm font-semibold">LOS</p>
             <h5 class="font-bold">
-              2,3
-              <span class="text-lime-500 text-sm font-bold">+1</span>
+              {% if latest_indikator %}{{ latest_indikator.los|floatformat:1 }}{% else %}-%{% endif %}
+              {% if indikator_changes %}
+              {% if indikator_changes.los > 0 %}
+              <span class="text-lime-500 text-sm font-bold">+{{ indikator_changes.los|floatformat:1 }}</span>
+              {% elif indikator_changes.los < 0 %}
+              <span class="text-red-600 text-sm font-bold">{{ indikator_changes.los|floatformat:1 }}</span>
+              {% else %}
+              <span class="text-gray-500 text-sm font-bold">0</span>
+              {% endif %}
+              {% endif %}
             </h5>
           </div>
           <div class="w-1/3 px-3 text-right">
@@ -66,8 +82,16 @@
           <div class="w-2/3 px-3">
             <p class="mb-0 text-sm font-semibold">GDR</p>
             <h5 class="font-bold">
-              4,5
-              <span class="text-red-600 text-sm font-bold">-2</span>
+              {% if latest_indikator %}{{ latest_indikator.gdr|floatformat:1 }}{% else %}-%{% endif %}
+              {% if indikator_changes %}
+              {% if indikator_changes.gdr > 0 %}
+              <span class="text-lime-500 text-sm font-bold">+{{ indikator_changes.gdr|floatformat:1 }}</span>
+              {% elif indikator_changes.gdr < 0 %}
+              <span class="text-red-600 text-sm font-bold">{{ indikator_changes.gdr|floatformat:1 }}</span>
+              {% else %}
+              <span class="text-gray-500 text-sm font-bold">0</span>
+              {% endif %}
+              {% endif %}
             </h5>
           </div>
           <div class="w-1/3 px-3 text-right">
@@ -87,9 +111,10 @@
   <div class="bg-white rounded-2xl p-6 shadow mb-6">
     <div class="flex justify-between items-center mb-4">
       <h6 class="font-bold">Grafik indikator evaluasi Rawat Inap</h6>
-      <select class="border rounded-lg px-3 py-2 text-sm">
-        <option>2025</option>
-        <option>2024</option>
+      <select class="border rounded-lg px-3 py-2 text-sm" id="yearFilter">
+        {% for year in available_years %}
+        <option value="{{ year }}"{% if year == selected_year %} selected{% endif %}>{{ year }}</option>
+        {% endfor %}
       </select>
     </div>
 
@@ -120,36 +145,18 @@
           </tr>
         </thead>
         <tbody>
+          {% for data in table_data %}
           <tr class="border-b">
-            <td class="py-3">Januari</td>
-            <td class="text-center">70%</td>
-            <td class="text-center">6,7</td>
-            <td class="text-center">6,7</td>
+            <td class="py-3">{{ data.bulan }} {{ data.tahun }}</td>
+            <td class="text-center">{{ data.bor|floatformat:1 }}%</td>
+            <td class="text-center">{{ data.los|floatformat:1 }}</td>
+            <td class="text-center">{{ data.gdr|floatformat:1 }}</td>
           </tr>
-          <tr class="border-b">
-            <td class="py-3">Februari</td>
-            <td class="text-center">65%</td>
-            <td class="text-center">8,9</td>
-            <td class="text-center">8,9</td>
-          </tr>
-          <tr class="border-b">
-            <td class="py-3">Maret</td>
-            <td class="text-center">85%</td>
-            <td class="text-center">8,6</td>
-            <td class="text-center">8,6</td>
-          </tr>
-          <tr class="border-b">
-            <td class="py-3">April</td>
-            <td class="text-center">90%</td>
-            <td class="text-center">6,5</td>
-            <td class="text-center">6,5</td>
-          </tr>
+          {% empty %}
           <tr>
-            <td class="py-3">Mei</td>
-            <td class="text-center">50%</td>
-            <td class="text-center">9,8</td>
-            <td class="text-center">9,8</td>
+            <td colspan="4" class="text-center py-4 text-gray-500">Belum ada data tersedia</td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -161,19 +168,27 @@
             class="w-full max-w-full px-3 md:w-1/2 md:flex-none lg:w-1/3 lg:flex-none">
            <div class="bg-white rounded-2xl p-6 shadow">
       <div class="flex justify-between mb-4">
-        <h6 class="font-bold">Rekomendasi bulan ini</h6>
+        {% if latest_month_year %}
+        <h6 class="font-bold">Rekomendasi {{ latest_month_year }}</h6>
+        {% else %}
+        <h6 class="font-bold">Rekomendasi</h6>
+        {% endif %}
         <a href="{%url 'rekomendasi' %}" class="link-riwayat">selengkapnya</a>
       </div>
 
+      {% if latest_rekomendasi %}
+      {% for rekom in latest_rekomendasi %}
       <h6 class="font-semibold mb-3">
-        Optimalisasi alur pelayanan rawat inap
+        {{ rekom.rekomendasi }}
       </h6>
-
-      <div class="bg-blue-50 p-4 rounded-xl text-sm">
-        <p class="mb-2">✔ BOR berada dalam batas ideal</p>
-        <p class="mb-2">✔ LOS menunjukkan efisiensi pelayanan</p>
-        <p>✔ GDR berada dalam ambang aman</p>
-      </div>
+      {% if not forloop.last %}<hr class="my-3">{% endif %}
+      {% endfor %}
+      {% else %}
+      <h6 class="font-semibold mb-3 text-gray-500">
+        Belum ada rekomendasi
+      </h6>
+      <p class="text-sm text-gray-500">Generate rekomendasi terlebih dahulu untuk melihat saran perbaikan.</p>
+      {% endif %}
     </div>
 
   </div>
@@ -194,23 +209,23 @@ document.addEventListener("DOMContentLoaded", function () {
   new Chart(ctx, {
     type: "line",
     data: {
-      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      labels: {{ chart_data.labels|safe }},
       datasets: [
         {
-          label: "BOR",
-          data: [150, 400, 200, 80, 500, 600, 300, 280, 700],
+          label: "BOR (%)",
+          data: {{ chart_data.bor|safe }},
           borderColor: "#2563eb",
           tension: 0.4
         },
         {
           label: "LOS",
-          data: [20, 50, 300, 200, 700, 300, 500, 260, 650],
+          data: {{ chart_data.los|safe }},
           borderColor: "#db2777",
           tension: 0.4
         },
         {
           label: "GDR",
-          data: [10, 80, 180, 30, 120, 70, 240, 50, 520],
+          data: {{ chart_data.gdr|safe }},
           borderColor: "#111827",
           tension: 0.4
         }
@@ -225,6 +240,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
+
+  // Filter tahun
+  const yearFilter = document.getElementById('yearFilter');
+  if (yearFilter) {
+    yearFilter.addEventListener('change', function() {
+      const selectedYear = this.value;
+      window.location.href = `?year=${selectedYear}`;
+    });
+  }
 });
 </script>
 {% endblock %}

@@ -37,7 +37,108 @@ def evaluasi_indikator(bor, los, gdr):
 
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'main/dashboard.html')
+    # Ambil data kasus terbaru untuk cards (selalu data terakhir)
+    latest_kasus_overall = Kasus.objects.all().order_by('-tahun', '-bulan').first()
+    
+    # Data untuk grafik (sesuai filter)
+    selected_year = request.GET.get('year', None)
+    kasus_list = Kasus.objects.all().order_by('-tahun', '-bulan')
+    
+    # Filter berdasarkan tahun jika dipilih
+    if selected_year:
+        kasus_list = kasus_list.filter(tahun=selected_year)
+    
+    kasus_list = kasus_list[:12]
+    
+    # Ambil tahun-tahun yang tersedia untuk filter
+    available_years = Kasus.objects.values_list('tahun', flat=True).distinct().order_by('-tahun')
+    
+    # Data untuk cards (selalu data terakhir)
+    latest_indikator = None
+    latest_status = None
+    indikator_changes = None
+    
+    if latest_kasus_overall:
+        latest_indikator = {
+            'bor': latest_kasus_overall.bor,
+            'los': latest_kasus_overall.los,
+            'gdr': latest_kasus_overall.gdr
+        }
+        latest_status = evaluasi_indikator(latest_kasus_overall.bor, latest_kasus_overall.los, latest_kasus_overall.gdr)
+        
+        # Hitung perubahan dari bulan sebelumnya
+        all_kasus_for_change = Kasus.objects.all().order_by('-tahun', '-bulan')[:2]
+        if len(all_kasus_for_change) > 1:
+            prev_kasus = all_kasus_for_change[1]
+            indikator_changes = {
+                'bor': float(latest_kasus_overall.bor) - float(prev_kasus.bor),
+                'los': float(latest_kasus_overall.los) - float(prev_kasus.los),
+                'gdr': float(latest_kasus_overall.gdr) - float(prev_kasus.gdr)
+            }
+    
+    # Data untuk grafik (12 bulan terakhir)
+    chart_data = {
+        'labels': [],
+        'bor': [],
+        'los': [],
+        'gdr': []
+    }
+    
+    for kasus in kasus_list:
+        # Pastikan bulan adalah integer
+        bulan_int = int(kasus.bulan) if isinstance(kasus.bulan, str) else kasus.bulan
+        bulan_nama = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
+                     'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][bulan_int - 1]
+        chart_data['labels'].append(f"'{bulan_nama} {kasus.tahun}'")
+        chart_data['bor'].append(kasus.bor)
+        chart_data['los'].append(kasus.los)
+        chart_data['gdr'].append(kasus.gdr)
+    
+    # Data untuk tabel (5 bulan terakhir)
+    table_data = []
+    for kasus in kasus_list[:5]:
+        # Pastikan bulan adalah integer
+        bulan_int = int(kasus.bulan) if isinstance(kasus.bulan, str) else kasus.bulan
+        bulan_nama = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'][bulan_int - 1]
+        table_data.append({
+            'bulan': bulan_nama,
+            'tahun': kasus.tahun,
+            'bor': kasus.bor,
+            'los': kasus.los,
+            'gdr': kasus.gdr,
+            'status': evaluasi_indikator(kasus.bor, kasus.los, kasus.gdr)
+        })
+    
+    # Rekomendasi dari data terakhir
+    latest_rekomendasi = None
+    if latest_kasus_overall:
+        rekomendasi_list = KasusRekomendasi.objects.filter(kasus=latest_kasus_overall).select_related('rekomendasi')
+        latest_rekomendasi = [kr.rekomendasi for kr in rekomendasi_list]
+    
+    # Data bulan terakhir untuk judul
+    latest_month_year = None
+    if latest_kasus_overall:
+        bulan_int = int(latest_kasus_overall.bulan) if isinstance(latest_kasus_overall.bulan, str) else latest_kasus_overall.bulan
+        bulan_nama = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'][bulan_int - 1]
+        latest_month_year = f"{bulan_nama} {latest_kasus_overall.tahun}"
+    
+    context = {
+        'latest_indikator': latest_indikator,
+        'latest_status': latest_status,
+        'indikator_changes': indikator_changes,
+        'chart_data': chart_data,
+        'table_data': table_data,
+        'latest_rekomendasi': latest_rekomendasi,
+        'latest_month_year': latest_month_year,
+        'available_years': available_years,
+        'selected_year': selected_year or available_years.first() if available_years else None,
+        'page_name': 'Dashboard',
+        'page_title': 'Dashboard'
+    }
+    
+    return render(request, 'main/dashboard.html', context)
 
 @login_required(login_url='login')
 def rekomendasi(request):
@@ -162,10 +263,14 @@ def riwayat_rekomendasi(request):
         daftar_kasus = Kasus.objects.filter(tahun=tahun_filter).order_by("-tahun", "-bulan")
     else:
         daftar_kasus = Kasus.objects.all().order_by("-tahun", "-bulan")
+    
+    # Konversi ke list dan urutkan manual untuk memastikan urutan benar
+    daftar_kasus_list = list(daftar_kasus)
+    daftar_kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)), reverse=True)
 
     data_riwayat = []
 
-    for k in daftar_kasus:
+    for k in daftar_kasus_list:
         relasi = KasusRekomendasi.objects.filter(kasus=k).select_related("rekomendasi")
 
         rekom_list = [r.rekomendasi.rekomendasi for r in relasi]

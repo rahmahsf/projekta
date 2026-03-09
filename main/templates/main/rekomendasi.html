@@ -164,7 +164,7 @@
         <tbody>
         {% if hasil %}
 <tr>
-  <td>{{ hasil.top_kasus.0.kasus.bulan }}-{{ hasil.top_kasus.0.kasus.tahun }}</td>
+  <td>{% with bulan_int=hasil.top_kasus.0.kasus.bulan|add:0 %}{% if bulan_int == 1 %}Januari{% elif bulan_int == 2 %}Februari{% elif bulan_int == 3 %}Maret{% elif bulan_int == 4 %}April{% elif bulan_int == 5 %}Mei{% elif bulan_int == 6 %}Juni{% elif bulan_int == 7 %}Juli{% elif bulan_int == 8 %}Agustus{% elif bulan_int == 9 %}September{% elif bulan_int == 10 %}Oktober{% elif bulan_int == 11 %}November{% elif bulan_int == 12 %}Desember{% else %}{{ hasil.top_kasus.0.kasus.bulan }}{% endif %}{% endwith %} {{ hasil.top_kasus.0.kasus.tahun }}</td>
   <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
   <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2  }}</td>
   <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>

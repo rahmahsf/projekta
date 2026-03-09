@@ -12,14 +12,14 @@
 
   <!-- PAGE TITLE -->
   <h2 class="text-xl font-bold text-[#344767] mb-6">
-    Detail Data Bulan {{ kasus.bulan }} Tahun {{ kasus.tahun }}
+    Detail Data {% with bulan_int=kasus.bulan|add:0 %}{% if bulan_int == 1 %}Januari{% elif bulan_int == 2 %}Februari{% elif bulan_int == 3 %}Maret{% elif bulan_int == 4 %}April{% elif bulan_int == 5 %}Mei{% elif bulan_int == 6 %}Juni{% elif bulan_int == 7 %}Juli{% elif bulan_int == 8 %}Agustus{% elif bulan_int == 9 %}September{% elif bulan_int == 10 %}Oktober{% elif bulan_int == 11 %}November{% elif bulan_int == 12 %}Desember{% else %}{{ kasus.bulan }}{% endif %}{% endwith %} {{ kasus.tahun }}
   </h2>
 
   <!-- CARD INDIKATOR -->
   <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
 
     <h6 class="font-semibold text-[#344767] mb-5">
-      Indikator Operasional Bulan {{ kasus.bulan }} Tahun {{ kasus.tahun }}
+      Indikator Operasional {% with bulan_int=kasus.bulan|add:0 %}{% if bulan_int == 1 %}Januari{% elif bulan_int == 2 %}Februari{% elif bulan_int == 3 %}Maret{% elif bulan_int == 4 %}April{% elif bulan_int == 5 %}Mei{% elif bulan_int == 6 %}Juni{% elif bulan_int == 7 %}Juli{% elif bulan_int == 8 %}Agustus{% elif bulan_int == 9 %}September{% elif bulan_int == 10 %}Oktober{% elif bulan_int == 11 %}November{% elif bulan_int == 12 %}Desember{% else %}{{ kasus.bulan }}{% endif %}{% endwith %} {{ kasus.tahun }}
     </h6>
 
     <div class="flex flex-wrap -mx-3 mb-6">
