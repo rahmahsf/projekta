@@ -163,6 +163,7 @@
 
       <li class="mt-0.5 w-full">
       </li>
+      {% if user.role == 'direktur' %}
       <li class="w-full mt-4">
         <h6
           class="pl-6 ml-2 font-bold leading-tight uppercase text-xs opacity-60">Account pages</h6>
@@ -209,6 +210,12 @@
           <span
             class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Mengelola Akun</span>
         </a>
+      </li>
+      {% endif %}
+
+      <li class="mt-0.5 w-full">
+      </li>
+      <li class="w-full mt-4">
       </li>
 
       <li class="mt-0.5 w-full">

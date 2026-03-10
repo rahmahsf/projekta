@@ -7,6 +7,25 @@ from django.db.models import Max,  Value
 from django.core.paginator import Paginator
 from main.services.indikator import hitung_indikator
 from main.models import Kasus, KasusRekomendasi, Rekomendasi, RawatInap
+from functools import wraps
+
+def role_required(*allowed_roles):
+    """
+    Decorator untuk memeriksa apakah user memiliki role yang diizinkan
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated:
+                return redirect('login')
+            
+            if request.user.role not in allowed_roles:
+                messages.error(request, 'Anda tidak memiliki hak akses untuk halaman ini')
+                return redirect('dashboard')
+            
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
 
 # Create your views here.
 User = get_user_model()  
@@ -114,7 +133,15 @@ def dashboard(request):
     latest_rekomendasi = None
     if latest_kasus_overall:
         rekomendasi_list = KasusRekomendasi.objects.filter(kasus=latest_kasus_overall).select_related('rekomendasi')
-        latest_rekomendasi = [kr.rekomendasi for kr in rekomendasi_list]
+        
+        # Filter rekomendasi berdasarkan role user
+        if request.user.role == 'yangmed':
+            latest_rekomendasi = [kr.rekomendasi for kr in rekomendasi_list if kr.rekomendasi.jenis_rekomendasi == 'pelayanan medis']
+        elif request.user.role == 'kepegawaian':
+            latest_rekomendasi = [kr.rekomendasi for kr in rekomendasi_list if kr.rekomendasi.jenis_rekomendasi == 'kepegawaian']
+        else:
+            # Direktur bisa melihat semua rekomendasi
+            latest_rekomendasi = [kr.rekomendasi for kr in rekomendasi_list]
     
     # Data bulan terakhir untuk judul
     latest_month_year = None
@@ -177,6 +204,23 @@ def rekomendasi(request):
             # Proses CBR
             hasil = proses_cbr(bor, los, gdr)
 
+            # Filter hasil rekomendasi berdasarkan role user
+            if request.user.role == 'yangmed':
+                # Hanya rekomendasi pelayanan medis
+                filtered_rekomendasi = []
+                for rekom in hasil.get("rekomendasi", []):
+                    if rekom.get("jenis", "").lower() == "pelayanan medis":
+                        filtered_rekomendasi.append(rekom)
+                hasil["rekomendasi"] = filtered_rekomendasi
+            elif request.user.role == 'kepegawaian':
+                # Hanya rekomendasi kepegawaian
+                filtered_rekomendasi = []
+                for rekom in hasil.get("rekomendasi", []):
+                    if rekom.get("jenis", "").lower() == "kepegawaian":
+                        filtered_rekomendasi.append(rekom)
+                hasil["rekomendasi"] = filtered_rekomendasi
+            # Direktur bisa melihat semua rekomendasi (tidak perlu filter)
+
             # Simpan ke session untuk revise
             request.session["revise_data"] = {
                 "bulan": bulan,
@@ -230,6 +274,13 @@ def rekomendasi(request):
                 kasus_id=kasus_lama_id
             )
 
+            # Filter rekomendasi berdasarkan role user
+            if request.user.role == 'yangmed':
+                relasi = relasi.filter(rekomendasi__jenis_rekomendasi='pelayanan medis')
+            elif request.user.role == 'kepegawaian':
+                relasi = relasi.filter(rekomendasi__jenis_rekomendasi='kepegawaian')
+            # Direktur bisa melihat semua rekomendasi (tidak perlu filter)
+
             for r in relasi:
                 KasusRekomendasi.objects.create(
                     kasus=kasus_baru,
@@ -273,7 +324,14 @@ def riwayat_rekomendasi(request):
     for k in daftar_kasus_list:
         relasi = KasusRekomendasi.objects.filter(kasus=k).select_related("rekomendasi")
 
-        rekom_list = [r.rekomendasi.rekomendasi for r in relasi]
+        # Filter rekomendasi berdasarkan role user
+        if request.user.role == 'yangmed':
+            rekom_list = [r.rekomendasi.rekomendasi for r in relasi if r.rekomendasi.jenis_rekomendasi == 'pelayanan medis']
+        elif request.user.role == 'kepegawaian':
+            rekom_list = [r.rekomendasi.rekomendasi for r in relasi if r.rekomendasi.jenis_rekomendasi == 'kepegawaian']
+        else:
+            # Direktur bisa melihat semua rekomendasi
+            rekom_list = [r.rekomendasi.rekomendasi for r in relasi]
 
         data_riwayat.append({
             "id": k.id,
@@ -316,7 +374,15 @@ def revise(request):
     relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_utama_id)
 
     rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
-    semua_rekomendasi = Rekomendasi.objects.all()
+    
+    # Filter semua rekomendasi berdasarkan role user
+    if request.user.role == 'yangmed':
+        semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi='pelayanan medis')
+    elif request.user.role == 'kepegawaian':
+        semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi='kepegawaian')
+    else:
+        # Direktur bisa melihat semua rekomendasi
+        semua_rekomendasi = Rekomendasi.objects.all()
     # SIMPAN HASIL REVISI
     if request.method == "POST":
 
@@ -389,7 +455,7 @@ def detail(request, kasus_id):
 
 
 
-@login_required(login_url='login')
+@role_required('direktur')
 def akun(request):
     users = User.objects.all()
 
@@ -399,7 +465,7 @@ def akun(request):
         "users": users
     })
 
-@login_required(login_url='login')
+@role_required('direktur')
 def tambah_akun(request):
 
     if request.method == "POST":
@@ -414,10 +480,12 @@ def tambah_akun(request):
             messages.error(request, "Semua field wajib diisi")
             return redirect("tambah_akun")
 
-        # blok role direktur
+        # blok role direktur jika sudah ada akun direktur lain
         if role == "direktur":
-            messages.error(request, "Role direktur tidak bisa ditambahkan")
-            return redirect("tambah_akun")
+            direktur_count = User.objects.filter(role="direktur").count()
+            if direktur_count >= 1:
+                messages.error(request, "Hanya boleh ada 1 akun direktur")
+                return redirect("tambah_akun")
 
         # validasi username
         if User.objects.filter(username=username).exists():
@@ -437,12 +505,16 @@ def tambah_akun(request):
         messages.success(request, "Akun berhasil ditambahkan")
         return redirect("akun")
     
+    # Hitung jumlah akun direktur
+    direktur_count = User.objects.filter(role="direktur").count()
+    
     return render(request, 'main/tambah-akun.html', {
         "page_name": "Mengelola Akun",
         "page_title": "Mengelola Akun",
+        "direktur_count": direktur_count
     })
 
-@login_required(login_url='login')
+@role_required('direktur')
 def edit_akun(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
@@ -453,6 +525,22 @@ def edit_akun(request, user_id):
 
         password_lama = request.POST.get("password_lama")
         password_baru = request.POST.get("password_baru")
+
+        # Validasi proteksi role
+        # 1. User non-direktur tidak bisa edit akun
+        if request.user.role != "direktur":
+            messages.error(request, "Hanya direktur yang dapat mengubah akun")
+            return redirect("edit_akun", user_id=user.id)
+        
+        # 2. Direktur tidak bisa edit role diri sendiri
+        if user.id == request.user.id:
+            messages.error(request, "Direktur tidak dapat mengubah role diri sendiri")
+            return redirect("edit_akun", user_id=user.id)
+        
+        # 3. Direktur tidak bisa edit role user lain yang direktur
+        if user.role == "direktur":
+            messages.error(request, "Akun direktur lain tidak dapat diubah role-nya")
+            return redirect("edit_akun", user_id=user.id)
 
         # update data dasar
         user.email = email
@@ -481,7 +569,7 @@ def edit_akun(request, user_id):
         "user_edit": user
     })
 
-@login_required(login_url='login')
+@role_required('direktur')
 def hapus_akun(request, user_id):
     user = get_object_or_404(User, id=user_id)
 

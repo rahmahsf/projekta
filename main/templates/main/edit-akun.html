@@ -3,6 +3,14 @@
 
 {% block content %}
 <div class="w-full px-6 py-6">
+  <!-- Messages -->
+  {% comment %} {% if messages %}
+    {% for message in messages %}
+      <div class="mb-4 p-4 rounded-lg {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %} {% endcomment %}
 
   <!-- breadcrumb / back -->
   <p class="text-sm text-slate-400 mb-2">
@@ -47,18 +55,43 @@
       <label class="block text-sm font-medium text-slate-600 mb-2">
         Role
       </label>
-      <select
-        name="role"
-        class="w-full rounded-xl border border-slate-200 px-4 py-3
-               bg-white text-slate-700
-               focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="yangmed" {% if user_edit.role == "yangmed" %}selected{% endif %}>
-          Yangmed
-        </option>
-        <option value="kepegawaian" {% if user_edit.role == "kepegawaian" %}selected{% endif %}>
-          Kepegawaian
-        </option>
-      </select>
+      {% if request.user.role == "direktur" %}
+      {% if user_edit.id == request.user.id %}
+        <!-- Direktur edit diri sendiri: role read-only -->
+        <input type="hidden" name="role" value="{{ user_edit.role }}">
+        <div class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-slate-50 text-slate-700">
+          Direktur
+        </div>
+      {% elif user_edit.role == "direktur" %}
+        <!-- Direktur edit user lain yang direktur: role read-only -->
+        <input type="hidden" name="role" value="{{ user_edit.role }}">
+        <div class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-slate-50 text-slate-700">
+          Direktur
+        </div>
+      {% else %}
+        <!-- Direktur edit user non-direktur -->
+        <select
+          name="role"
+          class="w-full rounded-xl border border-slate-200 px-4 py-3
+                 bg-white text-slate-700
+                 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="yangmed" {% if user_edit.role == "yangmed" %}selected{% endif %}>
+            Yangmed
+          </option>
+          <option value="kepegawaian" {% if user_edit.role == "kepegawaian" %}selected{% endif %}>
+            Kepegawaian
+          </option>
+        </select>
+      {% endif %}
+    {% else %}
+      <!-- User non-direktur: tidak bisa edit -->
+      <input type="hidden" name="role" value="{{ user_edit.role }}">
+      <div class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-slate-50 text-slate-700">
+        {% if user_edit.role == "yangmed" %}Yangmed{% endif %}
+        {% if user_edit.role == "kepegawaian" %}Kepegawaian{% endif %}
+        {% if user_edit.role == "direktur" %}Direktur{% endif %}
+      </div>
+    {% endif %}
     </div>
 
     <!-- Divider -->
