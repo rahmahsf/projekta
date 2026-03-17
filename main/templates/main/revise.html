@@ -32,14 +32,11 @@
 
   <!-- INDIKATOR -->
   <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
-    <div class="flex justify-between items-center mb-4">
-      <h6 class="font-semibold text-slate-800">
-        Indikator Operasional Bulan Ini
-      </h6>
-      <span class="text-slate-400">🔒</span>
-    </div>
+    <h6 class="font-bold text-[#344767] mb-6 text-base">
+      Indikator {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}{% endif %}
+    </h6>
 
-   <div class="flex flex-wrap -mx-3 mb-6">
+    <div class="flex flex-wrap -mx-3 mb-6">
 
   <!-- BOR -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
@@ -51,7 +48,7 @@
   {% endif %}
 
       <div class="p-4">
-        <p class="label-indikator">BOR Bulan Ini</p>
+        <p class="label-indikator">BOR {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %}{% endif %}</p>
         <h5 class="value-indikator">{{ indikator.bor}}%</h5>
       </div>
     </div>
@@ -67,7 +64,7 @@
       {% endif %}
 
       <div class="p-4">
-        <p class="label-indikator">LOS Bulan Ini</p>
+        <p class="label-indikator">LOS {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %}{% endif %}</p>
         <h5 class="value-indikator">{{ indikator.los }} hari</h5>
       </div>
     </div>
@@ -83,13 +80,18 @@
       {% endif %}
 
       <div class="p-4">
-        <p class="label-indikator">GDR Bulan Ini</p>
+        <p class="label-indikator">GDR {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %}{% endif %}</p>
        <h5 class="value-indikator">{{ indikator.gdr }}%</h5>
       </div>
     </div>
   </div>
 
 </div>
+
+    <!-- INFORMASI BULAN -->
+    <div class="mb-4 bg-blue-50 p-3 rounded-lg text-sm text-blue-700">
+      📝 Sedang merevisi rekomendasi untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> ({{ info_bulan.status }})
+    </div>
 
     <p class="text-sm text-slate-500">
       ℹ BOR, LOS, dan GDR tidak dapat diubah karena berada pada mode revisi.
@@ -107,7 +109,7 @@
           <th class="py-2 text-center">BOR</th>
           <th class="py-2 text-center">LOS</th>
           <th class="py-2 text-center">GDR</th>
-          <th class="py-2 text-center">Euclidean Distance</th>
+          <th class="py-2 text-center">Tingkat Kemiripan</th>
           <th></th>
         </tr>
       </thead>
@@ -115,7 +117,7 @@
   {% for k in top_kasus %}
   <tr class="border-b">
     <td class="py-3">
-      {% with bulan_int=k.bulan|add:0 %}{% if bulan_int == 1 %}Januari{% elif bulan_int == 2 %}Februari{% elif bulan_int == 3 %}Maret{% elif bulan_int == 4 %}April{% elif bulan_int == 5 %}Mei{% elif bulan_int == 6 %}Juni{% elif bulan_int == 7 %}Juli{% elif bulan_int == 8 %}Agustus{% elif bulan_int == 9 %}September{% elif bulan_int == 10 %}Oktober{% elif bulan_int == 11 %}November{% elif bulan_int == 12 %}Desember{% else %}{{ k.bulan }}{% endif %}{% endwith %} {{ k.tahun }}
+      {% if k.bulan == "1" %}Januari{% elif k.bulan == "2" %}Februari{% elif k.bulan == "3" %}Maret{% elif k.bulan == "4" %}April{% elif k.bulan == "5" %}Mei{% elif k.bulan == "6" %}Juni{% elif k.bulan == "7" %}Juli{% elif k.bulan == "8" %}Agustus{% elif k.bulan == "9" %}September{% elif k.bulan == "10" %}Oktober{% elif k.bulan == "11" %}November{% elif k.bulan == "12" %}Desember{% else %}{{ k.bulan }}{% endif %} {{ k.tahun }}
     </td>
     <td class="text-center">{{ k.bor|floatformat:3}}%</td>
     <td class="text-center">{{ k.los|floatformat:3}}</td>
@@ -147,7 +149,7 @@
                name="rekomendasi"
                value="{{ r.id }}"
                {% if r.id in rekomendasi_terpilih %}checked{% endif %}>
-        <span>{{ r.rekomendasi }}</span>
+        <span>{{ r.rekomendasi }} ({{ r.jenis_rekomendasi }})</span>
       </label>
     {% endfor %}
   </div>

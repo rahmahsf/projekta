@@ -5,7 +5,8 @@ from .services.cbr import proses_cbr
 from django.contrib import messages
 from django.db.models import Max,  Value
 from django.core.paginator import Paginator
-from main.services.indikator import hitung_indikator
+from django.utils import timezone
+from main.services.indikator import hitung_indikator, hitung_indikator_kumulatif
 from main.models import Kasus, KasusRekomendasi, Rekomendasi, RawatInap
 from functools import wraps
 
@@ -174,6 +175,191 @@ def rekomendasi(request):
     indikator = None
     status = None
 
+    # LOGIKA OTOMATIS: Cek data bulan ini dan bulan terlewat
+    from datetime import datetime
+    today = datetime.now()
+    current_bulan = today.month
+    current_tahun = today.year
+    
+    # Cek apakah ada data kasus untuk bulan ini
+    kasus_bulan_ini = Kasus.objects.filter(bulan=str(current_bulan), tahun=str(current_tahun)).first()
+    
+    # Cek bulan-bulan sebelumnya yang mungkin terlewat
+    bulan_terlewat = []
+    for i in range(1, current_bulan):
+        kasus_check = Kasus.objects.filter(bulan=str(i), tahun=str(current_tahun)).first()
+        if not kasus_check:
+            bulan_terlewat.append(i)
+    
+    # Jika ada bulan yang terlewat, generate otomatis
+    for bulan in bulan_terlewat:
+        # Ambil data RawatInap untuk bulan tersebut dan bulan-bulan sebelumnya
+        rawat_inap_kumulatif = RawatInap.objects.filter(
+            tgl_keluar__month__lte=bulan,
+            tgl_keluar__year=current_tahun
+        )
+        
+        if rawat_inap_kumulatif.exists():
+            # Hitung indikator untuk bulan terlewat (data kumulatif sampai bulan ini)
+            indikator_terlewat = hitung_indikator_kumulatif(bulan, current_tahun)
+            
+            # Proses CBR untuk bulan terlewat
+            hasil_cbr = proses_cbr(
+                indikator_terlewat["bor"], 
+                indikator_terlewat["los"], 
+                indikator_terlewat["gdr"]
+            )
+            
+            # Simpan ke database
+            kasus_baru = Kasus.objects.create(
+                bulan=str(bulan),
+                tahun=str(current_tahun),
+                bor=indikator_terlewat["bor"],
+                los=indikator_terlewat["los"],
+                gdr=indikator_terlewat["gdr"]
+            )
+            
+            # Ambil rekomendasi dari bulan sebelumnya (1 bulan sebelum bulan yang digenerate)
+            # tapi simpan ke bulan yang sekarang
+            bulan_sebelumnya = bulan - 1
+            if bulan_sebelumnya >= 1:
+                kasus_bulan_sebelumnya = Kasus.objects.filter(
+                    bulan=str(bulan_sebelumnya),
+                    tahun=str(current_tahun)
+                ).first()
+                
+                all_rekomendasi = []
+                if kasus_bulan_sebelumnya:
+                    # Ambil rekomendasi dari bulan sebelumnya
+                    rekomendasi_dari_kasus = KasusRekomendasi.objects.filter(
+                        kasus=kasus_bulan_sebelumnya
+                    ).select_related("rekomendasi")
+                    
+                    for r in rekomendasi_dari_kasus:
+                        all_rekomendasi.append({
+                            "rekomendasi": r.rekomendasi.rekomendasi,
+                            "jenis": r.rekomendasi.jenis_rekomendasi
+                        })
+            else:
+                # Jika bulan 1, tidak ada bulan sebelumnya, gunakan CBR
+                all_rekomendasi = []
+                for kasus_data in hasil_cbr.get("top_kasus", []):
+                    if kasus_data["kasus"].bor is not None and kasus_data["kasus"].los is not None and kasus_data["kasus"].gdr is not None:
+                        rekomendasi_dari_kasus = KasusRekomendasi.objects.filter(
+                            kasus=kasus_data["kasus"]
+                        ).select_related("rekomendasi")
+                        
+                        for r in rekomendasi_dari_kasus:
+                            all_rekomendasi.append({
+                                "rekomendasi": r.rekomendasi.rekomendasi,
+                                "jenis": r.rekomendasi.jenis_rekomendasi
+                            })
+            
+            # Simpan semua rekomendasi yang ditemukan
+            saved_rekomendasi_ids = set()  # Track untuk mencegah duplikasi
+            
+            for rekom in all_rekomendasi:
+                rekom_text = rekom["rekomendasi"]
+                
+                # Skip jika rekomendasi kosong
+                if not rekom_text or rekom_text.strip() == "":
+                    continue
+                
+                # Cek apakah rekomendasi sudah ada di database
+                rekom_obj, created = Rekomendasi.objects.get_or_create(
+                    rekomendasi=rekom_text,
+                    defaults={
+                        "jenis_rekomendasi": rekom.get("jenis", "")
+                    }
+                )
+                
+                # Cek apakah relasi kasus-rekomendasi sudah ada (mencegah duplikasi)
+                if rekom_obj.id not in saved_rekomendasi_ids:
+                    # Cek di database
+                    existing_relation = KasusRekomendasi.objects.filter(
+                        kasus=kasus_baru,
+                        rekomendasi=rekom_obj
+                    ).exists()
+                    
+                    if not existing_relation:
+                        # Simpan relasi kasus-rekomendasi
+                        KasusRekomendasi.objects.create(
+                            kasus=kasus_baru,
+                            rekomendasi=rekom_obj
+                        )
+                        saved_rekomendasi_ids.add(rekom_obj.id)
+    
+    if kasus_bulan_ini:
+        # Tampilkan data bulan ini yang sudah ada
+        indikator = {
+            "bor": kasus_bulan_ini.bor,
+            "los": kasus_bulan_ini.los,
+            "gdr": kasus_bulan_ini.gdr
+        }
+        
+        # Evaluasi status
+        status = evaluasi_indikator(indikator["bor"], indikator["los"], indikator["gdr"])
+        
+        # Ambil rekomendasi dari kasus bulan ini
+        relasi = KasusRekomendasi.objects.filter(kasus=kasus_bulan_ini).select_related('rekomendasi')
+        
+        # Filter rekomendasi berdasarkan role user
+        rekomendasi_list = []
+        if request.user.role == 'yangmed':
+            rekomendasi_list = [kr.rekomendasi for kr in relasi if kr.rekomendasi.jenis_rekomendasi == 'pelayanan medis']
+        elif request.user.role == 'kepegawaian':
+            rekomendasi_list = [kr.rekomendasi for kr in relasi if kr.rekomendasi.jenis_rekomendasi == 'kepegawaian']
+        else:
+            # Direktur bisa melihat semua rekomendasi
+            rekomendasi_list = [kr.rekomendasi for kr in relasi]
+        
+        # Format hasil untuk template
+        hasil = {
+            "rekomendasi": [{"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi} for r in rekomendasi_list],
+            "top_kasus": [{"kasus": kasus_bulan_ini, "distance": 0.000}]
+        }
+    else:
+        # Tidak ada data bulan ini, cek bulan terakhir yang ada data
+        kasus_terakhir = Kasus.objects.filter(
+            tahun=str(current_tahun),
+            bulan__lt=str(current_bulan)
+        ).order_by('-bulan').first()
+        
+        if kasus_terakhir:
+            # Ada data bulan sebelumnya, tampilkan data bulan terakhir
+            indikator = {
+                "bor": kasus_terakhir.bor,
+                "los": kasus_terakhir.los,
+                "gdr": kasus_terakhir.gdr
+            }
+            
+            # Evaluasi status
+            status = evaluasi_indikator(indikator["bor"], indikator["los"], indikator["gdr"])
+            
+            # Ambil rekomendasi dari kasus terakhir
+            relasi = KasusRekomendasi.objects.filter(kasus=kasus_terakhir).select_related('rekomendasi')
+            
+            # Filter rekomendasi berdasarkan role user
+            rekomendasi_list = []
+            if request.user.role == 'yangmed':
+                rekomendasi_list = [kr.rekomendasi for kr in relasi if kr.rekomendasi.jenis_rekomendasi == 'pelayanan medis']
+            elif request.user.role == 'kepegawaian':
+                rekomendasi_list = [kr.rekomendasi for kr in relasi if kr.rekomendasi.jenis_rekomendasi == 'kepegawaian']
+            else:
+                # Direktur bisa melihat semua rekomendasi
+                rekomendasi_list = [kr.rekomendasi for kr in relasi]
+            
+            # Format hasil untuk template
+            hasil = {
+                "rekomendasi": [{"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi} for r in rekomendasi_list],
+                "top_kasus": [{"kasus": kasus_terakhir, "distance": 0.000}]
+            }
+        else:
+            # Tidak ada data sama sekali, tampilkan "--"
+            hasil = None
+            indikator = None
+            status = None
+
     if request.method == "POST":
 
         action = request.POST.get("action")
@@ -221,10 +407,21 @@ def rekomendasi(request):
                 hasil["rekomendasi"] = filtered_rekomendasi
             # Direktur bisa melihat semua rekomendasi (tidak perlu filter)
 
-            # Simpan ke session untuk revise
+            # Simpan ke session untuk revise (gunakan bulan sebelumnya untuk rekomendasi)
+            bulan_sebelumnya = bulan - 1
+            if bulan_sebelumnya >= 1:
+                revise_bulan = bulan_sebelumnya
+                revise_tahun = tahun
+            else:
+                # Jika bulan 1, gunakan bulan 1
+                revise_bulan = bulan
+                revise_tahun = tahun
+                
             request.session["revise_data"] = {
-                "bulan": bulan,
-                "tahun": tahun,
+                "bulan": revise_bulan,
+                "tahun": revise_tahun,
+                "bulan_generate": bulan,
+                "tahun_generate": tahun,
                 "bor": bor,
                 "los": los,
                 "gdr": gdr,
@@ -292,12 +489,102 @@ def rekomendasi(request):
             return redirect("rekomendasi")
         # MASUK REVISE
         elif action == "revise":
+            # Clear session lama dan buat baru
+            if "revise_data" in request.session:
+                del request.session["revise_data"]
+            
+            # Buat session data dari data yang ada
+                if kasus_bulan_ini:
+                    # Gunakan data bulan ini
+                    revise_bulan = int(kasus_bulan_ini.bulan)
+                    revise_tahun = int(kasus_bulan_ini.tahun)
+                    bor = kasus_bulan_ini.bor
+                    los = kasus_bulan_ini.los
+                    gdr = kasus_bulan_ini.gdr
+                elif kasus_terakhir:
+                    # Gunakan data bulan terakhir
+                    revise_bulan = int(kasus_terakhir.bulan)
+                    revise_tahun = int(kasus_terakhir.tahun)
+                    bor = kasus_terakhir.bor
+                    los = kasus_terakhir.los
+                    gdr = kasus_terakhir.gdr
+                else:
+                    # Tidak ada data, redirect ke rekomendasi
+                    return redirect("rekomendasi")
+                
+                # Buat session data dengan 3 kasus terdekat
+                top_kasus_data = []
+                
+                # Coba ambil 3 kasus dari bulan yang sama
+                kasus_terdekat = Kasus.objects.filter(
+                    bulan=str(revise_bulan),
+                    tahun=str(revise_tahun)
+                ).order_by('-id')[:3]  # Ambil 3 kasus terbaru
+                
+                # Jika kurang dari 3, tambahkan dari kasus terbaru lainnya
+                if kasus_terdekat.count() < 3:
+                    # Ambil semua kasus terbaru untuk fallback
+                    all_kasus = Kasus.objects.all().order_by('-id')
+                    existing_ids = [k.id for k in kasus_terdekat]
+                    
+                    for k in all_kasus:
+                        if len(kasus_terdekat) >= 3:
+                            break
+                        if k.id not in existing_ids:
+                            kasus_terdekat = list(kasus_terdekat) + [k]
+                            existing_ids.append(k.id)
+                
+                # Gunakan CBR service untuk perhitungan Euclidean distance yang benar
+                from main.services.cbr import proses_cbr
+                
+                # Proses CBR untuk mendapatkan 3 kasus terdekat dengan normalisasi
+                hasil_cbr = proses_cbr(bor, los, gdr)
+                
+                # Konversi hasil CBR ke format session data
+                for k in hasil_cbr["top_kasus"]:
+                    top_kasus_data.append({
+                        "id": k["kasus"].id,
+                        "bulan": k["kasus"].bulan,
+                        "tahun": k["kasus"].tahun,
+                        "bor": k["kasus"].bor,
+                        "los": k["kasus"].los,
+                        "gdr": k["kasus"].gdr,
+                        "distance": k["distance"]
+                    })
+                
+                request.session["revise_data"] = {
+                    "bulan": revise_bulan,
+                    "tahun": revise_tahun,
+                    "bulan_generate": revise_bulan,
+                    "tahun_generate": revise_tahun,
+                    "bor": bor,
+                    "los": los,
+                    "gdr": gdr,
+                    "top_kasus": top_kasus_data
+                }
+            
             return redirect("revise")
 
+    # Tentukan informasi bulan yang ditampilkan
+    info_bulan = None
+    if kasus_bulan_ini:
+        info_bulan = {
+            "bulan": int(kasus_bulan_ini.bulan),
+            "tahun": int(kasus_bulan_ini.tahun),
+            "status": "current"
+        }
+    elif kasus_terakhir:
+        info_bulan = {
+            "bulan": int(kasus_terakhir.bulan),
+            "tahun": int(kasus_terakhir.tahun),
+            "status": "previous"
+        }
+    
     return render(request, "main/rekomendasi.html", {
         "hasil": hasil,
         "indikator": indikator,
         "status": status,
+        "info_bulan": info_bulan,
         "page_name": "Rekomendasi",
         "page_title": "Rekomendasi"
     })
@@ -367,13 +654,88 @@ def revise(request):
 
     if not top_kasus:
         return redirect("rekomendasi")
+    
+    # Ambil data kasus yang sedang direvisi
 
-    kasus_utama_id = top_kasus[0]["id"]
+    # Ambil data kasus yang sedang direvisi
+    kasus_direvisi = Kasus.objects.filter(
+        bulan=str(data["bulan"]),
+        tahun=str(data["tahun"])
+    ).first()
+    
+    # Gunakan kasus yang direvisi untuk top_kasus, kalau tidak ada pakai dari session
+    if kasus_direvisi and data.get("bulan_generate") != data.get("bulan"):
+        # Hanya query ulang jika ini dari generate (bulan_generate != bulan)
+        top_kasus_direvisi = []
+        kasus_bulan_revisi = Kasus.objects.filter(
+            bulan=str(data["bulan"]),
+            tahun=str(data["tahun"])
+        ).order_by('-id')  # Ambil yang terbaru (ID terbesar)
+        
+        # Ambil kasus dari bulan yang direvisi
+        
+        # Ambil 3 kasus terdekat dari bulan yang direvisi
+        for k in kasus_bulan_revisi[:3]:
+            top_kasus_direvisi.append({
+                "id": k.id,
+                "bulan": k.bulan,
+                "tahun": k.tahun,
+                "bor": k.bor,
+                "los": k.los,
+                "gdr": k.gdr,
+                "distance": 0.000  # Kasus dari bulan yang sama, distance = 0
+            })
+        
+        # Jika kurang dari 3 kasus, tambahkan dari session
+        if len(top_kasus_direvisi) < 3:
+            existing_ids = [k["id"] for k in top_kasus_direvisi]
+            
+            for k in top_kasus:
+                if len(top_kasus_direvisi) >= 3:
+                    break
+                if k["id"] not in existing_ids:
+                    top_kasus_direvisi.append({
+                        "id": k["id"],
+                        "bulan": k["bulan"],
+                        "tahun": k["tahun"],
+                        "bor": k["bor"],
+                        "los": k["los"],
+                        "gdr": k["gdr"],
+                        "distance": k["distance"]
+                    })
+                    existing_ids.append(k["id"])
+    else:
+        # Untuk evaluasi data lama, langsung gunakan session data
+        top_kasus_direvisi = top_kasus
 
-    # ambil relasi rekomendasi dari kasus paling mirip
-    relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_utama_id)
+    kasus_utama_id = top_kasus_direvisi[0]["id"]
 
-    rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
+    # ambil relasi rekomendasi dari 3 kasus terdekat yang sudah disesuaikan
+    rekomendasi_terpilih = []
+    for kasus_data in top_kasus_direvisi[:3]:  # Ambil 3 kasus terdekat
+        relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_data["id"])
+        for r in relasi:
+            rekomendasi_terpilih.append(r.rekomendasi.id)
+    
+    # Ambil data kasus yang sedang direvisi (bulannya dari data["bulan"])
+    kasus_direvisi = Kasus.objects.filter(
+        bulan=str(data["bulan"]),
+        tahun=str(data["tahun"])
+    ).first()
+    
+    # Gunakan indikator dari kasus yang direvisi jika ada, kalau tidak pakai dari session
+    if kasus_direvisi:
+        indikator_data = {
+            "bor": kasus_direvisi.bor,
+            "los": kasus_direvisi.los,
+            "gdr": kasus_direvisi.gdr,
+        }
+    else:
+        indikator_data = {
+            "bor": data["bor"],
+            "los": data["los"],
+            "gdr": data["gdr"],
+        }
     
     # Filter semua rekomendasi berdasarkan role user
     if request.user.role == 'yangmed':
@@ -389,8 +751,8 @@ def revise(request):
         dipilih = request.POST.getlist("rekomendasi")
 
         kasus_baru = Kasus.objects.create(
-            bulan="1",
-            tahun="2026",
+            bulan=data["bulan"],
+            tahun=data["tahun"],
             bor=data["bor"],
             los=data["los"],
             gdr=data["gdr"]
@@ -409,21 +771,39 @@ def revise(request):
     # TAMPIL HALAMAN REVISE
     # Hitung status indikator
     status = evaluasi_indikator(
-        data["bor"],
-        data["los"],
-        data["gdr"]
+        indikator_data["bor"],
+        indikator_data["los"],
+        indikator_data["gdr"]
     )
     
+    # Jika ini dari auto generate, tampilkan bulan sebelumnya
+    current_date = timezone.now()
+    current_bulan = current_date.month
+    current_tahun = current_date.year
+    
+    # Cek apakah ini revisi dari auto generate (bulan < current_bulan)
+    if int(data["bulan"]) < current_bulan:
+        status_text = "bulan terakhir yang tersedia"
+    else:
+        status_text = "bulan berjalan"
+    
+    info_bulan = {
+        "bulan": int(data["bulan"]),
+        "tahun": int(data["tahun"]),
+        "status": status_text
+    }
+    
     return render(request, "main/revise.html", {
-        "indikator": {
-            "bor": data["bor"],
-            "los": data["los"],
-            "gdr": data["gdr"],
-        },
+        "indikator": indikator_data,
         "status": status,
-        "top_kasus": top_kasus,
+        "top_kasus": top_kasus_direvisi,
         "semua_rekomendasi": semua_rekomendasi,
         "rekomendasi_terpilih": rekomendasi_terpilih,
+        "info_bulan": info_bulan,
+        "info_bulan_generate": {
+            "bulan": int(data.get("bulan_generate", data["bulan"])),
+            "tahun": int(data.get("tahun_generate", data["tahun"]))
+        },
         "page_name": "Rekomendasi",
         "page_title": "Rekomendasi"
     })

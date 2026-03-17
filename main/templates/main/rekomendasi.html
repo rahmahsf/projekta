@@ -41,7 +41,15 @@
 
   <!-- INFORMASI -->
   <div class="mb-6 bg-slate-100 p-4 rounded-lg text-sm text-slate-600">
-    Perhitungan dilakukan berdasarkan data operasional bulan berjalan dan dapat dijalankan satu kali per periode.
+    {% if info_bulan %}
+      {% if info_bulan.status == "current" %}
+         Menampilkan data untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> (bulan berjalan)
+      {% else %}
+         Menampilkan data untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> (bulan terakhir yang tersedia)
+      {% endif %}
+    {% else %}
+      Belum ada data rekomendasi. Silakan generate rekomendasi terlebih dahulu.
+    {% endif %}
   </div>
 
   <!-- INDIKATOR -->
@@ -139,7 +147,7 @@
       {% if hasil %}
         <ul class="list-rekomendasi">
           {% for r in hasil.rekomendasi %}
-            <li>✓ {{ r.nama }} ({{ r.jenis }})</li>
+            <li>✓ {{ r.rekomendasi }} ({{ r.jenis }})</li>
           {% endfor %}
         </ul>
       {% else %}
@@ -164,7 +172,7 @@
         <tbody>
         {% if hasil %}
 <tr>
-  <td>{% with bulan_int=hasil.top_kasus.0.kasus.bulan|add:0 %}{% if bulan_int == 1 %}Januari{% elif bulan_int == 2 %}Februari{% elif bulan_int == 3 %}Maret{% elif bulan_int == 4 %}April{% elif bulan_int == 5 %}Mei{% elif bulan_int == 6 %}Juni{% elif bulan_int == 7 %}Juli{% elif bulan_int == 8 %}Agustus{% elif bulan_int == 9 %}September{% elif bulan_int == 10 %}Oktober{% elif bulan_int == 11 %}November{% elif bulan_int == 12 %}Desember{% else %}{{ hasil.top_kasus.0.kasus.bulan }}{% endif %}{% endwith %} {{ hasil.top_kasus.0.kasus.tahun }}</td>
+  <td>{% if hasil.top_kasus.0.kasus.bulan == "1" %}Januari{% elif hasil.top_kasus.0.kasus.bulan == "2" %}Februari{% elif hasil.top_kasus.0.kasus.bulan == "3" %}Maret{% elif hasil.top_kasus.0.kasus.bulan == "4" %}April{% elif hasil.top_kasus.0.kasus.bulan == "5" %}Mei{% elif hasil.top_kasus.0.kasus.bulan == "6" %}Juni{% elif hasil.top_kasus.0.kasus.bulan == "7" %}Juli{% elif hasil.top_kasus.0.kasus.bulan == "8" %}Agustus{% elif hasil.top_kasus.0.kasus.bulan == "9" %}September{% elif hasil.top_kasus.0.kasus.bulan == "10" %}Oktober{% elif hasil.top_kasus.0.kasus.bulan == "11" %}November{% elif hasil.top_kasus.0.kasus.bulan == "12" %}Desember{% else %}{{ hasil.top_kasus.0.kasus.bulan }}{% endif %} {{ hasil.top_kasus.0.kasus.tahun }}</td>
   <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
   <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2  }}</td>
   <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>
@@ -225,6 +233,27 @@
         Evaluasi Hasil
       </button>
 
+    </div>
+  </div>
+</form>
+{% elif indikator %}
+<!-- Tombol Evaluasi untuk data yang sudah ada -->
+<form method="post">
+  {% csrf_token %}
+  
+  <input type="hidden" name="bor" value="{{ indikator.bor }}">
+  <input type="hidden" name="los" value="{{ indikator.los }}">
+  <input type="hidden" name="gdr" value="{{ indikator.gdr }}">
+
+  <div class="action-wrapper">
+    <div class="action-buttons">
+      <button type="submit"
+              name="action"
+              value="revise"
+              class="btn-secondary"
+              style="width: 100%;">
+        Evaluasi Hasil
+      </button>
     </div>
   </div>
 </form>

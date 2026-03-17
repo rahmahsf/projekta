@@ -20,6 +20,17 @@ def proses_cbr(bor_input, los_input, gdr_input):
     daftar_kasus = []
 
     for k in kasus_qs:
+        if k.bor is not None and k.los is not None and k.gdr is not None:
+            data_kasus.append([k.bor, k.los, k.gdr])
+            daftar_kasus.append(k)
+
+    if not data_kasus:
+        return {
+            "top_kasus": [],
+            "kasus_utama": None,
+            "rekomendasi": [],
+            "rekomendasi_ids": []
+        }
         data_kasus.append([k.bor, k.los, k.gdr])
         daftar_kasus.append(k)
 
