@@ -1,9 +1,8 @@
 {% extends "layout/base.html" %}
+{% load custom_filters %}
 {% block title %}Rekomendasi{% endblock %}
-
 {% block content %}
 <div class="w-full px-6 py-6">
-
   <!-- HEADER -->
   <div class="mb-6 flex justify-between items-center">
     <div>
@@ -15,65 +14,69 @@
       </p>
     </div>
 
+    {% if request.user.username == 'yangmed' %}
     <!-- BUTTON GENERATE -->
-    <form method="post" style="display:inline-block;">
-  {% csrf_token %}
-  <button type="submit"name="action" value="generate"
-    style="
-      background: linear-gradient(135deg, #2563eb, #1e40af);
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    "
-    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(37, 99, 235, 0.35)'"
-    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.25)'"
-  >
-    🔄 Hitung & Generate Rekomendasi
-  </button>
-</form>
+    <form method="post" style="display: inline-block">
+      {% csrf_token %}
+      <button
+        type="submit"
+        name="action"
+        value="generate"
+        style="
+          background: linear-gradient(135deg, #2563eb, #1e40af);
+          color: white;
+          padding: 10px 18px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease-in-out;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        "
+        onmouseover="
+          this.style.transform = 'translateY(-2px)';
+          this.style.boxShadow = '0 6px 16px rgba(37, 99, 235, 0.35)';
+        "
+        onmouseout="
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.25)';
+        "
+      >
+        🔄 Hitung & Generate Rekomendasi
+      </button>
+    </form>
+    {% endif %}
   </div>
 
   <!-- INFORMASI -->
   <div class="mb-6 bg-slate-100 p-4 rounded-lg text-sm text-slate-600">
-    {% if info_bulan %}
-      {% if info_bulan.status == "current" %}
-         Menampilkan data untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> (bulan berjalan)
-      {% else %}
-         Menampilkan data untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> (bulan terakhir yang tersedia)
-      {% endif %}
-    {% else %}
-      Belum ada data rekomendasi. Silakan generate rekomendasi terlebih dahulu.
-    {% endif %}
+    {% if info_bulan %} Menampilkan data untuk
+    <strong>
+      {{ info_bulan.bulan|bulan_nama }} {{ info_bulan.tahun }}
+    </strong>
+    {% if info_bulan.status == "current" %} (bulan berjalan) {% else %} (bulan
+    terakhir yang tersedia) {% endif %} {% else %} Belum ada data rekomendasi.
+    Silakan generate rekomendasi terlebih dahulu. {% endif %}
   </div>
 
   <!-- INDIKATOR -->
   <h6 class="font-semibold mb-3 text-slate-700">Hasil Perhitungan</h6>
 
   <div class="flex flex-wrap -mx-3 mb-6">
-
     <!-- BOR -->
     <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
       <div class="card-indikator">
-     {% if status.bor.warna == "green" %}
-    <span class="badge-normal">{{ status.bor.status }}</span>
-  {% else %}
-    <span class="badge-anormal">{{ status.bor.status }}</span>
-  {% endif %}
+        {% if status.bor.warna == "green" %}
+        <span class="badge-normal">{{ status.bor.status }}</span>
+        {% else %}
+        <span class="badge-anormal">{{ status.bor.status }}</span>
+        {% endif %}
 
         <div class="p-4">
           <p class="label-indikator">BOR Bulan Ini</p>
           <h5 class="value-indikator">
-            {% if indikator %}
-              {{ indikator.bor}}%
-            {% else %}
-              —
-            {% endif %}
+            {% if indikator %} {{ indikator.bor}}% {% else %} — {% endif %}
           </h5>
           <p class="text-xs text-slate-400">
             {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
@@ -82,23 +85,19 @@
       </div>
     </div>
 
-    <!-- LOS --> 
+    <!-- LOS -->
     <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
       <div class="card-indikator">
-          {% if status.los.warna == "green" %}
-    <span class="badge-normal">{{ status.los.status }}</span>
-  {% else %}
-    <span class="badge-anormal">{{ status.los.status }}</span>
-  {% endif %}
+        {% if status.los.warna == "green" %}
+        <span class="badge-normal">{{ status.los.status }}</span>
+        {% else %}
+        <span class="badge-anormal">{{ status.los.status }}</span>
+        {% endif %}
 
         <div class="p-4">
           <p class="label-indikator">LOS Bulan Ini</p>
           <h5 class="value-indikator">
-            {% if indikator %}
-              {{ indikator.los}} hari
-            {% else %}
-              —
-            {% endif %}
+            {% if indikator %} {{ indikator.los}} hari {% else %} — {% endif %}
           </h5>
           <p class="text-xs text-slate-400">
             {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
@@ -110,20 +109,16 @@
     <!-- GDR -->
     <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
       <div class="card-indikator">
-         {% if status.gdr.warna == "green" %}
-    <span class="badge-normal">{{ status.gdr.status }}</span>
-  {% else %}
-    <span class="badge-anormal">{{ status.gdr.status }}</span>
-  {% endif %}
+        {% if status.gdr.warna == "green" %}
+        <span class="badge-normal">{{ status.gdr.status }}</span>
+        {% else %}
+        <span class="badge-anormal">{{ status.gdr.status }}</span>
+        {% endif %}
 
         <div class="p-4">
           <p class="label-indikator">GDR Bulan Ini</p>
           <h5 class="value-indikator">
-            {% if indikator %}
-              {{ indikator.gdr}}%
-            {% else %}
-              —
-            {% endif %}
+            {% if indikator %} {{ indikator.gdr}}% {% else %} — {% endif %}
           </h5>
           <p class="text-xs text-slate-400">
             {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
@@ -131,29 +126,26 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- REKOMENDASI BOX -->
   <div class="wrapper-blue">
-
     <div class="box-white">
-
       <div class="flex items-center mb-4">
         <div class="icon-check">✓</div>
         <h6 class="title-section">Rekomendasi Operasional</h6>
       </div>
 
       {% if hasil %}
-        <ul class="list-rekomendasi">
-          {% for r in hasil.rekomendasi %}
-            <li>✓ {{ r.rekomendasi }} ({{ r.jenis }})</li>
-          {% endfor %}
-        </ul>
+      <ul class="list-rekomendasi">
+        {% for r in hasil.rekomendasi %}
+        <li>✓ {{ r.rekomendasi }} ({{ r.jenis }})</li>
+        {% endfor %}
+      </ul>
       {% else %}
-        <div class="bg-slate-100 p-3 rounded text-sm text-slate-500">
-          Rekomendasi operasional belum dihitung.
-        </div>
+      <div class="bg-slate-100 p-3 rounded text-sm text-slate-500">
+        Rekomendasi operasional belum dihitung.
+      </div>
       {% endif %}
 
       <!-- KASUS TERDEKAT -->
@@ -170,99 +162,106 @@
           </tr>
         </thead>
         <tbody>
-        {% if hasil %}
-<tr>
-  <td>{% if hasil.top_kasus.0.kasus.bulan == "1" %}Januari{% elif hasil.top_kasus.0.kasus.bulan == "2" %}Februari{% elif hasil.top_kasus.0.kasus.bulan == "3" %}Maret{% elif hasil.top_kasus.0.kasus.bulan == "4" %}April{% elif hasil.top_kasus.0.kasus.bulan == "5" %}Mei{% elif hasil.top_kasus.0.kasus.bulan == "6" %}Juni{% elif hasil.top_kasus.0.kasus.bulan == "7" %}Juli{% elif hasil.top_kasus.0.kasus.bulan == "8" %}Agustus{% elif hasil.top_kasus.0.kasus.bulan == "9" %}September{% elif hasil.top_kasus.0.kasus.bulan == "10" %}Oktober{% elif hasil.top_kasus.0.kasus.bulan == "11" %}November{% elif hasil.top_kasus.0.kasus.bulan == "12" %}Desember{% else %}{{ hasil.top_kasus.0.kasus.bulan }}{% endif %} {{ hasil.top_kasus.0.kasus.tahun }}</td>
-  <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
-  <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2  }}</td>
-  <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>
-  <td>{{ hasil.top_kasus.0.distance|floatformat:3 }}</td>
-</tr>
-{% else %}
-<tr>
-  <td colspan="5" class="text-center text-slate-400">
-    Belum tersedia
-  </td>
-</tr>
+          {% if hasil %}
+          <tr>
+            <td>
+              {{ hasil.top_kasus.0.kasus.bulan|bulan_nama }} {{ hasil.top_kasus.0.kasus.tahun }}
+            </td>
+            <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
+            <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2 }}</td>
+            <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>
+            <td>{{ hasil.top_kasus.0.distance|floatformat:3 }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-slate-400">
+              Belum tersedia
+            </td>
+          </tr>
           {% endif %}
         </tbody>
       </table>
-   <p class="note">
-        Nilai Euclidean masih dalam batas threshold
-      </p>
-
+      <p class="note">Nilai Euclidean masih dalam batas threshold</p>
     </div>
 
     <!-- BUTTON -->
- {% if hasil %}
-<form method="post">
-  {% csrf_token %}
+    {% if hasil %}
+    <form method="post">
+      {% csrf_token %}
 
-  <input type="hidden" name="bor" value="{{ indikator.bor }}">
-  <input type="hidden" name="los" value="{{ indikator.los }}">
-  <input type="hidden" name="gdr" value="{{ indikator.gdr }}">
-  <input type="hidden" name="kasus_id" value="{{ hasil.top_kasus.0.kasus.id }}">
+      <input type="hidden" name="bor" value="{{ indikator.bor }}" />
+      <input type="hidden" name="los" value="{{ indikator.los }}" />
+      <input type="hidden" name="gdr" value="{{ indikator.gdr }}" />
+      <input
+        type="hidden"
+        name="kasus_id"
+        value="{{ hasil.top_kasus.0.kasus.id }}"
+      />
 
-  <div class="action-wrapper">
-    <div class="action-buttons">
+      <div class="action-wrapper">
+        <div class="action-buttons">
+          <button
+            type="submit"
+            name="action"
+            value="save"
+            style="
+              flex: 1;
+              height: 48px;
+              border-radius: 12px;
+              background: #2563eb;
+              color: white;
+              font-weight: 600;
+              border: none;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              transition: 0.2s;
+            "
+          >
+            Simpan Hasil
+          </button>
 
-      <button type="submit"
-              name="action"
-              value="save"
-              style="
-                flex:1;
-                height:48px;
-                border-radius:12px;
-                background:#2563eb;
-                color:white;
-                font-weight:600;
-                border:none;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                cursor:pointer;
-                transition:0.2s;
-              ">
-        Simpan Hasil
-      </button>
+          <button
+            type="submit"
+            name="action"
+            value="revise"
+            class="btn-secondary"
+          >
+            Evaluasi Hasil
+          </button>
+        </div>
+      </div>
+    </form>
+    {% elif indikator %}
+    <!-- Tombol Evaluasi untuk data yang sudah ada -->
+    <form method="post">
+      {% csrf_token %}
 
-      <button type="submit"
-              name="action"
-              value="revise"
-              class="btn-secondary">
-        Evaluasi Hasil
-      </button>
+      <input type="hidden" name="bor" value="{{ indikator.bor }}" />
+      <input type="hidden" name="los" value="{{ indikator.los }}" />
+      <input type="hidden" name="gdr" value="{{ indikator.gdr }}" />
 
-    </div>
-  </div>
-</form>
-{% elif indikator %}
-<!-- Tombol Evaluasi untuk data yang sudah ada -->
-<form method="post">
-  {% csrf_token %}
-  
-  <input type="hidden" name="bor" value="{{ indikator.bor }}">
-  <input type="hidden" name="los" value="{{ indikator.los }}">
-  <input type="hidden" name="gdr" value="{{ indikator.gdr }}">
-
-  <div class="action-wrapper">
-    <div class="action-buttons">
-      <button type="submit"
-              name="action"
-              value="revise"
-              class="btn-secondary"
-              style="width: 100%;">
-        Evaluasi Hasil
-      </button>
-    </div>
-  </div>
-</form>
-{% endif %}
+      <div class="action-wrapper">
+        <div class="action-buttons">
+          <button
+            type="submit"
+            name="action"
+            value="revise"
+            class="btn-secondary"
+            style="width: 100%"
+          >
+            Evaluasi Hasil
+          </button>
+        </div>
+      </div>
+    </form>
+    {% endif %}
     <div class="text-center mt-4">
-      <a href="{% url 'riwayat' %}" class="link-riwayat">Lihat Riwayat Rekomendasi</a>
+      <a href="{% url 'riwayat' %}" class="link-riwayat"
+        >Lihat Riwayat Rekomendasi</a
+      >
     </div>
-
   </div>
-
 </div>
 {% endblock %}

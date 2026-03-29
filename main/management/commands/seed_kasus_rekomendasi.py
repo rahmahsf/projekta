@@ -15,17 +15,19 @@ class Command(BaseCommand):
                 tahun=row['tahun']
             )
 
-            for kolom in [
-                'Kerja Sama',
-                'Triase IGD',
-                'Sistem Rujukan',
-                'Alat Medis',
-                'Pelatihan Dokter',
-                'Kualifikasi Staf',
-                'Pelayanan Pasien'
-            ]:
+            mapping_rekomendasi = {
+                'Kerja Sama': 'Meningkatkan Kerja Sama dengan instansi lain',
+                'Triase IGD': 'Memperbaiki Triase IGD',
+                'Sistem Rujukan': 'Memperbaiki Sistem Rujukan',
+                'Alat Medis': 'Penambahan Alat Medis',
+                'Pelatihan Dokter': 'Pelatihan Dokter',
+                'Kualifikasi Staf': 'Perbaikan Kualifikasi Staf',
+                'Pelayanan Pasien': 'Perbaikan Pelayanan Pasien',
+            }
+
+            for kolom, nilai_db in mapping_rekomendasi.items():
                 if row[kolom] == True:
-                    rekom = Rekomendasi.objects.get(rekomendasi=kolom)
+                    rekom = Rekomendasi.objects.get(rekomendasi=nilai_db)
 
                     KasusRekomendasi.objects.get_or_create(
                         kasus=kasus,
