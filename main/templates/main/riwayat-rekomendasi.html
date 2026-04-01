@@ -92,15 +92,20 @@
   </td>
 
   <td class="p-4 border-b">
-    {% for r in item.rekomendasi %}
+    {% for r in item.rekomendasi|slice:":2" %}
       <div class="text-sm font-semibold text-slate-600">
-        • {{ r }}
+        • {{ r|truncatewords:12 }}
       </div>
     {% empty %}
       <span class="text-xs text-slate-400">
         Tidak ada rekomendasi
       </span>
     {% endfor %}
+    {% if item.rekomendasi|length > 2 %}
+      <div class="text-xs text-blue-500 italic mt-1">
+        +{{ item.rekomendasi|length|add:"-2" }} rekomendasi lainnya. Klik "Detail" untuk lihat semua.
+      </div>
+    {% endif %}
   </td>
 
   <td class="p-4 border-b">

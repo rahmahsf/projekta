@@ -428,75 +428,75 @@ def rekomendasi(request):
             if "revise_data" in request.session:
                 del request.session["revise_data"]
 
-                # Buat session data dari data yang ada
-                if kasus_bulan_ini:
-                    # Gunakan data bulan ini
-                    revise_bulan = int(kasus_bulan_ini.bulan)
-                    revise_tahun = int(kasus_bulan_ini.tahun)
-                    bor = kasus_bulan_ini.bor
-                    los = kasus_bulan_ini.los
-                    gdr = kasus_bulan_ini.gdr
-                elif kasus_terakhir:
-                    # Gunakan data bulan terakhir
-                    revise_bulan = int(kasus_terakhir.bulan)
-                    revise_tahun = int(kasus_terakhir.tahun)
-                    bor = kasus_terakhir.bor
-                    los = kasus_terakhir.los
-                    gdr = kasus_terakhir.gdr
-                else:
-                    # Tidak ada data, redirect ke rekomendasi
-                    return redirect("rekomendasi")
+            # Buat session data dari data yang ada
+            if kasus_bulan_ini:
+                # Gunakan data bulan ini
+                revise_bulan = int(kasus_bulan_ini.bulan)
+                revise_tahun = int(kasus_bulan_ini.tahun)
+                bor = kasus_bulan_ini.bor
+                los = kasus_bulan_ini.los
+                gdr = kasus_bulan_ini.gdr
+            elif kasus_terakhir:
+                # Gunakan data bulan terakhir
+                revise_bulan = int(kasus_terakhir.bulan)
+                revise_tahun = int(kasus_terakhir.tahun)
+                bor = kasus_terakhir.bor
+                los = kasus_terakhir.los
+                gdr = kasus_terakhir.gdr
+            else:
+                # Tidak ada data, redirect ke rekomendasi
+                return redirect("rekomendasi")
 
-                # Buat session data dengan 3 kasus terdekat
-                top_kasus_data = []
+            # Buat session data dengan 3 kasus terdekat
+            top_kasus_data = []
 
-                # Coba ambil 3 kasus dari bulan yang sama
-                kasus_terdekat = Kasus.objects.filter(
-                    bulan=str(revise_bulan), tahun=str(revise_tahun)
-                ).order_by("-id")[:3]  # Ambil 3 kasus terbaru
+            # Coba ambil 3 kasus dari bulan yang sama
+            kasus_terdekat = Kasus.objects.filter(
+                bulan=str(revise_bulan), tahun=str(revise_tahun)
+            ).order_by("-id")[:3]  # Ambil 3 kasus terbaru
 
-                # Jika kurang dari 3, tambahkan dari kasus terbaru lainnya
-                if kasus_terdekat.count() < 3:
-                    # Ambil semua kasus terbaru untuk fallback
-                    all_kasus = Kasus.objects.all().order_by("-id")
-                    existing_ids = [k.id for k in kasus_terdekat]
+            # Jika kurang dari 3, tambahkan dari kasus terbaru lainnya
+            if kasus_terdekat.count() < 3:
+                # Ambil semua kasus terbaru untuk fallback
+                all_kasus = Kasus.objects.all().order_by("-id")
+                existing_ids = [k.id for k in kasus_terdekat]
 
-                    for k in all_kasus:
-                        if len(kasus_terdekat) >= 3:
-                            break
-                        if k.id not in existing_ids:
-                            kasus_terdekat = list(kasus_terdekat) + [k]
-                            existing_ids.append(k.id)
+                for k in all_kasus:
+                    if len(kasus_terdekat) >= 3:
+                        break
+                    if k.id not in existing_ids:
+                        kasus_terdekat = list(kasus_terdekat) + [k]
+                        existing_ids.append(k.id)
 
-                # Gunakan CBR service untuk perhitungan Euclidean distance yang benar
+            # Gunakan CBR service untuk perhitungan Euclidean distance yang benar
 
-                # Proses CBR untuk mendapatkan 3 kasus terdekat dengan normalisasi
-                hasil_cbr = proses_cbr(bor, los, gdr)
+            # Proses CBR untuk mendapatkan 3 kasus terdekat dengan normalisasi
+            hasil_cbr = proses_cbr(bor, los, gdr)
 
-                # Konversi hasil CBR ke format session data
-                for k in hasil_cbr["top_kasus"]:
-                    top_kasus_data.append(
-                        {
-                            "id": k["kasus"].id,
-                            "bulan": k["kasus"].bulan,
-                            "tahun": k["kasus"].tahun,
-                            "bor": k["kasus"].bor,
-                            "los": k["kasus"].los,
-                            "gdr": k["kasus"].gdr,
-                            "distance": k["distance"],
-                        }
-                    )
+            # Konversi hasil CBR ke format session data
+            for k in hasil_cbr["top_kasus"]:
+                top_kasus_data.append(
+                    {
+                        "id": k["kasus"].id,
+                        "bulan": k["kasus"].bulan,
+                        "tahun": k["kasus"].tahun,
+                        "bor": k["kasus"].bor,
+                        "los": k["kasus"].los,
+                        "gdr": k["kasus"].gdr,
+                        "distance": k["distance"],
+                    }
+                )
 
-                request.session["revise_data"] = {
-                    "bulan": revise_bulan,
-                    "tahun": revise_tahun,
-                    "bulan_generate": revise_bulan,
-                    "tahun_generate": revise_tahun,
-                    "bor": bor,
-                    "los": los,
-                    "gdr": gdr,
-                    "top_kasus": top_kasus_data,
-                }
+            request.session["revise_data"] = {
+                "bulan": revise_bulan,
+                "tahun": revise_tahun,
+                "bulan_generate": revise_bulan,
+                "tahun_generate": revise_tahun,
+                "bor": bor,
+                "los": los,
+                "gdr": gdr,
+                "top_kasus": top_kasus_data,
+            }
 
             return redirect("revise")
 
@@ -782,6 +782,28 @@ def detail(request, kasus_id):
     return render(
         request,
         "main/detail-data.html",
+        {
+            "kasus": kasus,
+            "rekomendasi": rekomendasi_list,
+            "status": status,
+            "page_name": "Riwayat Rekomendasi",
+            "page_title": "Riwayat Rekomendasi",
+        },
+    )
+    
+@login_required(login_url="login")
+def detail_revise(request, kasus_id):
+
+    kasus = get_object_or_404(Kasus, id=kasus_id)
+
+    relasi = KasusRekomendasi.objects.filter(kasus=kasus).select_related("rekomendasi")
+
+    rekomendasi_list = [r.rekomendasi for r in relasi]
+    status = evaluasi_indikator(kasus.bor, kasus.los, kasus.gdr)
+
+    return render(
+        request,
+        "main/detail-data-revise.html",
         {
             "kasus": kasus,
             "rekomendasi": rekomendasi_list,

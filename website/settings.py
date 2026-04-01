@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'rekom',
+        'NAME': 'rekom_rs',
         'USER': 'root',
         # 'PASSWORD': 'root12345',
         'PASSWORD': '',

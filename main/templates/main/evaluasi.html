@@ -7,24 +7,24 @@
   <!-- HEADER -->
   <div class="mb-6">
     <h3 class="text-xl font-bold text-slate-800">
-      Edit Hasil Rekomendasi Manajemen
+      Evaluasi Rekomendasi Manajemen
     </h3>
     <p class="text-sm text-slate-500">
-      Perubahan hasil rekomendasi akan memengaruhi tindakan dan strategi manajemen.
+      Evaluasi hasil rekomendasi untuk memantau efektivitas strategi manajemen yang telah diterapkan.
     </p>
   </div>
 
-  <!-- ALERT MODE REVISI -->
-  <div class="mb-6 rounded-xl border border-orange-200 bg-orange-50 p-4">
+  <!-- ALERT MODE EVALUASI -->
+  <div class="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
     <div class="flex items-start gap-3">
-      <div class="text-orange-500 text-lg">✎</div>
+      <div class="text-blue-500 text-lg">📊</div>
       <div>
         <p class="font-semibold text-slate-700">
-          Mode Revisi Rekomendasi
+          Mode Evaluasi Rekomendasi
         </p>
         <p class="text-sm text-slate-600">
-          Anda sedang berada pada mode revisi.
-          <span class="font-semibold">Data operasional tetap terkunci.</span>
+          Anda sedang berada pada mode evaluasi.
+          <span class="font-semibold">Data operasional dan rekomendasi dapat ditinjau.</span>
         </p>
       </div>
     </div>
@@ -90,98 +90,58 @@
 
     <!-- INFORMASI BULAN -->
     <div class="mb-4 bg-blue-50 p-3 rounded-lg text-sm text-blue-700">
-      📝 Sedang merevisi rekomendasi untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> ({{ info_bulan.status }})
+      📝 Sedang mengevaluasi rekomendasi untuk <strong>{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %} {{ info_bulan.tahun }}</strong> ({{ info_bulan.status }})
     </div>
 
     <p class="text-sm text-slate-500">
-      ℹ BOR, LOS, dan GDR tidak dapat diubah karena berada pada mode revisi.
+      ℹ BOR, LOS, dan GDR ditampilkan untuk evaluasi efektivitas rekomendasi yang telah diterapkan.
     </p>
-  </div>
-
-  <!-- KASUS TERDEKAT -->
-  <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
-    <h6 class="font-semibold text-slate-800 mb-4">Kasus Terdekat</h6>
-
-    <table class="w-full text-sm">
-      <thead class="border-b text-slate-400">
-        <tr>
-          <th class="py-2 text-left">Periode</th>
-          <th class="py-2 text-center">BOR</th>
-          <th class="py-2 text-center">LOS</th>
-          <th class="py-2 text-center">GDR</th>
-          <th class="py-2 text-center">Tingkat Kemiripan</th>
-          <th></th>
-        </tr>
-      </thead>
-   <tbody class="text-slate-700">
-  {% for k in top_kasus %}
-  <tr class="border-b">
-    <td class="py-3">
-      {% if k.bulan == "1" %}Januari{% elif k.bulan == "2" %}Februari{% elif k.bulan == "3" %}Maret{% elif k.bulan == "4" %}April{% elif k.bulan == "5" %}Mei{% elif k.bulan == "6" %}Juni{% elif k.bulan == "7" %}Juli{% elif k.bulan == "8" %}Agustus{% elif k.bulan == "9" %}September{% elif k.bulan == "10" %}Oktober{% elif k.bulan == "11" %}November{% elif k.bulan == "12" %}Desember{% else %}{{ k.bulan }}{% endif %} {{ k.tahun }}
-    </td>
-    <td class="text-center">{{ k.bor|floatformat:3}}%</td>
-    <td class="text-center">{{ k.los|floatformat:3}}</td>
-    <td class="text-center">{{ k.gdr|floatformat:3}}%</td>
-    <td class="text-center">{{ k.distance|floatformat:3 }}</td>
-    <td class="text-right">
-  <a href="{% url 'detail_revise' k.id %}"
-     class="text-blue-600 font-semibold hover:underline">
-     Lihat Detail
-  </a>
-</td>
-  </tr>
-  {% endfor %}
-</tbody>
-    </table>
   </div>
 
   <!-- REKOMENDASI -->
    <div class="bg-white rounded-2xl shadow-soft-xl p-6 mb-6">
-  <h6 class="font-bold text-[#344767] mb-6 text-base">Perbaikan Operasional yang perlu diperhatikan</h6>
-<form method="post">
-
-  {% csrf_token %}
+  <h6 class="font-bold text-[#344767] mb-6 text-base">Rekomendasi Operasional yang telah diterapkan</h6>
 
   <div class="rekomendasi-container">
     {% for r in semua_rekomendasi %}
-      <label class="rekomendasi-row">
-        <input type="checkbox"
-               name="rekomendasi"
-               value="{{ r.id }}"
-               {% if r.id in rekomendasi_terpilih %}checked{% endif %}>
-        <span>{{ r.rekomendasi }} ({{ r.jenis_rekomendasi }})</span>
-      </label>
+      <div class="rekomendasi-row mb-2">
+        <div class="flex items-start gap-2">
+          <span class="text-green-500 mt-1">✓</span>
+          <div>
+            <p class="font-semibold text-slate-700">{{ r.rekomendasi }}</p>
+            <span class="text-sm text-slate-400">
+              ({{ r.jenis_rekomendasi }})
+            </span>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-slate-400">
+        Tidak ada rekomendasi yang tersedia
+      </div>
     {% endfor %}
   </div>
-<div class="action-wrapper">
-  <div class="action-buttons">
-    <button type="submit"
-        name="action"
-        value="save"
-        style="
-          flex:1;
-          height:48px;
-          border-radius:12px;
-          background:#2563eb;
-          color:white;
-          font-weight:600;
-          border:none;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          cursor:pointer;
-          transition:0.2s;
-        "
-        onmouseover="this.style.background='#1e40af'"
-        onmouseout="this.style.background='#2563eb'">
-  Simpan Hasil
-</button>
-    <a href="{% url 'rekomendasi' %}" class="btn-secondary">
-      Batalkan Perubahan
+
+  <!-- TOMBOL AKSI -->
+  <div class="flex flex-wrap gap-3 mt-6">
+    <a href="{% url 'riwayat' %}"
+       class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Kembali ke Riwayat
+    </a>
+    
+    <a href="{% url 'rekomendasi' %}"
+       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+      </svg>
+      Evaluasi Ulang
     </a>
   </div>
+
 </div>
-</form>
 </div>
 </div>
 {% endblock %}

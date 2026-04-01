@@ -52,7 +52,7 @@ class Command(BaseCommand):
                     stts_pulang=status
                 )
         
-        self.stdout.write("\n✅ Data dummy Januari-Maret 2026 berhasil dibuat!")
+        self.stdout.write("\n Data dummy Januari-Maret 2026 berhasil dibuat!")
         self.stdout.write("  - Januari: 20 data")
         self.stdout.write("  - Februari: 20 data") 
         self.stdout.write("  - Maret: 5 data")
