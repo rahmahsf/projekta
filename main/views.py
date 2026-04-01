@@ -289,14 +289,30 @@ def rekomendasi(request):
             # Direktur bisa melihat semua rekomendasi
             rekomendasi_list = [kr.rekomendasi for kr in relasi]
 
-        # Format hasil untuk template
-        hasil = {
-            "rekomendasi": [
-                {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
-                for r in rekomendasi_list
-            ],
-            "top_kasus": [{"kasus": kasus_bulan_ini, "distance": 0.000}],
-        }
+        # Proses CBR untuk mendapatkan kasus terdekat
+        hasil_cbr = proses_cbr(kasus_bulan_ini.bor, kasus_bulan_ini.los, kasus_bulan_ini.gdr)
+
+        # Format hasil untuk template - ambil kasus terdekat kedua (index 1)
+        top_kasus_list = hasil_cbr["top_kasus"]
+        if len(top_kasus_list) > 1:
+            # Gunakan kasus terdekat kedua
+            kasus_terdekat_kedua = top_kasus_list[1]
+            hasil = {
+                "rekomendasi": [
+                    {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
+                    for r in rekomendasi_list
+                ],
+                "top_kasus": [kasus_terdekat_kedua],
+            }
+        else:
+            # Jika hanya ada 1 kasus, gunakan yang pertama
+            hasil = {
+                "rekomendasi": [
+                    {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
+                    for r in rekomendasi_list
+                ],
+                "top_kasus": [top_kasus_list[0]],
+            }
     else:
         # Tidak ada data bulan ini, cek bulan terakhir yang ada data
         kasus_terakhir = (
@@ -341,14 +357,30 @@ def rekomendasi(request):
                 # Direktur bisa melihat semua rekomendasi
                 rekomendasi_list = [kr.rekomendasi for kr in relasi]
 
-            # Format hasil untuk template
-            hasil = {
-                "rekomendasi": [
-                    {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
-                    for r in rekomendasi_list
-                ],
-                "top_kasus": [{"kasus": kasus_terakhir, "distance": 0.000}],
-            }
+            # Proses CBR untuk mendapatkan kasus terdekat
+            hasil_cbr = proses_cbr(kasus_terakhir.bor, kasus_terakhir.los, kasus_terakhir.gdr)
+
+            # Format hasil untuk template - ambil kasus terdekat kedua (index 1)
+            top_kasus_list = hasil_cbr["top_kasus"]
+            if len(top_kasus_list) > 1:
+                # Gunakan kasus terdekat kedua
+                kasus_terdekat_kedua = top_kasus_list[1]
+                hasil = {
+                    "rekomendasi": [
+                        {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
+                        for r in rekomendasi_list
+                    ],
+                    "top_kasus": [kasus_terdekat_kedua],
+                }
+            else:
+                # Jika hanya ada 1 kasus, gunakan yang pertama
+                hasil = {
+                    "rekomendasi": [
+                        {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
+                        for r in rekomendasi_list
+                    ],
+                    "top_kasus": [top_kasus_list[0]],
+                }
         else:
             # Tidak ada data sama sekali, tampilkan "--"
             hasil = None
@@ -473,8 +505,13 @@ def rekomendasi(request):
             # Proses CBR untuk mendapatkan 3 kasus terdekat dengan normalisasi
             hasil_cbr = proses_cbr(bor, los, gdr)
 
-            # Konversi hasil CBR ke format session data
-            for k in hasil_cbr["top_kasus"]:
+            # Konversi hasil CBR ke format session data - ambil kasus terdekat 2-4
+            for i, k in enumerate(hasil_cbr["top_kasus"]):
+                # Skip kasus terdekat pertama (index 0), ambil 2-4 (index 1-3)
+                if i == 0:
+                    continue
+                if i > 3:  # Hanya ambil sampai index 3 (kasus ke-4)
+                    break
                 top_kasus_data.append(
                     {
                         "id": k["kasus"].id,
@@ -621,53 +658,8 @@ def revise(request):
         bulan=str(data["bulan"]), tahun=str(data["tahun"])
     ).first()
 
-    # Gunakan kasus yang direvisi untuk top_kasus, kalau tidak ada pakai dari session
-    if kasus_direvisi and data.get("bulan_generate") != data.get("bulan"):
-        # Hanya query ulang jika ini dari generate (bulan_generate != bulan)
-        top_kasus_direvisi = []
-        kasus_bulan_revisi = Kasus.objects.filter(
-            bulan=str(data["bulan"]), tahun=str(data["tahun"])
-        ).order_by("-id")  # Ambil yang terbaru (ID terbesar)
-
-        # Ambil kasus dari bulan yang direvisi
-
-        # Ambil 3 kasus terdekat dari bulan yang direvisi
-        for k in kasus_bulan_revisi[:3]:
-            top_kasus_direvisi.append(
-                {
-                    "id": k.id,
-                    "bulan": k.bulan,
-                    "tahun": k.tahun,
-                    "bor": k.bor,
-                    "los": k.los,
-                    "gdr": k.gdr,
-                    "distance": 0.000,  # Kasus dari bulan yang sama, distance = 0
-                }
-            )
-
-        # Jika kurang dari 3 kasus, tambahkan dari session
-        if len(top_kasus_direvisi) < 3:
-            existing_ids = [k["id"] for k in top_kasus_direvisi]
-
-            for k in top_kasus:
-                if len(top_kasus_direvisi) >= 3:
-                    break
-                if k["id"] not in existing_ids:
-                    top_kasus_direvisi.append(
-                        {
-                            "id": k["id"],
-                            "bulan": k["bulan"],
-                            "tahun": k["tahun"],
-                            "bor": k["bor"],
-                            "los": k["los"],
-                            "gdr": k["gdr"],
-                            "distance": k["distance"],
-                        }
-                    )
-                    existing_ids.append(k["id"])
-    else:
-        # Untuk evaluasi data lama, langsung gunakan session data
-        top_kasus_direvisi = top_kasus
+    # Gunakan session data langsung karena sudah berisi kasus terdekat 2-4
+    top_kasus_direvisi = top_kasus[:3]  # Ambil maksimal 3 kasus dari session
 
     kasus_utama_id = top_kasus_direvisi[0]["id"]
 

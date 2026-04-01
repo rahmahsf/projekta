@@ -43,9 +43,9 @@ def proses_cbr(bor_input, los_input, gdr_input):
     distances = np.sqrt(np.sum((data_scaled - input_scaled) ** 2, axis=1))
 
    
-    # Ambil 3 kasus terdekat
+    # Ambil 4 kasus terdekat
    
-    idx_sorted = np.argsort(distances)[:3]
+    idx_sorted = np.argsort(distances)[:4]
 
     hasil_kasus = []
 
