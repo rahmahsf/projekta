@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
 from .services.cbr import proses_cbr
 from django.contrib import messages
-from django.db.models import Max, Value
+from django.db.models import Max, Value, Q
 from django.core.paginator import Paginator
 from django.utils import timezone
 from main.services.indikator import hitung_indikator
@@ -810,6 +810,102 @@ def detail_revise(request, kasus_id):
             "status": status,
             "page_name": "Rekomendasi",
             "page_title": "Rekomendasi",
+        },
+    )
+
+
+@login_required(login_url="login")
+def evaluasi(request, kasus_id):
+    """View untuk halaman evaluasi rekomendasi berdasarkan kasus_id"""
+    
+    kasus = get_object_or_404(Kasus, id=kasus_id)
+    
+    # Filter rekomendasi berdasarkan role user
+    user_role = request.user.role
+    
+    # Ambil semua rekomendasi yang tersedia sesuai role
+    if user_role == 'direktur':
+        # Direktur lihat semua rekomendasi
+        semua_rekomendasi = Rekomendasi.objects.all()
+    elif user_role == 'yangmed':
+        # Yangmed lihat rekomendasi jenis 'pelayanan medis'
+        semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi='pelayanan medis')
+    elif user_role == 'kepegawaian':
+        # Kepegawaian lihat rekomendasi jenis 'kepegawaian'
+        semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi='kepegawaian')
+    else:
+        # Default: tampilkan semua rekomendasi
+        semua_rekomendasi = Rekomendasi.objects.all()
+    
+    # Ambil semua rekomendasi yang sudah terhubung dengan kasus ini
+    relasi = KasusRekomendasi.objects.filter(kasus=kasus).select_related("rekomendasi")
+    rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
+    
+    # Debug: Print untuk melihat data
+    print(f"DEBUG: User role = {user_role}")
+    print(f"DEBUG: Kasus ID = {kasus.id}")
+    
+    # Cek semua rekomendasi di database
+    all_rekomendasi_db = Rekomendasi.objects.all()
+    print(f"DEBUG: Total rekomendasi di database = {all_rekomendasi_db.count()}")
+    for rec in all_rekomendasi_db:
+        print(f"DEBUG: DB Rekomendasi {rec.id}: {rec.rekomendasi} (jenis: {rec.jenis_rekomendasi})")
+    
+    print(f"DEBUG: Filtered rekomendasi count = {semua_rekomendasi.count()}")
+    print(f"DEBUG: Rekomendasi terpilih = {rekomendasi_terpilih}")
+    
+    for rec in semua_rekomendasi:
+        is_checked = rec.id in rekomendasi_terpilih
+        print(f"DEBUG: {rec.rekomendasi} ({rec.jenis_rekomendasi}) - Checked: {is_checked}")
+    
+    # Status indikator
+    status = evaluasi_indikator(kasus.bor, kasus.los, kasus.gdr)
+    
+    # Info bulan
+    info_bulan = {
+        'bulan': int(kasus.bulan),
+        'tahun': kasus.tahun,
+        'status': 'Tersedia'
+    }
+    
+    # Indikator data
+    indikator = {
+        'bor': kasus.bor,
+        'los': kasus.los,
+        'gdr': kasus.gdr
+    }
+    
+    # Handle POST request
+    if request.method == "POST":
+        if request.POST.get("action") == "save":
+            # Hapus semua rekomendasi lama untuk kasus ini
+            KasusRekomendasi.objects.filter(kasus=kasus).delete()
+            
+            # Tambahkan rekomendasi baru yang dipilih
+            rekomendasi_ids = request.POST.getlist("rekomendasi")
+            for rec_id in rekomendasi_ids:
+                rekomendasi = get_object_or_404(Rekomendasi, id=rec_id)
+                KasusRekomendasi.objects.create(
+                    kasus=kasus,
+                    rekomendasi=rekomendasi
+                )
+            
+            # Redirect ke detail kasus setelah menyimpan
+            return redirect("detail", kasus_id=kasus.id)
+    
+    return render(
+        request,
+        "main/evaluasi.html",
+        {
+            "kasus": kasus,
+            "info_bulan": info_bulan,
+            "indikator": indikator,
+            "status": status,
+            "semua_rekomendasi": semua_rekomendasi,
+            "rekomendasi_terpilih": rekomendasi_terpilih,
+            "user_role": user_role,
+            "page_name": "Evaluasi",
+            "page_title": "Evaluasi Rekomendasi",
         },
     )
 
