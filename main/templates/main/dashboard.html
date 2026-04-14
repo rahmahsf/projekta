@@ -20,7 +20,7 @@
           <div class="w-2/3 px-3">
             <p class="mb-0 text-sm font-semibold">BOR</p>
             <h5 class="font-bold">
-              {% if latest_indikator %}{{ latest_indikator.bor|floatformat:1 }}%{% else %}-%{% endif %}
+              {% if latest_indikator %}{{ latest_indikator.bor|floatformat:2 }}%{% else %}-%{% endif %}
               {% if indikator_changes %}
               {% if indikator_changes.bor > 0 %}
               <span class="text-lime-500 text-sm font-bold">+{{ indikator_changes.bor|floatformat:1 }}%</span>
@@ -51,7 +51,7 @@
           <div class="w-2/3 px-3">
             <p class="mb-0 text-sm font-semibold">LOS</p>
             <h5 class="font-bold">
-              {% if latest_indikator %}{{ latest_indikator.los|floatformat:1 }}{% else %}-%{% endif %}
+              {% if latest_indikator %}{{ latest_indikator.los|floatformat:2 }}{% else %}-%{% endif %}
               {% if indikator_changes %}
               {% if indikator_changes.los > 0 %}
               <span class="text-lime-500 text-sm font-bold">+{{ indikator_changes.los|floatformat:1 }}</span>
@@ -82,7 +82,7 @@
           <div class="w-2/3 px-3">
             <p class="mb-0 text-sm font-semibold">GDR</p>
             <h5 class="font-bold">
-              {% if latest_indikator %}{{ latest_indikator.gdr|floatformat:1 }}{% else %}-%{% endif %}
+              {% if latest_indikator %}{{ latest_indikator.gdr|floatformat:2 }}{% else %}-%{% endif %}
               {% if indikator_changes %}
               {% if indikator_changes.gdr > 0 %}
               <span class="text-lime-500 text-sm font-bold">+{{ indikator_changes.gdr|floatformat:1 }}</span>

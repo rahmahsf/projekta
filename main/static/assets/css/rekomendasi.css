@@ -166,7 +166,8 @@
   flex: 1;            /* ⬅️ SAMA LEBARNYA */
   height: 48px;
   border-radius: 12px;
-  background: #fff;
+  background-color: #ffffff !important;
+  background: #ffffff;
   border: 1px solid #cbd5f5;
   color: #475569;
   font-weight: 600;

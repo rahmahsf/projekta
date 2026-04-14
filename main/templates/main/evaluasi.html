@@ -49,7 +49,7 @@
 
       <div class="p-4">
         <p class="label-indikator">BOR {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %}{% endif %}</p>
-        <h5 class="value-indikator">{{ indikator.bor}}%</h5>
+        <h5 class="value-indikator">{{ indikator.bor|floatformat:2 }}%</h5>
       </div>
     </div>
   </div>
@@ -65,7 +65,7 @@
 
       <div class="p-4">
         <p class="label-indikator">LOS {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %}{% endif %}</p>
-        <h5 class="value-indikator">{{ indikator.los }} hari</h5>
+        <h5 class="value-indikator">{{ indikator.los|floatformat:2 }} hari</h5>
       </div>
     </div>
   </div>
@@ -81,7 +81,7 @@
 
       <div class="p-4">
         <p class="label-indikator">GDR {% if info_bulan %}{% if info_bulan.bulan == 1 %}Januari{% elif info_bulan.bulan == 2 %}Februari{% elif info_bulan.bulan == 3 %}Maret{% elif info_bulan.bulan == 4 %}April{% elif info_bulan.bulan == 5 %}Mei{% elif info_bulan.bulan == 6 %}Juni{% elif info_bulan.bulan == 7 %}Juli{% elif info_bulan.bulan == 8 %}Agustus{% elif info_bulan.bulan == 9 %}September{% elif info_bulan.bulan == 10 %}Oktober{% elif info_bulan.bulan == 11 %}November{% elif info_bulan.bulan == 12 %}Desember{% else %}{{ info_bulan.bulan }}{% endif %}{% endif %}</p>
-       <h5 class="value-indikator">{{ indikator.gdr }}%</h5>
+       <h5 class="value-indikator">{{ indikator.gdr|floatformat:2 }}%</h5>
       </div>
     </div>
   </div>

@@ -80,6 +80,10 @@ def dashboard(request):
 
     kasus_list = kasus_list[:12]
 
+    # Reverse order untuk grafik (terlama ke terbaru) agar data terbaru di kanan
+    kasus_list = list(kasus_list)
+    kasus_list.reverse()
+
     # Ambil tahun-tahun yang tersedia untuk filter
     available_years = (
         Kasus.objects.values_list("tahun", flat=True).distinct().order_by("-tahun")
