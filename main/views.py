@@ -837,23 +837,6 @@ def evaluasi(request, kasus_id):
     relasi = KasusRekomendasi.objects.filter(kasus=kasus).select_related("rekomendasi")
     rekomendasi_terpilih = [r.rekomendasi.id for r in relasi]
     
-    # Debug: Print untuk melihat data
-    print(f"DEBUG: User role = {user_role}")
-    print(f"DEBUG: Kasus ID = {kasus.id}")
-    
-    # Cek semua rekomendasi di database
-    all_rekomendasi_db = Rekomendasi.objects.all()
-    print(f"DEBUG: Total rekomendasi di database = {all_rekomendasi_db.count()}")
-    for rec in all_rekomendasi_db:
-        print(f"DEBUG: DB Rekomendasi {rec.id}: {rec.rekomendasi} (jenis: {rec.jenis_rekomendasi})")
-    
-    print(f"DEBUG: Filtered rekomendasi count = {semua_rekomendasi.count()}")
-    print(f"DEBUG: Rekomendasi terpilih = {rekomendasi_terpilih}")
-    
-    for rec in semua_rekomendasi:
-        is_checked = rec.id in rekomendasi_terpilih
-        print(f"DEBUG: {rec.rekomendasi} ({rec.jenis_rekomendasi}) - Checked: {is_checked}")
-    
     # Status indikator
     status = evaluasi_indikator(kasus.bor, kasus.los, kasus.gdr)
     
