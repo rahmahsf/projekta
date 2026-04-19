@@ -42,7 +42,7 @@ Instal library yang dibutuhkan (Django, Crispy Forms, dan Bootstrap 5 integrasi)
 
 ```bash
 pip install django
-pip install crispy_forms
+python -m pip install django-crispy-forms
 pip install crispy-bootstrap5
 ```
 
