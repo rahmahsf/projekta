@@ -36,6 +36,13 @@
     <!-- HEADER -->
     {% include "layout/header.html" %}
 
+    <!-- MESSAGES -->
+    {% for message in messages %}
+      <div id="notification" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #4CAF50; color: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 99999; font-size: 16px; font-weight: bold;">
+        {{ message }}
+      </div>
+    {% endfor %}
+
     <!-- PAGE CONTENT -->
     {% block content %}{% endblock %}
 
@@ -52,5 +59,21 @@
 
   <!-- JS tambahan per halaman -->
   {% block extra_js %}{% endblock %}
+  
+  <!-- Auto-hide messages after 3 seconds -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const notifications = document.querySelectorAll('#notification');
+      notifications.forEach(function(notification, index) {
+        setTimeout(function() {
+          notification.style.opacity = '0';
+          notification.style.transition = 'opacity 0.5s ease-out';
+          setTimeout(function() {
+            notification.remove();
+          }, 500);
+        }, 3000 + (index * 1000)); // 3 detik + 1 detik per notification
+      });
+    });
+  </script>
 </body>
 </html>

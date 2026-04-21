@@ -417,47 +417,159 @@ def rekomendasi(request):
 
         # SAVE LANGSUNG
         elif action == "save":
-            data = request.session.get("revise_data")
+            request.session.save()
+            
+            # Cek apakah ada data dari form atau session
+            if request.POST.get("bor") and request.POST.get("los") and request.POST.get("gdr"):
+                # Langsung simpan dari form
+                bor = request.POST.get("bor")
+                los = request.POST.get("los")
+                gdr = request.POST.get("gdr")
+                kasus_id = request.POST.get("kasus_id")
+                
+                # Ambil kasus referensi jika ada
+                if kasus_id:
+                    messages.info(request, "Data sudah disimpan")
+                    request.session.save()
+                    
+                    kasus_ref = get_object_or_404(Kasus, id=kasus_id)
+                    
+                    # Cegah duplikasi
+                    sudah_ada = Kasus.objects.filter(
+                        bulan=kasus_ref.bulan, tahun=kasus_ref.tahun
+                    ).exists()
+                    
+                    if not sudah_ada:
+                        messages.info(request, "Membuat kasus baru...")
+                        request.session.save()
+                        
+                        kasus_baru = Kasus.objects.create(
+                            bulan=kasus_ref.bulan,
+                            tahun=kasus_ref.tahun,
+                            bor=bor,
+                            los=los,
+                            gdr=gdr,
+                        )
+                        
+                        messages.info(request, "Mengcopy rekomendasi...")
+                        request.session.save()
+                        
+                        # Copy rekomendasi dari kasus referensi
+                        relasi = KasusRekomendasi.objects.filter(kasus=kasus_ref)
+                        
+                        # Filter rekomendasi berdasarkan role user
+                        if request.user.role == "yangmed":
+                            relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
+                        elif request.user.role == "kepegawaian":
+                            relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
+                        
+                        for r in relasi:
+                            KasusRekomendasi.objects.create(
+                                kasus=kasus_baru, rekomendasi=r.rekomendasi
+                            )
+                        
+                        messages.success(request, "✅ Data rekomendasi berhasil disimpan ke database!")
+                        request.session.save()
+                    else:
+                        messages.warning(request, "⚠️ Data untuk bulan ini sudah ada! Tidak perlu menyimpan lagi.")
+                        request.session.save()
+                        return redirect("rekomendasi")
+                else:
+                    messages.info(request, "Menggunakan data bulan ini...")
+                    request.session.save()
+                    
+                    # Jika tidak ada kasus_id, gunakan data bulan ini
+                    from datetime import datetime
+                    today = datetime.now()
+                    
+                    # Cegah duplikasi bulan ini
+                    sudah_ada = Kasus.objects.filter(
+                        bulan=str(today.month), tahun=str(today.year)
+                    ).exists()
+                    
+                    if not sudah_ada:
+                        messages.info(request, "Membuat kasus baru untuk bulan ini...")
+                        request.session.save()
+                        
+                        kasus_baru = Kasus.objects.create(
+                            bulan=str(today.month),
+                            tahun=str(today.year),
+                            bor=bor,
+                            los=los,
+                            gdr=gdr,
+                        )
+                        
+                        messages.info(request, "Menambahkan rekomendasi default...")
+                        request.session.save()
+                        
+                        # Ambil rekomendasi default berdasarkan role
+                        if request.user.role == "yangmed":
+                            rekomendasi_default = Rekomendasi.objects.filter(
+                                jenis_rekomendasi="pelayanan medis"
+                            )[:3]
+                        elif request.user.role == "kepegawaian":
+                            rekomendasi_default = Rekomendasi.objects.filter(
+                                jenis_rekomendasi="kepegawaian"
+                            )[:3]
+                        else:
+                            rekomendasi_default = Rekomendasi.objects.all()[:5]
+                        
+                        for r in rekomendasi_default:
+                            KasusRekomendasi.objects.create(
+                                kasus=kasus_baru, rekomendasi=r
+                            )
+                        
+                        request.session.save()
+                    else:
+                        messages.warning(request, "⚠️ Data untuk bulan ini sudah ada! Tidak perlu menyimpan lagi.")
+                        request.session.save()
+                        return redirect("rekomendasi")
+            
+            else:
+                # Coba dari session (revise_data)
+                data = request.session.get("revise_data")
 
-            if not data:
-                return redirect("rekomendasi")
+                if not data:
+                    return redirect("rekomendasi")
 
-            # Cegah duplikasi bulan
-            sudah_ada = Kasus.objects.filter(
-                bulan=data["bulan"], tahun=data["tahun"]
-            ).exists()
+                # Cegah duplikasi bulan
+                sudah_ada = Kasus.objects.filter(
+                    bulan=data["bulan"], tahun=data["tahun"]
+                ).exists()
 
-            if sudah_ada:
-                return redirect("rekomendasi")
+                if sudah_ada:
+                    messages.warning(request, "⚠️ Data untuk bulan ini sudah ada! Tidak perlu menyimpan lagi.")
+                    request.session.save()
+                    return redirect("rekomendasi")
 
-            kasus_baru = Kasus.objects.create(
-                bulan=data["bulan"],
-                tahun=data["tahun"],
-                bor=data["bor"],
-                los=data["los"],
-                gdr=data["gdr"],
-            )
-
-            # Ambil rekom dari kasus paling mirip
-            kasus_lama_id = data["top_kasus"][0]["id"]
-
-            relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_lama_id)
-
-            # Filter rekomendasi berdasarkan role user
-            if request.user.role == "yangmed":
-                relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
-            elif request.user.role == "kepegawaian":
-                relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
-            # Direktur bisa melihat semua rekomendasi (tidak perlu filter)
-
-            for r in relasi:
-                KasusRekomendasi.objects.create(
-                    kasus=kasus_baru, rekomendasi=r.rekomendasi
+                kasus_baru = Kasus.objects.create(
+                    bulan=data["bulan"],
+                    tahun=data["tahun"],
+                    bor=data["bor"],
+                    los=data["los"],
+                    gdr=data["gdr"],
                 )
 
-            del request.session["revise_data"]
+                # Ambil rekom dari kasus paling mirip
+                kasus_lama_id = data["top_kasus"][0]["id"]
 
-            return redirect("rekomendasi")
+                relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_lama_id)
+
+                # Filter rekomendasi berdasarkan role user
+                if request.user.role == "yangmed":
+                    relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
+                elif request.user.role == "kepegawaian":
+                    relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
+                # Direktur bisa melihat semua rekomendasi (tidak perlu filter)
+
+                for r in relasi:
+                    KasusRekomendasi.objects.create(
+                        kasus=kasus_baru, rekomendasi=r.rekomendasi
+                    )
+
+                del request.session["revise_data"]
+
+                return redirect("rekomendasi")
         # MASUK REVISE
         elif action == "revise":
             # Clear session lama dan buat baru
@@ -707,20 +819,35 @@ def revise(request):
     if request.method == "POST":
         dipilih = request.POST.getlist("rekomendasi")
 
-        kasus_baru = Kasus.objects.create(
-            bulan=data["bulan"],
-            tahun=data["tahun"],
-            bor=data["bor"],
-            los=data["los"],
-            gdr=data["gdr"],
-        )
+        # Update data kasus yang sudah ada (bukan buat baru)
+        kasus_update = Kasus.objects.filter(
+            bulan=data["bulan"], 
+            tahun=data["tahun"]
+        ).first()
 
-        for r_id in dipilih:
-            KasusRekomendasi.objects.create(kasus=kasus_baru, rekomendasi_id=r_id)
+        if kasus_update:
+            # Update indikator
+            kasus_update.bor = data["bor"]
+            kasus_update.los = data["los"] 
+            kasus_update.gdr = data["gdr"]
+            kasus_update.save()
 
-        del request.session["revise_data"]
+            # Hapus rekomendasi lama
+            KasusRekomendasi.objects.filter(kasus=kasus_update).delete()
 
-        return redirect("riwayat")
+            # Tambah rekomendasi baru yang dipilih
+            for r_id in dipilih:
+                KasusRekomendasi.objects.create(kasus=kasus_update, rekomendasi_id=r_id)
+
+            del request.session["revise_data"]
+
+            messages.success(request, "✅ Perubahan rekomendasi berhasil disimpan ke database!")
+            request.session.save()
+            
+            return redirect("riwayat")
+        else:
+            messages.error(request, "❌ Data tidak ditemukan untuk diupdate!")
+            return redirect("revise")
 
     # TAMPIL HALAMAN REVISE
     # Hitung status indikator
@@ -870,6 +997,7 @@ def evaluasi(request, kasus_id):
                 )
             
             # Redirect ke detail kasus setelah menyimpan
+            messages.success(request, "Perubahan rekomendasi berhasil disimpan ke database!")
             return redirect("detail", kasus_id=kasus.id)
     
     return render(
