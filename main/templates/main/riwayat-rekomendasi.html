@@ -25,7 +25,9 @@
                {% endfor %}
 
              </select>
+             {% if bulan_filter and bulan_filter != "All" %}
              <input type="hidden" name="bulan" value="{{ bulan_filter }}">
+             {% endif %}
            </form>
            
            <form method="get" class="flex items-center space-x-2">
@@ -50,7 +52,9 @@
                <option value="12" {% if bulan_filter == "12" %}selected{% endif %}>Desember</option>
 
              </select>
+             {% if tahun_filter and tahun_filter != "All" %}
              <input type="hidden" name="tahun" value="{{ tahun_filter }}">
+             {% endif %}
            </form>
           </div>
         </div>
