@@ -9,23 +9,49 @@
         
         <div class="p-6 pb-0 flex justify-between items-center">
           <h6 class="font-bold text-slate-700">Riwayat Rekomendasi</h6>
-          <div class="flex items-center">
-            <span class="text-sm mr-2 text-slate-500">Tahun</span>
-           <form method="get">
-<select name="tahun"
-        onchange="this.form.submit()"
-        class="text-sm border rounded-lg px-3 py-1 text-slate-500 focus:outline-none">
+          <div class="flex items-center space-x-4">
+           <form method="get" class="flex items-center space-x-2">
+             <span class="text-sm text-slate-500">Tahun</span>
+             <select name="tahun"
+                     onchange="this.form.submit()"
+                     class="text-sm border rounded-lg px-3 py-1 text-slate-500 focus:outline-none">
 
-  <option value="All">All</option>
+               <option value="All">All</option>
 
-  {% for t in daftar_tahun %}
-  <option value="{{ t }}" {% if tahun_filter == t|stringformat:"s" %}selected{% endif %}>
-    {{ t }}
-  </option>
-  {% endfor %}
+               {% for t in daftar_tahun %}
+               <option value="{{ t }}" {% if tahun_filter == t|stringformat:"s" %}selected{% endif %}>
+                 {{ t }}
+               </option>
+               {% endfor %}
 
-</select>
-</form>
+             </select>
+             <input type="hidden" name="bulan" value="{{ bulan_filter }}">
+           </form>
+           
+           <form method="get" class="flex items-center space-x-2">
+             <span class="text-sm text-slate-500">Bulan</span>
+             <select name="bulan"
+                     onchange="this.form.submit()"
+                     class="text-sm border rounded-lg px-3 py-1 text-slate-500 focus:outline-none">
+
+               <option value="All">All</option>
+
+               <option value="1" {% if bulan_filter == "1" %}selected{% endif %}>Januari</option>
+               <option value="2" {% if bulan_filter == "2" %}selected{% endif %}>Februari</option>
+               <option value="3" {% if bulan_filter == "3" %}selected{% endif %}>Maret</option>
+               <option value="4" {% if bulan_filter == "4" %}selected{% endif %}>April</option>
+               <option value="5" {% if bulan_filter == "5" %}selected{% endif %}>Mei</option>
+               <option value="6" {% if bulan_filter == "6" %}selected{% endif %}>Juni</option>
+               <option value="7" {% if bulan_filter == "7" %}selected{% endif %}>Juli</option>
+               <option value="8" {% if bulan_filter == "8" %}selected{% endif %}>Agustus</option>
+               <option value="9" {% if bulan_filter == "9" %}selected{% endif %}>September</option>
+               <option value="10" {% if bulan_filter == "10" %}selected{% endif %}>Oktober</option>
+               <option value="11" {% if bulan_filter == "11" %}selected{% endif %}>November</option>
+               <option value="12" {% if bulan_filter == "12" %}selected{% endif %}>Desember</option>
+
+             </select>
+             <input type="hidden" name="tahun" value="{{ tahun_filter }}">
+           </form>
           </div>
         </div>
 

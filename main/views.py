@@ -686,14 +686,25 @@ def rekomendasi(request):
 def riwayat_rekomendasi(request):
 
     tahun_filter = request.GET.get("tahun")
+    bulan_filter = request.GET.get("bulan")
 
     # ambil daftar tahun unik dari database
     daftar_tahun = (
         Kasus.objects.values_list("tahun", flat=True).distinct().order_by("-tahun")
     )
 
+    # Filter berdasarkan tahun dan bulan
     if tahun_filter and tahun_filter != "All":
-        daftar_kasus = Kasus.objects.filter(tahun=tahun_filter).order_by(
+        if bulan_filter and bulan_filter != "All":
+            daftar_kasus = Kasus.objects.filter(
+                tahun=tahun_filter, bulan=bulan_filter
+            ).order_by("-tahun", "-bulan")
+        else:
+            daftar_kasus = Kasus.objects.filter(tahun=tahun_filter).order_by(
+                "-tahun", "-bulan"
+            )
+    elif bulan_filter and bulan_filter != "All":
+        daftar_kasus = Kasus.objects.filter(bulan=bulan_filter).order_by(
             "-tahun", "-bulan"
         )
     else:
@@ -748,6 +759,7 @@ def riwayat_rekomendasi(request):
             "riwayat": page_obj,
             "daftar_tahun": daftar_tahun,
             "tahun_filter": tahun_filter,
+            "bulan_filter": bulan_filter,
             "page_name": "Riwayat Rekomendasi",
             "page_title": "Riwayat Rekomendasi",
         },
