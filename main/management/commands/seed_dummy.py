@@ -18,8 +18,8 @@ class Command(BaseCommand):
         }
         
         for bulan, jumlah in data_bulan.items():
-            # Hapus data lama untuk bulan ini
-            RawatInap.objects.filter(
+            # Hapus data lama untuk bulan ini dari database2
+            RawatInap.objects.using('database2').filter(
                 tgl_keluar__month=bulan,
                 tgl_keluar__year=2026
             ).delete()
@@ -45,14 +45,14 @@ class Command(BaseCommand):
                     "Meninggal"
                 ])
 
-                RawatInap.objects.create(
+                RawatInap.objects.using('database2').create(
                     no_rawat=f"2026/{bulan:02d}/{i+1:03}",
                     tgl_masuk=masuk,
                     tgl_keluar=keluar,
                     stts_pulang=status
                 )
         
-        self.stdout.write("\n Data dummy Januari-Maret 2026 berhasil dibuat!")
+        self.stdout.write("\n Data dummy Januari-Maret 2026 berhasil dibuat ke database2 (rs_rekom)!")
         self.stdout.write("  - Januari: 20 data")
         self.stdout.write("  - Februari: 20 data") 
         self.stdout.write("  - Maret: 5 data")

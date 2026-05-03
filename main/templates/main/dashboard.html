@@ -14,12 +14,12 @@
 
   <!-- card 1 -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-    <div class="relative flex flex-col bg-white shadow-soft-xl rounded-2xl">
+    <div class="relative flex flex-col bor-box shadow-soft-xl rounded-2xl">
       <div class="p-4">
         <div class="flex -mx-3">
           <div class="w-2/3 px-3">
-            <p class="mb-0 text-sm font-semibold">BOR</p>
-            <h5 class="font-bold">
+            <p class="mb-0 text-sm font-semibold bor-label">BOR</p>
+            <h5 class="font-bold text-gray-800">
               {% if latest_indikator %}{{ latest_indikator.bor|floatformat:2 }}%{% else %}-%{% endif %}
               {% if indikator_changes %}
               {% if indikator_changes.bor > 0 %}
@@ -34,7 +34,7 @@
           </div>
           <div class="w-1/3 px-3 text-right">
             <div
-              class="inline-block w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 text-center">
+              class="inline-block w-12 h-12 rounded-lg bor-icon text-center">
               <i class="ni ni-money-coins text-white relative top-3.5"></i>
             </div>
           </div>
@@ -45,12 +45,12 @@
 
   <!-- card 2 -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-    <div class="relative flex flex-col bg-white shadow-soft-xl rounded-2xl">
+    <div class="relative flex flex-col los-box shadow-soft-xl rounded-2xl">
       <div class="p-4">
         <div class="flex -mx-3">
           <div class="w-2/3 px-3">
-            <p class="mb-0 text-sm font-semibold">LOS</p>
-            <h5 class="font-bold">
+            <p class="mb-0 text-sm font-semibold los-label">LOS</p>
+            <h5 class="font-bold text-gray-800">
               {% if latest_indikator %}{{ latest_indikator.los|floatformat:2 }}{% else %}-%{% endif %}
               {% if indikator_changes %}
               {% if indikator_changes.los > 0 %}
@@ -65,7 +65,7 @@
           </div>
           <div class="w-1/3 px-3 text-right">
             <div
-              class="inline-block w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 text-center">
+              class="inline-block w-12 h-12 rounded-lg los-icon text-center">
               <i class="ni ni-world text-white relative top-3.5"></i>
             </div>
           </div>
@@ -76,12 +76,12 @@
 
   <!-- card 3 -->
   <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-    <div class="relative flex flex-col bg-white shadow-soft-xl rounded-2xl">
+    <div class="relative flex flex-col gdr-box shadow-soft-xl rounded-2xl">
       <div class="p-4">
         <div class="flex -mx-3">
           <div class="w-2/3 px-3">
-            <p class="mb-0 text-sm font-semibold">GDR</p>
-            <h5 class="font-bold">
+            <p class="mb-0 text-sm font-semibold gdr-label">GDR</p>
+            <h5 class="font-bold text-gray-800">
               {% if latest_indikator %}{{ latest_indikator.gdr|floatformat:2 }}{% else %}-%{% endif %}
               {% if indikator_changes %}
               {% if indikator_changes.gdr > 0 %}
@@ -96,7 +96,7 @@
           </div>
           <div class="w-1/3 px-3 text-right">
             <div
-              class="inline-block w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 text-center">
+              class="inline-block w-12 h-12 rounded-lg gdr-icon text-center">
               <i class="ni ni-paper-diploma text-white relative top-3.5"></i>
             </div>
           </div>
@@ -108,10 +108,10 @@
 </div>
 
 <!-- ===== GRAFIK ===== -->
-  <div class="bg-white rounded-2xl p-6 shadow mb-6">
+  <div class="bg-white rounded-2xl p-6 shadow mb-6 border-t-4 border-blue-500">
     <div class="flex justify-between items-center mb-4">
-      <h6 class="font-bold">Grafik indikator evaluasi Rawat Inap</h6>
-      <select class="border rounded-lg px-3 py-2 text-sm" id="yearFilter">
+      <h6 class="font-bold text-blue-700">Grafik indikator evaluasi Rawat Inap</h6>
+      <select class="border rounded-lg px-3 py-2 text-sm bg-blue-50 text-blue-700 border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="yearFilter">
         {% for year in available_years %}
         <option value="{{ year }}"{% if year == selected_year %} selected{% endif %}>{{ year }}</option>
         {% endfor %}
@@ -129,28 +129,28 @@
 
           <div
             class="w-full max-w-full px-3 mt-0 mb-6 md:mb-0 md:w-1/2 md:flex-none lg:w-2/3 lg:flex-none">
-              <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow">
+              <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow border-t-4 border-blue-500">
       <div class="flex justify-between mb-4">
-        <h6 class="font-bold">Data</h6>
-        <a href="{%url 'riwayat' %}" class="link-riwayat">selengkapnya</a>
+        <h6 class="font-bold text-blue-700">Data</h6>
+        <a href="{%url 'riwayat' %}" class="link-riwayat text-blue-600 hover:text-blue-800">selengkapnya</a>
       </div>
 
       <table class="w-full text-sm">
         <thead class="text-slate-400 border-b">
           <tr>
             <th class="py-2 text-left">Bulan</th>
-            <th class="py-2 text-center">BOR</th>
-            <th class="py-2 text-center">LOS</th>
-            <th class="py-2 text-center">GDR</th>
+            <th class="py-2 text-center text-blue-700">BOR</th>
+            <th class="py-2 text-center text-pink-700">LOS</th>
+            <th class="py-2 text-center text-gray-700">GDR</th>
           </tr>
         </thead>
         <tbody>
           {% for data in table_data %}
           <tr class="border-b">
             <td class="py-3">{{ data.bulan }} {{ data.tahun }}</td>
-            <td class="text-center">{{ data.bor|floatformat:1 }}%</td>
-            <td class="text-center">{{ data.los|floatformat:1 }}</td>
-            <td class="text-center">{{ data.gdr|floatformat:1 }}</td>
+            <td class="text-center text-blue-700">{{ data.bor|floatformat:1 }}%</td>
+            <td class="text-center text-pink-700">{{ data.los|floatformat:1 }}</td>
+            <td class="text-center text-gray-700">{{ data.gdr|floatformat:1 }}</td>
           </tr>
           {% empty %}
           <tr>
@@ -166,14 +166,14 @@
 
           <div
             class="w-full max-w-full px-3 md:w-1/2 md:flex-none lg:w-1/3 lg:flex-none">
-           <div class="bg-white rounded-2xl p-6 shadow">
+           <div class="bg-white rounded-2xl p-6 shadow border-t-4 border-pink-500">
       <div class="flex justify-between mb-4">
         {% if latest_month_year %}
-        <h6 class="font-bold">Rekomendasi {{ latest_month_year }}</h6>
+        <h6 class="font-bold text-pink-700">Rekomendasi {{ latest_month_year }}</h6>
         {% else %}
-        <h6 class="font-bold">Rekomendasi</h6>
+        <h6 class="font-bold text-pink-700">Rekomendasi</h6>
         {% endif %}
-        <a href="{%url 'rekomendasi' %}" class="link-riwayat">selengkapnya</a>
+        <a href="{%url 'rekomendasi' %}" class="link-riwayat text-pink-600 hover:text-pink-800">selengkapnya</a>
       </div>
 
       {% if latest_rekomendasi %}

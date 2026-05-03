@@ -14,9 +14,9 @@ def fill_missing_kasus_until(target_bulan, target_tahun):
     untuk menghindari masalah ORM values_list + distinct + order_by di MySQL.
     """
 
-    # Ambil semua tgl_keluar yang tidak null, sebelum atau sama dengan target
+    # Ambil semua tgl_keluar yang tidak null dari database2, sebelum atau sama dengan target
     raw_dates = (
-        RawatInap.objects.filter(
+        RawatInap.objects.using('database2').filter(
             tgl_keluar__isnull=False,
         )
         .filter(

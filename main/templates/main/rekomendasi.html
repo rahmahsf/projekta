@@ -14,7 +14,7 @@
       </p>
     </div>
 
-    {% if request.user.username == 'yangmed' %}
+    {% if request.user.role == 'yangmed' or request.user.role == 'direktur' or request.user.role == 'rs' %}
     <!-- BUTTON GENERATE -->
     <form method="post" style="display: inline-block">
       {% csrf_token %}
@@ -139,7 +139,19 @@
       {% if hasil %}
       <ul class="list-rekomendasi">
         {% for r in hasil.rekomendasi %}
-        <li>✓ {{ r.rekomendasi }} ({{ r.jenis }})</li>
+        <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+          <span class="text-gray-700 flex-1">✓ {{ r.rekomendasi }} ({{ r.jenis }})</span>
+          <button 
+            onclick="copyToGemini('{{ r.rekomendasi|escapejs }}')"
+            class="ml-3 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1"
+            title="Salin ke Gemini"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="#4b5563" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+         
+          </button>
+        </li>
         {% endfor %}
       </ul>
       {% else %}
@@ -181,7 +193,7 @@
           {% endif %}
         </tbody>
       </table>
-      {% if hasil.top_kasus.0.distance > 0.45 %}
+      {% if hasil.top_kasus.0.distance > 0.55 %}
       <p class="note" style="color: red;">Nilai yang diperoleh tidak berada dalam rentang normal, sehingga perlu menjadi perhatian dan ditindak lanjuti.</p>
       {% else %}
       <p class="note">Nilai perhitungan masih dalam batas aman</p>
@@ -268,4 +280,21 @@
     </div>
   </div>
 </div>
+
+
+<script>
+function copyToGemini(rekomendasiText) {
+  // Salin teks ke clipboard
+  navigator.clipboard.writeText(rekomendasiText).then(function() {
+    // Buka Gemini di tab baru
+    window.open('https://gemini.google.com', '_blank');
+    alert('Rekomendasi disalin dan membuka Gemini...');
+  }).catch(function(err) {
+    console.error('Gagal menyalin teks: ', err);
+    // Tetap buka Gemini meskipun copy gagal
+    window.open('https://gemini.google.com', '_blank');
+  });
+}
+</script>
+
 {% endblock %}

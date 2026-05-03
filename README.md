@@ -54,6 +54,12 @@ pip install crispy-bootstrap5
 
 Setelah semua _library_ terinstall, lakukan migrasi untuk membuat tabel-tabel dalam database.
 
+#### Konfigurasi Database Ganda
+
+Proyek ini menggunakan **2 database**:
+- **Database Default** (`rs_pku`): Untuk User, Kasus, Rekomendasi, dan model lainnya
+- **Database Kedua** (`rs_rekom`): Khusus untuk model RawatInap
+
 1. **Membuat File Migration**  
    Generate struktur database yang telah dikonfigurasi pada model ke dalam file migrasi.
 
@@ -63,18 +69,58 @@ Setelah semua _library_ terinstall, lakukan migrasi untuk membuat tabel-tabel da
 
    *(Opsional: Jika muncul interaksi pilihan perbaikan *migrations*, pilih angka **1** lalu ketik **'-'** jika diminta nilai default).*
 
-2. **Eksekusi Migrasi (Migrate)**  
-   Simpan struktur tabel yang sudah dibuat ke dalam database.
+2. **Eksekusi Migrasi Database Default**  
+   Simpan struktur tabel ke database default (`rs_pku`).
 
    ```bash
    python manage.py migrate
    ```
 
-3. **Seeding (Inisialisasi) Akun Default**  
+3. **Eksekusi Migrasi Database Kedua**  
+   Simpan struktur tabel RawatInap ke database kedua (`rs_rekom`).
+
+   ```bash
+   python manage.py migrate main --database=database2
+   ```
+
+4. **Setup Database Kedua (Opsional)**  
+   Jika database kedua belum ada, buat terlebih dahulu:
+
+   ```bash
+   python manage.py setup_database2
+   ```
+
+5. **Seeding (Inisialisasi) Akun Default**  
    Dapatkan data pancingan awal, terutama sistem peran atau akun _dummy_ bawaan proyek:
    ```bash
    python manage.py seed_users
    ```
+
+#### Perintah Migrasi Database Kedua
+
+Untuk operasi migrasi pada database kedua (`rs_rekom`), gunakan perintah berikut:
+
+```bash
+# Migrasi semua model main ke database2
+python manage.py migrate main --database=database2
+
+# Migrasi aplikasi tertentu
+python manage.py migrate auth --database=database2
+
+# Cek status migrasi database2
+python manage.py showmigrations --database=database2
+
+# Migrasi file spesifik
+python manage.py migrate main 0003_create_rawat_inap_table --database=database2
+```
+
+#### Routing Database Otomatis
+
+Sistem telah dikonfigurasi dengan database router yang otomatis mengarahkan:
+- **RawatInap** → Database `rs_rekom` (database2)
+- **User, Kasus, Rekomendasi, dll** → Database `rs_pku` (default)
+
+Tidak perlu menentukan database secara manual saat menggunakan model, router akan mengatasi routing otomatis.
 
 ### 4. Menjalankan Server Lokal (Jalankan Projek)
 

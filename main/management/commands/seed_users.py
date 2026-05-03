@@ -49,3 +49,17 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.SUCCESS('Kepegawaian berhasil dibuat')
             )
+
+        # ====== RS ======
+        if not User.objects.filter(username='rspku').exists():
+            User.objects.create_user(
+                username='rspku',
+                email='rspku@rs.com',
+                password='rspku123',
+                nama_lengkap='RS User',
+                role=User.Role.RS,
+                is_staff=True
+            )
+            self.stdout.write(
+                self.style.SUCCESS('RS berhasil dibuat')
+            )

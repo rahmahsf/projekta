@@ -1,0 +1,220 @@
+/* CARD */
+.card-indikator {
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.badge-normal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.badge-anormal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.label-indikator {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.value-indikator {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* WRAPPER */
+.wrapper-blue {
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: 1.5rem;
+  padding: 24px;
+}
+
+/* BOX */
+.box-white {
+  background: white;
+  border-radius: 1.25rem;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+/* ICON */
+.icon-check {
+  width: 32px;
+  height: 32px;
+  background: #22c55e;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+/* TITLES */
+.title-section {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* LIST */
+.list-rekomendasi {
+  background: #dbeafe;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.list-rekomendasi ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-rekomendasi li {
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 14px;
+}
+
+/* TABLE */
+.table-kasus {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-kasus thead {
+  color: #94a3b8;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-kasus th,
+.table-kasus td {
+  padding: 10px;
+  text-align: center;
+}
+
+.table-kasus th:first-child,
+.table-kasus td:first-child {
+  text-align: left;
+}
+
+.note {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+  margin-top: 12px;
+}
+
+/* BUTTONS */
+.action-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+/* ⬇️ BATASI LEBAR CONTAINER TOMBOL */
+.action-buttons {
+  display: flex;
+  gap: 20px;
+
+  max-width: 620px;   /* ⬅️ INI YANG HILANG */
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-primary {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;     
+  appearance: none;             
+  -webkit-appearance: none;  
+}
+
+/* SECONDARY */
+.btn-secondary {
+  flex: 1;            /* ⬅️ SAMA LEBARNYA */
+  height: 48px;
+  border-radius: 12px;
+  background-color: #ffffff !important;
+  background: #ffffff;
+  border: 1px solid #cbd5f5;
+  color: #475569;
+  font-weight: 600;
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+.link-riwayat {
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db; /* abu jelas */
+  background-color: #ffffff !important;
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background-color: #f1f5f9;
+}
+
+/* HALAMAN AKTIF */
+.page-btn.active {
+  background-color: #6366f1 !important; /* INDIGO */
+  color: #ffffff !important;
+  border-color: #6366f1;
+  font-weight: 600;
+  box-shadow: 0 6px 12px rgba(99, 102, 241, 0.25);
+}

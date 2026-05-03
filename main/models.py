@@ -7,6 +7,7 @@ class User(AbstractUser):
         DIREKTUR = 'direktur', 'Direktur'
         YANGMED = 'yangmed', 'Yangmed'
         KEPEGAWAIAN = 'kepegawaian', 'Kepegawaian'
+        RS = 'rs', 'RS'
 
     nama_lengkap = models.CharField(max_length=255)
 

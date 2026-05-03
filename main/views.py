@@ -39,6 +39,11 @@ def role_required(*allowed_roles):
 User = get_user_model()
 
 
+def redirect_to_login(request):
+    """Redirect ke halaman login"""
+    return redirect("login")
+
+
 def evaluasi_indikator(bor, los, gdr):
 
     hasil = {}
@@ -68,21 +73,26 @@ def evaluasi_indikator(bor, los, gdr):
 @login_required(login_url="login")
 def dashboard(request):
     # Ambil data kasus terbaru untuk cards (selalu data terakhir)
-    latest_kasus_overall = Kasus.objects.all().order_by("-tahun", "-bulan").first()
+    # Urutkan berdasarkan integer untuk memastikan Desember (12) adalah yang terakhir
+    all_kasus = list(Kasus.objects.all())
+    all_kasus.sort(key=lambda x: (int(x.tahun), int(x.bulan)), reverse=True)
+    latest_kasus_overall = all_kasus[0] if all_kasus else None
 
     # Data untuk grafik (sesuai filter)
     selected_year = request.GET.get("year", None)
-    kasus_list = Kasus.objects.all().order_by("-tahun", "-bulan")
-
-    # Filter berdasarkan tahun jika dipilih
+    
+    # Ambil semua data dan urutkan secara manual untuk memastikan urutan benar
     if selected_year:
-        kasus_list = kasus_list.filter(tahun=selected_year)
-
-    kasus_list = kasus_list[:12]
-
-    # Reverse order untuk grafik (terlama ke terbaru) agar data terbaru di kanan
-    kasus_list = list(kasus_list)
-    kasus_list.reverse()
+        kasus_queryset = Kasus.objects.filter(tahun=selected_year)
+    else:
+        kasus_queryset = Kasus.objects.all()
+    
+    # Konversi ke list dan urutkan manual berdasarkan tahun dan bulan sebagai integer
+    kasus_list = list(kasus_queryset)
+    kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
+    
+    # Ambil 12 data terakhir
+    kasus_list = kasus_list[-12:]
 
     # Ambil tahun-tahun yang tersedia untuk filter
     available_years = (
@@ -139,9 +149,14 @@ def dashboard(request):
         chart_data["los"].append(kasus.los)
         chart_data["gdr"].append(kasus.gdr)
 
-    # Data untuk tabel (5 bulan terakhir)
+    # Data untuk tabel (5 bulan terakhir dengan yang paling baru di paling atas)
     table_data = []
-    for kasus in kasus_list[:5]:
+    # Ambil 5 bulan terakhir dari database (urut descending berdasarkan integer)
+    all_table_kasus = list(Kasus.objects.all())
+    all_table_kasus.sort(key=lambda x: (int(x.tahun), int(x.bulan)), reverse=True)
+    table_kasus_list = all_table_kasus[:5]
+    
+    for kasus in table_kasus_list:
         # Pastikan bulan adalah integer
         bulan_int = int(kasus.bulan) if isinstance(kasus.bulan, str) else kasus.bulan
         bulan_nama = [
@@ -290,8 +305,9 @@ def rekomendasi(request):
                 if kr.rekomendasi.jenis_rekomendasi == "kepegawaian"
             ]
         else:
-            # Direktur bisa melihat semua rekomendasi
-            rekomendasi_list = [kr.rekomendasi for kr in relasi]
+            # Direktur dan RS bisa melihat semua rekomendasi
+            if request.user.role in ['direktur', 'rs']:
+                rekomendasi_list = [kr.rekomendasi for kr in relasi]
 
         # Proses CBR untuk mendapatkan kasus terdekat
         hasil_cbr = proses_cbr(kasus_bulan_ini.bor, kasus_bulan_ini.los, kasus_bulan_ini.gdr)
@@ -358,8 +374,9 @@ def rekomendasi(request):
                     if kr.rekomendasi.jenis_rekomendasi == "kepegawaian"
                 ]
             else:
-                # Direktur bisa melihat semua rekomendasi
-                rekomendasi_list = [kr.rekomendasi for kr in relasi]
+                # Direktur dan RS bisa melihat semua rekomendasi
+                if request.user.role in ['direktur', 'rs']:
+                    rekomendasi_list = [kr.rekomendasi for kr in relasi]
 
             # Proses CBR untuk mendapatkan kasus terdekat
             hasil_cbr = proses_cbr(kasus_terakhir.bor, kasus_terakhir.los, kasus_terakhir.gdr)
@@ -560,7 +577,7 @@ def rekomendasi(request):
                     relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
                 elif request.user.role == "kepegawaian":
                     relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
-                # Direktur bisa melihat semua rekomendasi (tidak perlu filter)
+                # Direktur dan RS bisa melihat semua rekomendasi (tidak perlu filter)
 
                 for r in relasi:
                     KasusRekomendasi.objects.create(
@@ -698,21 +715,21 @@ def riwayat_rekomendasi(request):
         if bulan_filter and bulan_filter != "All":
             daftar_kasus = Kasus.objects.filter(
                 tahun=tahun_filter, bulan=bulan_filter
-            ).order_by("-tahun", "-bulan")
+            ).order_by("tahun", "bulan")
         else:
             daftar_kasus = Kasus.objects.filter(tahun=tahun_filter).order_by(
-                "-tahun", "-bulan"
+                "tahun", "bulan"
             )
     elif bulan_filter and bulan_filter != "All":
         daftar_kasus = Kasus.objects.filter(bulan=bulan_filter).order_by(
-            "-tahun", "-bulan"
+            "tahun", "bulan"
         )
     else:
-        daftar_kasus = Kasus.objects.all().order_by("-tahun", "-bulan")
+        daftar_kasus = Kasus.objects.all().order_by("tahun", "bulan")
 
-    # Konversi ke list dan urutkan manual untuk memastikan urutan benar
+    # Konversi ke list dan urutkan manual untuk memastikan urutan benar (Januari-Desember)
     daftar_kasus_list = list(daftar_kasus)
-    daftar_kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)), reverse=True)
+    daftar_kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
 
     data_riwayat = []
 
@@ -733,8 +750,9 @@ def riwayat_rekomendasi(request):
                 if r.rekomendasi.jenis_rekomendasi == "kepegawaian"
             ]
         else:
-            # Direktur bisa melihat semua rekomendasi
-            rekom_list = [r.rekomendasi.rekomendasi for r in relasi]
+            # Direktur dan RS bisa melihat semua rekomendasi
+            if request.user.role in ['direktur', 'rs']:
+                rekom_list = [r.rekomendasi.rekomendasi for r in relasi]
 
         data_riwayat.append(
             {
@@ -825,7 +843,7 @@ def revise(request):
     elif request.user.role == "kepegawaian":
         semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi="kepegawaian")
     else:
-        # Direktur bisa melihat semua rekomendasi
+        # Direktur dan RS bisa melihat semua rekomendasi
         semua_rekomendasi = Rekomendasi.objects.all()
     # SIMPAN HASIL REVISI
     if request.method == "POST":
@@ -911,7 +929,25 @@ def detail(request, kasus_id):
 
     relasi = KasusRekomendasi.objects.filter(kasus=kasus).select_related("rekomendasi")
 
-    rekomendasi_list = [r.rekomendasi for r in relasi]
+    # Filter rekomendasi berdasarkan role user
+    rekomendasi_list = []
+    if request.user.role == "yangmed":
+        rekomendasi_list = [
+            r.rekomendasi
+            for r in relasi
+            if r.rekomendasi.jenis_rekomendasi == "pelayanan medis"
+        ]
+    elif request.user.role == "kepegawaian":
+        rekomendasi_list = [
+            r.rekomendasi
+            for r in relasi
+            if r.rekomendasi.jenis_rekomendasi == "kepegawaian"
+        ]
+    else:
+        # Direktur dan RS bisa melihat semua rekomendasi
+        if request.user.role in ['direktur', 'rs']:
+            rekomendasi_list = [r.rekomendasi for r in relasi]
+    
     status = evaluasi_indikator(kasus.bor, kasus.los, kasus.gdr)
 
     return render(
@@ -933,7 +969,25 @@ def detail_revise(request, kasus_id):
 
     relasi = KasusRekomendasi.objects.filter(kasus=kasus).select_related("rekomendasi")
 
-    rekomendasi_list = [r.rekomendasi for r in relasi]
+    # Filter rekomendasi berdasarkan role user
+    rekomendasi_list = []
+    if request.user.role == "yangmed":
+        rekomendasi_list = [
+            r.rekomendasi
+            for r in relasi
+            if r.rekomendasi.jenis_rekomendasi == "pelayanan medis"
+        ]
+    elif request.user.role == "kepegawaian":
+        rekomendasi_list = [
+            r.rekomendasi
+            for r in relasi
+            if r.rekomendasi.jenis_rekomendasi == "kepegawaian"
+        ]
+    else:
+        # Direktur dan RS bisa melihat semua rekomendasi
+        if request.user.role in ['direktur', 'rs']:
+            rekomendasi_list = [r.rekomendasi for r in relasi]
+    
     status = evaluasi_indikator(kasus.bor, kasus.los, kasus.gdr)
 
     return render(
@@ -959,8 +1013,8 @@ def evaluasi(request, kasus_id):
     user_role = request.user.role
     
     # Ambil semua rekomendasi yang tersedia sesuai role
-    if user_role == 'direktur':
-        # Direktur lihat semua rekomendasi
+    if user_role in ['direktur', 'rs']:
+        # Direktur dan RS lihat semua rekomendasi
         semua_rekomendasi = Rekomendasi.objects.all()
     elif user_role == 'yangmed':
         # Yangmed lihat rekomendasi jenis 'pelayanan medis'

@@ -81,15 +81,25 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'rekom_rs',
+        'NAME': 'rs_pku',
         'USER': 'root',
         # 'PASSWORD': 'root12345',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
+    'database2': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'rs_rekom',
+        'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
     }
 }
 
+# Database Router
+DATABASE_ROUTERS = ['main.db_router.DatabaseRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

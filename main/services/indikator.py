@@ -6,8 +6,8 @@ def hitung_indikator(bulan, tahun):
     tempat_tidur = 65
     periode_bulan = calendar.monthrange(tahun, bulan)[1]
 
-    # 🔹 Filter berdasarkan TANGGAL KELUAR
-    data = RawatInap.objects.filter(
+    # 🔹 Filter berdasarkan TANGGAL KELUAR dari database2 (rs_rekom)
+    data = RawatInap.objects.using('database2').filter(
         tgl_keluar__year=tahun,
         tgl_keluar__month=bulan
     )
@@ -53,8 +53,8 @@ def hitung_indikator_kumulatif(bulan, tahun):
     tempat_tidur = 65
     periode_bulan = calendar.monthrange(tahun, bulan)[1]
 
-    # 🔹 Filter data KUMULATIF: bulan 1 sampai bulan tertentu
-    data = RawatInap.objects.filter(
+    # Filter data KUMULATIF: bulan 1 sampai bulan tertentu dari database2 (rs_rekom)
+    data = RawatInap.objects.using('database2').filter(
         tgl_keluar__year=tahun,
         tgl_keluar__month__lte=bulan  # <= bulan tertentu
     )
