@@ -1,0 +1,39 @@
+/* Custom colors for dashboard boxes */
+.bor-box {
+  background: white;
+  border-left: 4px solid #3b82f6;
+}
+
+.los-box {
+  background: white;
+  border-left: 4px solid #ec4899;
+}
+
+.gdr-box {
+  background: white;
+  border-left: 4px solid #6b7280;
+}
+
+.bor-label { 
+  color: #1d4ed8; 
+}
+
+.los-label { 
+  color: #be185d; 
+}
+
+.gdr-label { 
+  color: #374151; 
+}
+
+.bor-icon {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+
+.los-icon {
+  background: linear-gradient(135deg, #db2777, #f472b6);
+}
+
+.gdr-icon {
+  background: linear-gradient(135deg, #111827, #4b5563);
+}

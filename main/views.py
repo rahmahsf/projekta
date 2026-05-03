@@ -68,21 +68,25 @@ def evaluasi_indikator(bor, los, gdr):
 @login_required(login_url="login")
 def dashboard(request):
     # Ambil data kasus terbaru untuk cards (selalu data terakhir)
-    latest_kasus_overall = Kasus.objects.all().order_by("-tahun", "-bulan").first()
+    all_kasus = list(Kasus.objects.all())
+    all_kasus.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
+    latest_kasus_overall = all_kasus[-1] if all_kasus else None
 
     # Data untuk grafik (sesuai filter)
     selected_year = request.GET.get("year", None)
-    kasus_list = Kasus.objects.all().order_by("-tahun", "-bulan")
-
-    # Filter berdasarkan tahun jika dipilih
+    
+    # Ambil semua data dan urutkan secara manual untuk memastikan urutan benar
     if selected_year:
-        kasus_list = kasus_list.filter(tahun=selected_year)
-
-    kasus_list = kasus_list[:12]
-
-    # Reverse order untuk grafik (terlama ke terbaru) agar data terbaru di kanan
-    kasus_list = list(kasus_list)
-    kasus_list.reverse()
+        kasus_queryset = Kasus.objects.filter(tahun=selected_year)
+    else:
+        kasus_queryset = Kasus.objects.all()
+    
+    # Konversi ke list dan urutkan manual berdasarkan tahun dan bulan sebagai integer
+    kasus_list = list(kasus_queryset)
+    kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
+    
+    # Ambil 12 data terakhir
+    kasus_list = kasus_list[-12:]
 
     # Ambil tahun-tahun yang tersedia untuk filter
     available_years = (
@@ -105,9 +109,8 @@ def dashboard(request):
         )
 
         # Hitung perubahan dari bulan sebelumnya
-        all_kasus_for_change = Kasus.objects.all().order_by("-tahun", "-bulan")[:2]
-        if len(all_kasus_for_change) > 1:
-            prev_kasus = all_kasus_for_change[1]
+        if len(all_kasus) > 1:
+            prev_kasus = all_kasus[-2]
             indikator_changes = {
                 "bor": float(latest_kasus_overall.bor) - float(prev_kasus.bor),
                 "los": float(latest_kasus_overall.los) - float(prev_kasus.los),
