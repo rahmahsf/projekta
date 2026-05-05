@@ -284,13 +284,28 @@
 
 <script>
 function copyToGemini(rekomendasiText) {
-  // Salin teks ke clipboard
-  navigator.clipboard.writeText(rekomendasiText).then(function() {
+  // Buat prompt khusus dengan rekomendasi dan nilai indikator
+  var borValue = '{{ indikator.bor|default:"-" }}';
+  var losValue = '{{ indikator.los|default:"-" }}';
+  var gdrValue = '{{ indikator.gdr|default:"-" }}';
+  
+  var promptText = `Apa yang harus dilakukan untuk memperbaiki "${rekomendasiText}" dengan nilai indikator BOR: ${borValue}%, LOS: ${losValue} hari, GDR: ${gdrValue}%?`;
+  
+  // Salin prompt ke clipboard
+  navigator.clipboard.writeText(promptText).then(function() {
     // Buka Gemini di tab baru
     window.open('https://gemini.google.com', '_blank');
-    alert('Rekomendasi disalin dan membuka Gemini...');
+    alert('Prompt disalin dan membuka Gemini...');
   }).catch(function(err) {
     console.error('Gagal menyalin teks: ', err);
+    // Fallback untuk browser yang tidak support clipboard API
+    const textArea = document.createElement('textarea');
+    textArea.value = promptText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
     // Tetap buka Gemini meskipun copy gagal
     window.open('https://gemini.google.com', '_blank');
   });
