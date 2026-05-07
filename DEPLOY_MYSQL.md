@@ -58,10 +58,10 @@ EXIT;
 # Clone dari GitHub
 cd /var/www/
 sudo git clone https://github.com/rahmahsf/projekta.git
-cd projekta
+cd deploy
 
 # Switch ke branch rekomendasi
-sudo git checkout rekomendasi
+sudo git checkout deploy
 
 # Setup permissions
 sudo chown -R $USER:$USER /var/www/projekta

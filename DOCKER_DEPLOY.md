@@ -35,7 +35,7 @@ Settings sudah diupdate untuk menggunakan environment variables di branch deploy
 ### 3. Build and Run
 ```bash
 # Build and start all services
-docker-compose up --build -d
+sudo docker compose up --build -d
 
 # View logs
 docker-compose logs -f
