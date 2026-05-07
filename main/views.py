@@ -1085,7 +1085,7 @@ def evaluasi(request, kasus_id):
 
 @role_required("direktur")
 def akun(request):
-    users = User.objects.all()
+    users = User.objects.exclude(role='rs')
 
     return render(
         request,
