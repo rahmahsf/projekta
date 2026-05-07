@@ -5,16 +5,17 @@ import random
 
 
 class Command(BaseCommand):
-    help = "Seeder data dummy Rawat Inap untuk bulan Januari-Maret 2026"
+    help = "Seeder data dummy Rawat Inap untuk bulan Januari-April 2026"
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("=== SEED DATA RAWAT INAP JANUARI-MARET 2026 ===")
+        self.stdout.write("=== SEED DATA RAWAT INAP JANUARI-APRIL 2026 ===")
         
         # Data per bulan
         data_bulan = {
             1: 20,  
             2: 20, 
-            3: 5   
+            3: 5,
+            4: 20   
         }
         
         for bulan, jumlah in data_bulan.items():
@@ -53,8 +54,9 @@ class Command(BaseCommand):
                     stts_pulang=status
                 )
         
-        self.stdout.write("\n Data dummy Januari-Maret 2026 berhasil dibuat ke database2 (rs_rekom)!")
+        self.stdout.write("\n Data dummy Januari-April 2026 berhasil dibuat ke database2 (rs_rekom)!")
         self.stdout.write("  - Januari: 20 data")
         self.stdout.write("  - Februari: 20 data") 
         self.stdout.write("  - Maret: 5 data")
+        self.stdout.write("  - April: 20 data")
         self.stdout.write("=== SELESAI ===")

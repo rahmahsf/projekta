@@ -148,6 +148,14 @@ python manage.py makemigrations
 python manage.py migrate --database=default  # Migrations untuk rs_pku
 python manage.py migrate --database=database2  # Migrations untuk rs_rekom
 
+# Seed data awal
+python manage.py seed_users
+python manage.py seed_kasus
+python manage.py seed_rawat_inap
+python manage.py seed_dummy
+python manage.py seed_rekomendasi
+python manage.py seed_kasus_rekomendasi
+
 # Create superuser
 python manage.py createsuperuser
 
