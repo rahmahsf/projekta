@@ -13,35 +13,24 @@
 ```bash
 git clone https://github.com/rahmahsf/projekta.git
 cd projekta
-git checkout rekomendasi
+git checkout deploy
 ```
 
-### 2. Update Django Settings for Docker
-Edit `website/settings.py`:
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'rs_pku'),
-        'USER': os.environ.get('DB_USER', 'projekta_user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'Projek_rekomendasi02'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
-    },
-    'database2': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB2_NAME', 'rs_rekom'),
-        'USER': os.environ.get('DB_USER', 'projekta_user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'Projek_rekomendasi02'),
-        'HOST': os.environ.get('DB_HOST2', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
-    }
-}
+### 2. Django Settings for Docker
+Settings sudah diupdate untuk menggunakan environment variables di branch deploy:
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-```
+✅ **Configuration otomatis:**
+- Database configuration menggunakan `os.environ.get()`
+- SECRET_KEY, DEBUG, ALLOWED_HOSTS dari environment
+- Compatible dengan docker-compose.yml
+
+✅ **Environment variables yang didukung:**
+- `DB_NAME`, `DB2_NAME` - Nama database
+- `DB_USER`, `DB_PASSWORD` - Kredensial database  
+- `DB_HOST` - Host database
+- `SECRET_KEY` - Django secret key
+- `DEBUG` - Debug mode
+- `ALLOWED_HOSTS` - Host yang diizinkan
 
 ### 3. Build and Run
 ```bash
@@ -189,14 +178,14 @@ sudo usermod -aG docker $USER
 # Clone repository
 git clone https://github.com/rahmahsf/projekta.git
 cd projekta
-git checkout rekomendasi
+git checkout deploy
 
-# Set environment variables
+# Set environment variables (opsional, sudah ada default di docker-compose.yml)
 cp .env.example .env
-# Edit .env file with production values
+# Edit .env file dengan production values jika diperlukan
 
-# Build and deploy
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+# Build dan deploy
+docker-compose up --build -d
 ```
 
 ### 4. Production Compose File
@@ -242,7 +231,7 @@ docker exec projekta_mysql2 mysqldump -u root -p rs_rekom > backup_rs_rekom.sql
 ### 3. Update Application
 ```bash
 # Pull latest changes
-git pull origin rekomendasi
+git pull origin deploy
 
 # Rebuild and restart
 docker-compose up --build -d
