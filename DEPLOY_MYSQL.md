@@ -29,17 +29,24 @@ sudo mysql -u root -p
 
 **Di MySQL prompt:**
 ```sql
--- Buat database
-CREATE DATABASE projekta;
+-- Buat database rs_pku (database utama)
+CREATE DATABASE rs_pku CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Buat database rs_rekom (database rekomendasi)
+CREATE DATABASE rs_rekom CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Buat user database
 CREATE USER 'projekta_user'@'localhost' IDENTIFIED BY 'your_password';
 
--- Grant privileges
-GRANT ALL PRIVILEGES ON projekta.* TO 'projekta_user'@'localhost';
+-- Grant privileges untuk kedua database
+GRANT ALL PRIVILEGES ON rs_pku.* TO 'projekta_user'@'localhost';
+GRANT ALL PRIVILEGES ON rs_rekom.* TO 'projekta_user'@'localhost';
 
 -- Apply changes
 FLUSH PRIVILEGES;
+
+-- Cek database yang sudah dibuat
+SHOW DATABASES;
 
 -- Exit
 EXIT;
@@ -78,13 +85,25 @@ pip install mysqlclient gunicorn whitenoise
 
 **Edit settings.py:**
 ```python
-# Ganti database configuration
+# Ganti database configuration untuk multi-database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'projekta',
+        'NAME': 'rs_pku',  # Database utama
         'USER': 'projekta_user',
-        'PASSWORD': 'your_password',
+        'PASSWORD': 'Projek_rekomendasi02',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    },
+    'database2': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'rs_rekom',  # Database rekomendasi
+        'USER': 'projekta_user',
+        'PASSWORD': 'Projek_rekomendasi02',
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -93,6 +112,9 @@ DATABASES = {
         },
     }
 }
+
+# Database Router (sudah ada di settings.py)
+DATABASE_ROUTERS = ['main.db_router.DatabaseRouter']
 ```
 
 ## 5. Setup Environment Variables
@@ -105,9 +127,14 @@ nano .env
 **Isi .env:**
 ```env
 DEBUG=False
-SECRET_KEY=your_very_long_secret_key_here
-DATABASE_URL=mysql://projekta_user:your_password@localhost:3306/projekta
-ALLOWED_HOSTS=your_domain.com,www.your_domain.com
+SECRET_KEY=django-insecure-8k%z#2@!q9j3x$7r5w#1n4m6p8f2t%y&h*j@k=l+g9s3v7b
+DB_NAME=rs_pku
+DB2_NAME=rs_rekom
+DB_USER=projekta_user
+DB_PASSWORD=MyStr0ngPass123!
+DB_HOST=localhost
+DB_PORT=3306
+ALLOWED_HOSTS=rsindikator.com,www.rsindikator.com,localhost,127.0.0.1
 ```
 
 ## 6. Database Migration
@@ -115,10 +142,11 @@ ALLOWED_HOSTS=your_domain.com,www.your_domain.com
 ```bash
 # Install mysqlclient jika error
 sudo apt-get install python3-dev default-libmysqlclient-dev build-essential -y
-
-# Run migrations
+pip install pymysql
+# Run migrations untuk kedua database
 python manage.py makemigrations
-python manage.py migrate
+python manage.py migrate --database=default  # Migrations untuk rs_pku
+python manage.py migrate --database=database2  # Migrations untuk rs_rekom
 
 # Create superuser
 python manage.py createsuperuser
@@ -252,17 +280,30 @@ chmod +x deploy_mysql.sh
 
 **Backup Database:**
 ```bash
-# Backup semua database
-mysqldump -u root -p projekta > projekta_backup.sql
+# Backup database rs_pku
+mysqldump -u root -p rs_pku > rs_pku_backup.sql
+
+# Backup database rs_rekom
+mysqldump -u root -p rs_rekom > rs_rekom_backup.sql
 
 # Backup dengan user
-mysqldump -u projekta_user -p projekta > projekta_backup.sql
+mysqldump -u projekta_user -p rs_pku > rs_pku_backup.sql
+mysqldump -u projekta_user -p rs_rekom > rs_rekom_backup.sql
+
+# Backup kedua database sekaligus
+mysqldump -u root -p --databases rs_pku rs_rekom > projekta_full_backup.sql
 ```
 
 **Restore Database:**
 ```bash
-# Restore dari backup
-mysql -u root -p projekta < projekta_backup.sql
+# Restore rs_pku
+mysql -u root -p rs_pku < rs_pku_backup.sql
+
+# Restore rs_rekom
+mysql -u root -p rs_rekom < rs_rekom_backup.sql
+
+# Restore dari full backup
+mysql -u root -p < projekta_full_backup.sql
 ```
 
 **Check Database:**
@@ -270,11 +311,16 @@ mysql -u root -p projekta < projekta_backup.sql
 # Login ke MySQL
 mysql -u projekta_user -p
 
-# Pilih database
-USE projekta;
-
-# Lihat tabel
+# Cek database rs_pku
+USE rs_pku;
 SHOW TABLES;
+
+# Cek database rs_rekom
+USE rs_rekom;
+SHOW TABLES;
+
+# Cek semua database
+SHOW DATABASES;
 
 # Exit
 EXIT;
@@ -304,7 +350,8 @@ curl http://localhost:8000
 curl -I https://your_domain.com
 
 # Test database connection
-python manage.py dbshell --database=default
+python manage.py dbshell --database=default  # rs_pku
+python manage.py dbshell --database=database2  # rs_rekom
 ```
 
 ## Commands Summary

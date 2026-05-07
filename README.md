@@ -94,6 +94,11 @@ Proyek ini menggunakan **2 database**:
    Dapatkan data pancingan awal, terutama sistem peran atau akun _dummy_ bawaan proyek:
    ```bash
    python manage.py seed_users
+   python manage.py seed_kasus
+   python manage.py seed_rawat_inap
+   python manage.py seed_dummy
+   python manage.py seed_rekomendasi
+   python manage.py seed_kasus_rekomendasi
    ```
 
 #### Perintah Migrasi Database Kedua

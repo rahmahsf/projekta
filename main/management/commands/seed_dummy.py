@@ -28,7 +28,8 @@ class Command(BaseCommand):
             nama_bulan = {
                 1: "Januari",
                 2: "Februari", 
-                3: "Maret"
+                3: "Maret",
+                4:"April",
             }
             
             self.stdout.write(f"\nMembuat data {nama_bulan[bulan]} 2026 ({jumlah} data)...")
