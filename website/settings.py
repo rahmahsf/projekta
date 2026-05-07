@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ozf!*q)!#zu@@rkswzefkb5qyn68s)p#_ahci$m1v&yf!=no9b'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-8k%z#2@!q9j3x$7r5w#1n4m6p8f2t%y&h*j@k=l+g9s3v7b')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -81,20 +81,27 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'rs_pku',
-        'USER': 'root',
-        # 'PASSWORD': 'root12345',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('DB_NAME', 'rs_pku'),
+        'USER': os.environ.get('DB_USER', 'projekta_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Projek_rekomendasi02'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     },
     'database2': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'rs_rekom',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('DB2_NAME', 'rs_rekom'),
+        'USER': os.environ.get('DB_USER', 'projekta_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Projek_rekomendasi02'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
