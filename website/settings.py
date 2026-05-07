@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import pymysql
+import os
 
 pymysql.version_info = (2, 2, 7, "final", 0)
 pymysql.install_as_MySQLdb()
