@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: projekta_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root12345
+      MYSQL_DATABASE: rs_pku
+      MYSQL_USER: projekta_user
+      MYSQL_PASSWORD: Projek_rekomendasi02
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - projekta_network
+
+  db2:
+    image: mysql:8.0
+    container_name: projekta_mysql2
+    environment:
+      MYSQL_ROOT_PASSWORD: root12345
+      MYSQL_DATABASE: rs_rekom
+      MYSQL_USER: projekta_user
+      MYSQL_PASSWORD: Projek_rekomendasi02
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql2_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - projekta_network
+
+  web:
+    build: .
+    container_name: projekta_web
+    command: >
+      sh -c "python manage.py migrate --database=default &&
+             python manage.py migrate --database=database2 &&
+             python manage.py seed_users &&
+             python manage.py seed_kasus &&
+             python manage.py seed_rawat_inap &&
+             python manage.py seed_dummy &&
+             python manage.py seed_rekomendasi &&
+             python manage.py seed_kasus_rekomendasi &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 website.wsgi:application"
+    volumes:
+      - .:/app
+      - staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - db2
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=django-insecure-8k%z#2@!q9j3x$7r5w#1n4m6p8f2t%y&h*j@k=l+g9s3v7b
+      - DB_HOST=db
+      - DB_HOST2=db2
+      - DB_USER=projekta_user
+      - DB_PASSWORD=Projek_rekomendasi02
+      - DB_NAME=rs_pku
+      - DB2_NAME=rs_rekom
+      - ALLOWED_HOSTS=nasrulfahmi.my.id,www.nasrulfahmi.my.id,localhost,127.0.0.1
+    restart: unless-stopped
+    networks:
+      - projekta_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: projekta_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - staticfiles:/static
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - projekta_network
+
+volumes:
+  mysql_data:
+  mysql2_data:
+  staticfiles:
+
+networks:
+  projekta_network:
+    driver: bridge

@@ -234,7 +234,7 @@ sudo systemctl restart nginx
 sudo apt install certbot python3-certbot-nginx -y
 
 # Get SSL certificate
-sudo certbot --nginx -d your_domain.com -d www.your_domain.com
+sudo certbot --nginx -d rsindikator.com -d www.rsindikator.com
 
 # Auto-renewal
 sudo crontab -e
