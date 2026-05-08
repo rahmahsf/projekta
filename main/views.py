@@ -180,7 +180,7 @@ def dashboard(request):
         ).select_related("rekomendasi")
 
         # Filter rekomendasi berdasarkan role user
-        if request.user.role == "yangmed":
+        if request.user.role == "yanmed":
             latest_rekomendasi = [
                 kr.rekomendasi
                 for kr in rekomendasi_list
@@ -280,7 +280,7 @@ def rekomendasi(request):
 
         # Filter rekomendasi berdasarkan role user
         rekomendasi_list = []
-        if request.user.role == "yangmed":
+        if request.user.role == "yanmed":
             rekomendasi_list = [
                 kr.rekomendasi
                 for kr in relasi
@@ -348,7 +348,7 @@ def rekomendasi(request):
 
             # Filter rekomendasi berdasarkan role user
             rekomendasi_list = []
-            if request.user.role == "yangmed":
+            if request.user.role == "yanmed":
                 rekomendasi_list = [
                     kr.rekomendasi
                     for kr in relasi
@@ -461,7 +461,7 @@ def rekomendasi(request):
                         relasi = KasusRekomendasi.objects.filter(kasus=kasus_ref)
                         
                         # Filter rekomendasi berdasarkan role user
-                        if request.user.role == "yangmed":
+                        if request.user.role == "yanmed":
                             relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
                         elif request.user.role == "kepegawaian":
                             relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
@@ -506,7 +506,7 @@ def rekomendasi(request):
                         request.session.save()
                         
                         # Ambil rekomendasi default berdasarkan role
-                        if request.user.role == "yangmed":
+                        if request.user.role == "yanmed":
                             rekomendasi_default = Rekomendasi.objects.filter(
                                 jenis_rekomendasi="pelayanan medis"
                             )[:3]
@@ -559,7 +559,7 @@ def rekomendasi(request):
                 relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_lama_id)
 
                 # Filter rekomendasi berdasarkan role user
-                if request.user.role == "yangmed":
+                if request.user.role == "yanmed":
                     relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
                 elif request.user.role == "kepegawaian":
                     relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
@@ -723,7 +723,7 @@ def riwayat_rekomendasi(request):
         relasi = KasusRekomendasi.objects.filter(kasus=k).select_related("rekomendasi")
 
         # Filter rekomendasi berdasarkan role user
-        if request.user.role == "yangmed":
+        if request.user.role == "yanmed":
             rekom_list = [
                 r.rekomendasi.rekomendasi
                 for r in relasi
@@ -821,7 +821,7 @@ def revise(request):
         }
 
     # Filter semua rekomendasi berdasarkan role user
-    if request.user.role == "yangmed":
+    if request.user.role == "yanmed":
         semua_rekomendasi = Rekomendasi.objects.filter(
             jenis_rekomendasi="pelayanan medis"
         )
@@ -965,8 +965,8 @@ def evaluasi(request, kasus_id):
     if user_role == 'direktur':
         # Direktur lihat semua rekomendasi
         semua_rekomendasi = Rekomendasi.objects.all()
-    elif user_role == 'yangmed':
-        # Yangmed lihat rekomendasi jenis 'pelayanan medis'
+    elif user_role == 'yanmed':
+        # Yanmed lihat rekomendasi jenis 'pelayanan medis'
         semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi='pelayanan medis')
     elif user_role == 'kepegawaian':
         # Kepegawaian lihat rekomendasi jenis 'kepegawaian'

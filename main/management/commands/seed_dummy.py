@@ -14,7 +14,8 @@ class Command(BaseCommand):
         data_bulan = {
             1: 20,  
             2: 20, 
-            3: 5   
+            3: 20,
+            4: 20,   
         }
         
         for bulan, jumlah in data_bulan.items():
@@ -28,7 +29,8 @@ class Command(BaseCommand):
             nama_bulan = {
                 1: "Januari",
                 2: "Februari", 
-                3: "Maret"
+                3: "Maret",
+                4: "April",
             }
             
             self.stdout.write(f"\nMembuat data {nama_bulan[bulan]} 2026 ({jumlah} data)...")
@@ -49,11 +51,13 @@ class Command(BaseCommand):
                     no_rawat=f"2026/{bulan:02d}/{i+1:03}",
                     tgl_masuk=masuk,
                     tgl_keluar=keluar,
-                    stts_pulang=status
+                    stts_pulang=status,
+                    tempat_tidur=65
                 )
         
-        self.stdout.write("\n Data dummy Januari-Maret 2026 berhasil dibuat!")
+        self.stdout.write("\n Data dummy Januari-April 2026 berhasil dibuat!")
         self.stdout.write("  - Januari: 20 data")
         self.stdout.write("  - Februari: 20 data") 
-        self.stdout.write("  - Maret: 5 data")
+        self.stdout.write("  - Maret: 20 data")
+        self.stdout.write("  - April: 20 data")
         self.stdout.write("=== SELESAI ===")

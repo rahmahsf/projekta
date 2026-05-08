@@ -1,12 +1,18 @@
 from main.models import RawatInap
 import calendar
 
+def get_tempat_tidur():
+    first_record = RawatInap.objects.first()
+    if first_record and first_record.tempat_tidur:
+        return first_record.tempat_tidur
+    return 65
+
 def hitung_indikator(bulan, tahun):
 
-    tempat_tidur = 65
+    tempat_tidur = get_tempat_tidur()
     periode_bulan = calendar.monthrange(tahun, bulan)[1]
 
-    # 🔹 Filter berdasarkan TANGGAL KELUAR
+    # Filter berdasarkan TANGGAL KELUAR
     data = RawatInap.objects.filter(
         tgl_keluar__year=tahun,
         tgl_keluar__month=bulan
@@ -50,7 +56,7 @@ def hitung_indikator_kumulatif(bulan, tahun):
     """
     Hitung indikator kumulatif: data dari bulan 1 sampai bulan tertentu
     """
-    tempat_tidur = 65
+    tempat_tidur = get_tempat_tidur()
     periode_bulan = calendar.monthrange(tahun, bulan)[1]
 
     # 🔹 Filter data KUMULATIF: bulan 1 sampai bulan tertentu

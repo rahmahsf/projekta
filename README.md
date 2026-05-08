@@ -8,10 +8,10 @@ Dilengkapi dengan sistem rekomendasi berdasarkan analisis kasus (untuk pelayanan
 
 - **Dashboard Indikator**: Visualisasi dan ringkasan data indikator (BOR, LOS, GDR) berdasarkan periode (Bulan/Tahun).
 - **Manajemen Pasien Rawat Inap**: Pencatatan data masuk dan keluar pasien beserta status pulang (Sembuh, Pindah Kamar, Atas Permintaan Sendiri, Meninggal, dll).
-- **Sistem Rekomendasi**: Modul pencatatan rekomendasi kasus untuk divisi **Pelayanan Medis (Yangmed)** dan **Kepegawaian** guna perbaikan strategi layanan ke depan.
+- **Sistem Rekomendasi**: Modul pencatatan rekomendasi kasus untuk divisi **Pelayanan Medis (Yanmed)** dan **Kepegawaian** guna perbaikan strategi layanan ke depan.
 - **Role-based Access Control (RBAC)**: Terdapat 3 role (hak akses) utama dengan wewenang berbeda:
   - `Direktur`
-  - `Yangmed` (Pelayanan Medis)
+  - `Yanmed` (Pelayanan Medis)
   - `Kepegawaian`
 - **Manajemen Akun (User Management)**: Pembuatan, pengeditan, dan penghapusan pengguna sesuai role.
 - **Notebook Analisis Data**: Terdapat file Jupyter Notebook (`perhitungan_indikator_bor,los,gdr (1).ipynb`) untuk keperluan eksplorasi dan analisis saintifik di luar antarmuka web.
@@ -74,6 +74,7 @@ Setelah semua _library_ terinstall, lakukan migrasi untuk membuat tabel-tabel da
    Dapatkan data pancingan awal, terutama sistem peran atau akun _dummy_ bawaan proyek:
    ```bash
    python manage.py seed_users
+   python manage.py seed_dummy
    ```
 
 ### 4. Menjalankan Server Lokal (Jalankan Projek)

@@ -23,18 +23,18 @@ class Command(BaseCommand):
         else:
             self.stdout.write('Direktur sudah ada')
 
-        # ====== YANGMED ======
-        if not User.objects.filter(username='yangmed').exists():
+        # ====== YANMED ======
+        if not User.objects.filter(username='yanmed').exists():
             User.objects.create_user(
-                username='yangmed',
-                email='yangmed@rs.com',
-                password='yangmed123',
+                username='yanmed',
+                email='yanmed@rs.com',
+                password='yanmed123',
                 nama_lengkap='Budi',
-                role=User.Role.YANGMED,
+                role=User.Role.YANMED,
                 is_staff=True
             )
             self.stdout.write(
-                self.style.SUCCESS('Yangmed berhasil dibuat')
+                self.style.SUCCESS('Yanmed berhasil dibuat')
             )
 
         # ====== KEPEGAWAIAN ======

@@ -75,8 +75,8 @@
           class="w-full rounded-xl border border-slate-200 px-4 py-3
                  bg-white text-slate-700
                  focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="yangmed" {% if user_edit.role == "yangmed" %}selected{% endif %}>
-            Yangmed
+          <option value="yanmed" {% if user_edit.role == "yanmed" %}selected{% endif %}>
+            Yanmed
           </option>
           <option value="kepegawaian" {% if user_edit.role == "kepegawaian" %}selected{% endif %}>
             Kepegawaian
@@ -87,7 +87,7 @@
       <!-- User non-direktur: tidak bisa edit -->
       <input type="hidden" name="role" value="{{ user_edit.role }}">
       <div class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-slate-50 text-slate-700">
-        {% if user_edit.role == "yangmed" %}Yangmed{% endif %}
+        {% if user_edit.role == "yanmed" %}Yanmed{% endif %}
         {% if user_edit.role == "kepegawaian" %}Kepegawaian{% endif %}
         {% if user_edit.role == "direktur" %}Direktur{% endif %}
       </div>
