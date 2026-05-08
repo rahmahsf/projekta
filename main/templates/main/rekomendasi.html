@@ -175,32 +175,6 @@
       </div>
       {% endif %}
 
-      <!-- DATA PASIEN DINAMIS -->
-      <div class="mb-6 bg-slate-100 p-4 rounded-lg text-sm text-slate-600">
-        <table class="table-pasien">
-          <thead>
-            <tr>
-              <th>Pasien Masuk</th>
-              <th>Pasien Keluar</th>
-              <th>Pasien Meninggal</th>
-              <th>Total Hari Perawatan</th>
-              <th>Tempat Tidur</th>
-              <th>Periode Bulan</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{ pasien_masuk|default:0 }}</td>
-              <td>{{ pasien_keluar|default:0 }}</td>
-              <td>{{ pasien_meninggal|default:0 }}</td>
-              <td>{{ total_hari_perawatan|default:0 }}</td>
-              <td>{{ tempat_tidur|default:0 }}</td>
-              <td>{{ periode_bulan|default:"-" }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
       <!-- KASUS TERDEKAT -->
       <h6 class="title-section mt-6"> Kasus Terdekat</h6>
 

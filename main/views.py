@@ -67,10 +67,28 @@ def evaluasi_indikator(bor, los, gdr):
 
 @login_required(login_url="login")
 def dashboard(request):
-    # Ambil data kasus terbaru untuk cards (selalu data terakhir)
+    from datetime import datetime
+
+    today = datetime.now()
+    current_bulan = today.month
+    current_tahun = today.year
+
+    # Tentukan bulan lalu (target yang harus ditampilkan)
+    if current_bulan == 1:
+        target_display_bulan = 12
+        target_display_tahun = current_tahun - 1
+    else:
+        target_display_bulan = current_bulan - 1
+        target_display_tahun = current_tahun
+
+    # Ambil data kasus untuk bulan lalu (target)
+    kasus_bulan_lalu = Kasus.objects.filter(
+        bulan=str(target_display_bulan), tahun=str(target_display_tahun)
+    ).first()
+
+    # Ambil semua kasus untuk grafik dan tabel
     all_kasus = list(Kasus.objects.all())
     all_kasus.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
-    latest_kasus_overall = all_kasus[-1] if all_kasus else None
 
     # Data untuk grafik (sesuai filter)
     selected_year = request.GET.get("year", None)
@@ -93,28 +111,38 @@ def dashboard(request):
         Kasus.objects.values_list("tahun", flat=True).distinct().order_by("-tahun")
     )
 
-    # Data untuk cards (selalu data terakhir)
+    # Data untuk cards (bulan lalu)
     latest_indikator = None
     latest_status = None
     indikator_changes = None
 
-    if latest_kasus_overall:
+    if kasus_bulan_lalu:
         latest_indikator = {
-            "bor": latest_kasus_overall.bor,
-            "los": latest_kasus_overall.los,
-            "gdr": latest_kasus_overall.gdr,
+            "bor": kasus_bulan_lalu.bor,
+            "los": kasus_bulan_lalu.los,
+            "gdr": kasus_bulan_lalu.gdr,
         }
         latest_status = evaluasi_indikator(
-            latest_kasus_overall.bor, latest_kasus_overall.los, latest_kasus_overall.gdr
+            kasus_bulan_lalu.bor, kasus_bulan_lalu.los, kasus_bulan_lalu.gdr
         )
 
-        # Hitung perubahan dari bulan sebelumnya
-        if len(all_kasus) > 1:
-            prev_kasus = all_kasus[-2]
+        # Hitung perubahan dari bulan sebelumnya (bulan sebelum bulan lalu)
+        if target_display_bulan == 1:
+            prev_bulan = 12
+            prev_tahun = target_display_tahun - 1
+        else:
+            prev_bulan = target_display_bulan - 1
+            prev_tahun = target_display_tahun
+
+        prev_kasus = Kasus.objects.filter(
+            bulan=str(prev_bulan), tahun=str(prev_tahun)
+        ).first()
+
+        if prev_kasus:
             indikator_changes = {
-                "bor": float(latest_kasus_overall.bor) - float(prev_kasus.bor),
-                "los": float(latest_kasus_overall.los) - float(prev_kasus.los),
-                "gdr": float(latest_kasus_overall.gdr) - float(prev_kasus.gdr),
+                "bor": float(kasus_bulan_lalu.bor) - float(prev_kasus.bor),
+                "los": float(kasus_bulan_lalu.los) - float(prev_kasus.los),
+                "gdr": float(kasus_bulan_lalu.gdr) - float(prev_kasus.gdr),
             }
 
     # Data untuk grafik (12 bulan terakhir)
@@ -172,11 +200,11 @@ def dashboard(request):
             }
         )
 
-    # Rekomendasi dari data terakhir
+    # Rekomendasi dari data bulan lalu
     latest_rekomendasi = None
-    if latest_kasus_overall:
+    if kasus_bulan_lalu:
         rekomendasi_list = KasusRekomendasi.objects.filter(
-            kasus=latest_kasus_overall
+            kasus=kasus_bulan_lalu
         ).select_related("rekomendasi")
 
         # Filter rekomendasi berdasarkan role user
@@ -196,29 +224,12 @@ def dashboard(request):
             # Direktur bisa melihat semua rekomendasi
             latest_rekomendasi = [kr.rekomendasi for kr in rekomendasi_list]
 
-    # Data bulan terakhir untuk judul
-    latest_month_year = None
-    if latest_kasus_overall:
-        bulan_int = (
-            int(latest_kasus_overall.bulan)
-            if isinstance(latest_kasus_overall.bulan, str)
-            else latest_kasus_overall.bulan
-        )
-        bulan_nama = [
-            "Januari",
-            "Februari",
-            "Maret",
-            "April",
-            "Mei",
-            "Juni",
-            "Juli",
-            "Agustus",
-            "September",
-            "Oktober",
-            "November",
-            "Desember",
-        ][bulan_int - 1]
-        latest_month_year = f"{bulan_nama} {latest_kasus_overall.tahun}"
+    # Data bulan lalu untuk judul (selalu tampilkan bulan lalu)
+    bulan_nama_list = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+    ]
+    latest_month_year = f"{bulan_nama_list[target_display_bulan - 1]} {target_display_tahun}"
 
     context = {
         "latest_indikator": latest_indikator,
@@ -246,26 +257,34 @@ def rekomendasi(request):
     indikator = None
     status = None
 
-    # LOGIKA OTOMATIS: Cek data bulan ini dan bulan terlewat
+    # LOGIKA OTOMATIS: Selalu tampilkan data BULAN LALU
     from datetime import datetime
 
     today = datetime.now()
     current_bulan = today.month
     current_tahun = today.year
 
-    # Cek apakah ada data kasus untuk bulan ini
-    kasus_bulan_ini = Kasus.objects.filter(
-        bulan=str(current_bulan), tahun=str(current_tahun)
+    # Tentukan bulan lalu (target yang harus ditampilkan)
+    if current_bulan == 1:
+        target_display_bulan = 12
+        target_display_tahun = current_tahun - 1
+    else:
+        target_display_bulan = current_bulan - 1
+        target_display_tahun = current_tahun
+
+    # Cek apakah ada data kasus untuk bulan lalu (target)
+    kasus_bulan_lalu = Kasus.objects.filter(
+        bulan=str(target_display_bulan), tahun=str(target_display_tahun)
     ).first()
 
     # (Logika auto generate bulan terlewat telah dipindah ke APScheduler agar tidak memberati page load)
 
-    if kasus_bulan_ini:
-        # Tampilkan data bulan ini yang sudah ada
+    if kasus_bulan_lalu:
+        # Tampilkan data bulan lalu yang sudah ada
         indikator = {
-            "bor": kasus_bulan_ini.bor,
-            "los": kasus_bulan_ini.los,
-            "gdr": kasus_bulan_ini.gdr,
+            "bor": kasus_bulan_lalu.bor,
+            "los": kasus_bulan_lalu.los,
+            "gdr": kasus_bulan_lalu.gdr,
         }
 
         # Evaluasi status
@@ -273,8 +292,8 @@ def rekomendasi(request):
             indikator["bor"], indikator["los"], indikator["gdr"]
         )
 
-        # Ambil rekomendasi dari kasus bulan ini
-        relasi = KasusRekomendasi.objects.filter(kasus=kasus_bulan_ini).select_related(
+        # Ambil rekomendasi dari kasus bulan lalu
+        relasi = KasusRekomendasi.objects.filter(kasus=kasus_bulan_lalu).select_related(
             "rekomendasi"
         )
 
@@ -297,7 +316,7 @@ def rekomendasi(request):
             rekomendasi_list = [kr.rekomendasi for kr in relasi]
 
         # Proses CBR untuk mendapatkan kasus terdekat
-        hasil_cbr = proses_cbr(kasus_bulan_ini.bor, kasus_bulan_ini.los, kasus_bulan_ini.gdr)
+        hasil_cbr = proses_cbr(kasus_bulan_lalu.bor, kasus_bulan_lalu.los, kasus_bulan_lalu.gdr)
 
         # Format hasil untuk template - ambil kasus terdekat kedua (index 1)
         top_kasus_list = hasil_cbr["top_kasus"]
@@ -321,78 +340,10 @@ def rekomendasi(request):
                 "top_kasus": [top_kasus_list[0]],
             }
     else:
-        # Tidak ada data bulan ini, cek bulan terakhir yang ada data
-        kasus_terakhir = (
-            Kasus.objects.filter(tahun=str(current_tahun), bulan__lt=str(current_bulan))
-            .order_by("-bulan")
-            .first()
-        )
-
-        if kasus_terakhir:
-            # Ada data bulan sebelumnya, tampilkan data bulan terakhir
-            indikator = {
-                "bor": kasus_terakhir.bor,
-                "los": kasus_terakhir.los,
-                "gdr": kasus_terakhir.gdr,
-            }
-
-            # Evaluasi status
-            status = evaluasi_indikator(
-                indikator["bor"], indikator["los"], indikator["gdr"]
-            )
-
-            # Ambil rekomendasi dari kasus terakhir
-            relasi = KasusRekomendasi.objects.filter(
-                kasus=kasus_terakhir
-            ).select_related("rekomendasi")
-
-            # Filter rekomendasi berdasarkan role user
-            rekomendasi_list = []
-            if request.user.role == "yanmed":
-                rekomendasi_list = [
-                    kr.rekomendasi
-                    for kr in relasi
-                    if kr.rekomendasi.jenis_rekomendasi == "pelayanan medis"
-                ]
-            elif request.user.role == "kepegawaian":
-                rekomendasi_list = [
-                    kr.rekomendasi
-                    for kr in relasi
-                    if kr.rekomendasi.jenis_rekomendasi == "kepegawaian"
-                ]
-            else:
-                # Direktur bisa melihat semua rekomendasi
-                rekomendasi_list = [kr.rekomendasi for kr in relasi]
-
-            # Proses CBR untuk mendapatkan kasus terdekat
-            hasil_cbr = proses_cbr(kasus_terakhir.bor, kasus_terakhir.los, kasus_terakhir.gdr)
-
-            # Format hasil untuk template - ambil kasus terdekat kedua (index 1)
-            top_kasus_list = hasil_cbr["top_kasus"]
-            if len(top_kasus_list) > 1:
-                # Gunakan kasus terdekat kedua
-                kasus_terdekat_kedua = top_kasus_list[1]
-                hasil = {
-                    "rekomendasi": [
-                        {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
-                        for r in rekomendasi_list
-                    ],
-                    "top_kasus": [kasus_terdekat_kedua],
-                }
-            else:
-                # Jika hanya ada 1 kasus, gunakan yang pertama
-                hasil = {
-                    "rekomendasi": [
-                        {"rekomendasi": r.rekomendasi, "jenis": r.jenis_rekomendasi}
-                        for r in rekomendasi_list
-                    ],
-                    "top_kasus": [top_kasus_list[0]],
-                }
-        else:
-            # Tidak ada data sama sekali, tampilkan "--"
-            hasil = None
-            indikator = None
-            status = None
+        # Tidak ada data bulan lalu, tampilkan "----"
+        hasil = None
+        indikator = None
+        status = None
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -580,20 +531,13 @@ def rekomendasi(request):
                 del request.session["revise_data"]
 
             # Buat session data dari data yang ada
-            if kasus_bulan_ini:
-                # Gunakan data bulan ini
-                revise_bulan = int(kasus_bulan_ini.bulan)
-                revise_tahun = int(kasus_bulan_ini.tahun)
-                bor = kasus_bulan_ini.bor
-                los = kasus_bulan_ini.los
-                gdr = kasus_bulan_ini.gdr
-            elif kasus_terakhir:
-                # Gunakan data bulan terakhir
-                revise_bulan = int(kasus_terakhir.bulan)
-                revise_tahun = int(kasus_terakhir.tahun)
-                bor = kasus_terakhir.bor
-                los = kasus_terakhir.los
-                gdr = kasus_terakhir.gdr
+            if kasus_bulan_lalu:
+                # Gunakan data bulan lalu
+                revise_bulan = int(kasus_bulan_lalu.bulan)
+                revise_tahun = int(kasus_bulan_lalu.tahun)
+                bor = kasus_bulan_lalu.bor
+                los = kasus_bulan_lalu.los
+                gdr = kasus_bulan_lalu.gdr
             else:
                 # Tidak ada data, redirect ke rekomendasi
                 return redirect("rekomendasi")
@@ -656,32 +600,19 @@ def rekomendasi(request):
 
             return redirect("revise")
 
-    # Tentukan informasi bulan yang ditampilkan
-    info_bulan = None
-    if kasus_bulan_ini:
-        info_bulan = {
-            "bulan": int(kasus_bulan_ini.bulan),
-            "tahun": int(kasus_bulan_ini.tahun),
-            "status": "current",
-        }
-    elif kasus_terakhir:
-        info_bulan = {
-            "bulan": int(kasus_terakhir.bulan),
-            "tahun": int(kasus_terakhir.tahun),
-            "status": "previous",
-        }
+    # Tentukan informasi bulan yang ditampilkan (selalu bulan lalu)
+    info_bulan = {
+        "bulan": target_display_bulan,
+        "tahun": target_display_tahun,
+        "status": "bulan lalu" if kasus_bulan_lalu else "belum ada data",
+    }
 
     # Hitung data pasien dari RawatInap
     from main.models import RawatInap
     
-    # Tentukan bulan dan tahun yang akan digunakan
-    if info_bulan:
-        target_bulan = info_bulan["bulan"]
-        target_tahun = info_bulan["tahun"]
-    else:
-        # Gunakan bulan dan tahun saat ini jika tidak ada data
-        target_bulan = current_bulan
-        target_tahun = current_tahun
+    # Gunakan bulan lalu sebagai target untuk data RawatInap
+    target_bulan = target_display_bulan
+    target_tahun = target_display_tahun
 
     # Ambil data RawatInap untuk bulan dan tahun tersebut
     rawat_inap_data = RawatInap.objects.filter(
