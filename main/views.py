@@ -671,6 +671,47 @@ def rekomendasi(request):
             "status": "previous",
         }
 
+    # Hitung data pasien dari RawatInap
+    from main.models import RawatInap
+    
+    # Tentukan bulan dan tahun yang akan digunakan
+    if info_bulan:
+        target_bulan = info_bulan["bulan"]
+        target_tahun = info_bulan["tahun"]
+    else:
+        # Gunakan bulan dan tahun saat ini jika tidak ada data
+        target_bulan = current_bulan
+        target_tahun = current_tahun
+
+    # Ambil data RawatInap untuk bulan dan tahun tersebut
+    rawat_inap_data = RawatInap.objects.filter(
+        tgl_keluar__month=target_bulan,
+        tgl_keluar__year=target_tahun
+    )
+
+    # Hitung statistik pasien
+    pasien_masuk = rawat_inap_data.count()
+    pasien_keluar = rawat_inap_data.filter(stts_pulang__in=["Sembuh", "Membaik", "Atas Persetujuan Dokter"]).count()
+    pasien_meninggal = rawat_inap_data.filter(stts_pulang="Meninggal").count()
+    
+    # Hitung total hari perawatan
+    total_hari_perawatan = 0
+    for rawat in rawat_inap_data:
+        if rawat.tgl_keluar and rawat.tgl_masuk:
+            total_hari_perawatan += (rawat.tgl_keluar - rawat.tgl_masuk).days
+    
+    # Ambil tempat tidur dari data pertama atau default
+    tempat_tidur = 65  # Default value
+    if rawat_inap_data.exists():
+        first_data = rawat_inap_data.first()
+        if hasattr(first_data, 'tempat_tidur') and first_data.tempat_tidur:
+            tempat_tidur = first_data.tempat_tidur
+    
+    # Tentukan jumlah hari dalam bulan untuk periode
+    import calendar
+    jumlah_hari = calendar.monthrange(target_tahun, target_bulan)[1]
+    periode_bulan = str(jumlah_hari)
+
     return render(
         request,
         "main/rekomendasi.html",
@@ -679,6 +720,12 @@ def rekomendasi(request):
             "indikator": indikator,
             "status": status,
             "info_bulan": info_bulan,
+            "pasien_masuk": pasien_masuk,
+            "pasien_keluar": pasien_keluar,
+            "pasien_meninggal": pasien_meninggal,
+            "total_hari_perawatan": total_hari_perawatan,
+            "tempat_tidur": tempat_tidur,
+            "periode_bulan": periode_bulan,
             "page_name": "Rekomendasi",
             "page_title": "Rekomendasi",
         },
