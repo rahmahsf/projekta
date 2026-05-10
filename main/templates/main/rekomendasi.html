@@ -14,7 +14,7 @@
       </p>
     </div>
 
-    {% if request.user.role == 'yangmed' or request.user.role == 'direktur' or request.user.role == 'rs' %}
+    {% if request.user.role == 'yanmed' or request.user.role == 'direktur' or request.user.role == 'rs' %}
     <!-- BUTTON GENERATE -->
     <form method="post" style="display: inline-block">
       {% csrf_token %}
@@ -59,7 +59,33 @@
     terakhir yang tersedia) {% endif %} {% else %} Belum ada data rekomendasi.
     Silakan generate rekomendasi terlebih dahulu. {% endif %}
   </div>
-
+ 
+   <!-- DATA PASIEN DINAMIS -->
+  <div class="mb-6 bg-white p-6 rounded-lg shadow-md text-sm text-slate-600">
+    <table class="table-pasien table-bordered table-striped w-full">
+      <thead>
+        <tr>
+          <th class="text-center font-bold label-indikator">Pasien Masuk</th>
+          <th class="text-center font-bold label-indikator">Pasien Keluar</th>
+          <th class="text-center font-bold label-indikator">Pasien Meninggal</th>
+          <th class="text-center font-bold label-indikator">Total Hari Perawatan</th>
+          <th class="text-center font-bold label-indikator">Tempat Tidur</th>
+          <th class="text-center font-bold label-indikator">Periode Bulan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_masuk is not None %}{{ pasien_masuk }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_keluar is not None %}{{ pasien_keluar }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_meninggal is not None %}{{ pasien_meninggal }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if total_hari_perawatan is not None %}{{ total_hari_perawatan }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if tempat_tidur is not None %}{{ tempat_tidur }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if periode_bulan is not None %}{{ periode_bulan }}{% else %}—{% endif %}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
   <!-- INDIKATOR -->
   <h6 class="font-semibold mb-3 text-slate-700">Hasil Perhitungan</h6>
 

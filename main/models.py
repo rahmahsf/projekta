@@ -5,7 +5,7 @@ class User(AbstractUser):
 
     class Role(models.TextChoices):
         DIREKTUR = 'direktur', 'Direktur'
-        YANGMED = 'yangmed', 'Yangmed'
+        YANMED = 'yanmed', 'Yanmed'
         KEPEGAWAIAN = 'kepegawaian', 'Kepegawaian'
         RS = 'rs', 'RS'
 
@@ -35,6 +35,7 @@ class RawatInap(models.Model):
         null=True,
         blank=True
     )
+    tempat_tidur = models.IntegerField(default=65)
     
     class Meta:
         db_table = 'rawat_inap'

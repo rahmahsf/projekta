@@ -51,7 +51,8 @@ class Command(BaseCommand):
                     no_rawat=f"2026/{bulan:02d}/{i+1:03}",
                     tgl_masuk=masuk,
                     tgl_keluar=keluar,
-                    stts_pulang=status
+                    stts_pulang=status,
+                    tempat_tidur=65
                 )
         
         self.stdout.write("\n Data dummy Januari-April 2026 berhasil dibuat ke database2 (rs_rekom)!")

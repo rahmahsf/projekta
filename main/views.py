@@ -192,7 +192,7 @@ def dashboard(request):
         ).select_related("rekomendasi")
 
         # Filter rekomendasi berdasarkan role user
-        if request.user.role == "yangmed":
+        if request.user.role == "yanmed":
             latest_rekomendasi = [
                 kr.rekomendasi
                 for kr in rekomendasi_list
@@ -260,6 +260,7 @@ def rekomendasi(request):
 
     # LOGIKA OTOMATIS: Cek data bulan ini dan bulan terlewat
     from datetime import datetime
+    import calendar
 
     today = datetime.now()
     current_bulan = today.month
@@ -269,6 +270,21 @@ def rekomendasi(request):
     kasus_bulan_ini = Kasus.objects.filter(
         bulan=str(current_bulan), tahun=str(current_tahun)
     ).first()
+
+    # Jika tidak ada data bulan ini, cek bulan sebelumnya
+    kasus_bulan_sebelumnya = None
+    if not kasus_bulan_ini:
+        # Hitung bulan sebelumnya
+        if current_bulan == 1:
+            prev_bulan = 12
+            prev_tahun = current_tahun - 1
+        else:
+            prev_bulan = current_bulan - 1
+            prev_tahun = current_tahun
+
+        kasus_bulan_sebelumnya = Kasus.objects.filter(
+            bulan=str(prev_bulan), tahun=str(prev_tahun)
+        ).first()
 
     # (Logika auto generate bulan terlewat telah dipindah ke APScheduler agar tidak memberati page load)
 
@@ -292,7 +308,7 @@ def rekomendasi(request):
 
         # Filter rekomendasi berdasarkan role user
         rekomendasi_list = []
-        if request.user.role == "yangmed":
+        if request.user.role == "yanmed":
             rekomendasi_list = [
                 kr.rekomendasi
                 for kr in relasi
@@ -334,19 +350,13 @@ def rekomendasi(request):
                 "top_kasus": [top_kasus_list[0]],
             }
     else:
-        # Tidak ada data bulan ini, cek bulan terakhir yang ada data
-        kasus_terakhir = (
-            Kasus.objects.filter(tahun=str(current_tahun), bulan__lt=str(current_bulan))
-            .order_by("-bulan")
-            .first()
-        )
-
-        if kasus_terakhir:
-            # Ada data bulan sebelumnya, tampilkan data bulan terakhir
+        # Tidak ada data bulan ini, cek bulan sebelumnya
+        if kasus_bulan_sebelumnya:
+            # Ada data bulan sebelumnya, tampilkan data bulan sebelumnya
             indikator = {
-                "bor": kasus_terakhir.bor,
-                "los": kasus_terakhir.los,
-                "gdr": kasus_terakhir.gdr,
+                "bor": kasus_bulan_sebelumnya.bor,
+                "los": kasus_bulan_sebelumnya.los,
+                "gdr": kasus_bulan_sebelumnya.gdr,
             }
 
             # Evaluasi status
@@ -354,14 +364,14 @@ def rekomendasi(request):
                 indikator["bor"], indikator["los"], indikator["gdr"]
             )
 
-            # Ambil rekomendasi dari kasus terakhir
+            # Ambil rekomendasi dari kasus sebelumnya
             relasi = KasusRekomendasi.objects.filter(
-                kasus=kasus_terakhir
+                kasus=kasus_bulan_sebelumnya
             ).select_related("rekomendasi")
 
             # Filter rekomendasi berdasarkan role user
             rekomendasi_list = []
-            if request.user.role == "yangmed":
+            if request.user.role == "yanmed":
                 rekomendasi_list = [
                     kr.rekomendasi
                     for kr in relasi
@@ -379,7 +389,7 @@ def rekomendasi(request):
                     rekomendasi_list = [kr.rekomendasi for kr in relasi]
 
             # Proses CBR untuk mendapatkan kasus terdekat
-            hasil_cbr = proses_cbr(kasus_terakhir.bor, kasus_terakhir.los, kasus_terakhir.gdr)
+            hasil_cbr = proses_cbr(kasus_bulan_sebelumnya.bor, kasus_bulan_sebelumnya.los, kasus_bulan_sebelumnya.gdr)
 
             # Format hasil untuk template - ambil kasus terdekat kedua (index 1)
             top_kasus_list = hasil_cbr["top_kasus"]
@@ -475,7 +485,7 @@ def rekomendasi(request):
                         relasi = KasusRekomendasi.objects.filter(kasus=kasus_ref)
                         
                         # Filter rekomendasi berdasarkan role user
-                        if request.user.role == "yangmed":
+                        if request.user.role == "yanmed":
                             relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
                         elif request.user.role == "kepegawaian":
                             relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
@@ -520,7 +530,7 @@ def rekomendasi(request):
                         request.session.save()
                         
                         # Ambil rekomendasi default berdasarkan role
-                        if request.user.role == "yangmed":
+                        if request.user.role == "yanmed":
                             rekomendasi_default = Rekomendasi.objects.filter(
                                 jenis_rekomendasi="pelayanan medis"
                             )[:3]
@@ -573,7 +583,7 @@ def rekomendasi(request):
                 relasi = KasusRekomendasi.objects.filter(kasus_id=kasus_lama_id)
 
                 # Filter rekomendasi berdasarkan role user
-                if request.user.role == "yangmed":
+                if request.user.role == "yanmed":
                     relasi = relasi.filter(rekomendasi__jenis_rekomendasi="pelayanan medis")
                 elif request.user.role == "kepegawaian":
                     relasi = relasi.filter(rekomendasi__jenis_rekomendasi="kepegawaian")
@@ -678,12 +688,58 @@ def rekomendasi(request):
             "tahun": int(kasus_bulan_ini.tahun),
             "status": "current",
         }
-    elif kasus_terakhir:
+    elif kasus_bulan_sebelumnya:
         info_bulan = {
-            "bulan": int(kasus_terakhir.bulan),
-            "tahun": int(kasus_terakhir.tahun),
+            "bulan": int(kasus_bulan_sebelumnya.bulan),
+            "tahun": int(kasus_bulan_sebelumnya.tahun),
             "status": "previous",
         }
+
+    # Hitung metrik data bulanan hanya jika ada indikator data
+    pasien_masuk = None
+    pasien_keluar = None
+    pasien_meninggal = None
+    total_hari_perawatan = None
+    tempat_tidur = None
+    periode_bulan = None
+
+    if indikator and info_bulan:
+        import calendar
+        from main.models import RawatInap
+
+        periode_bulan = calendar.monthrange(info_bulan["tahun"], info_bulan["bulan"])[1]
+
+        # Filter berdasarkan TANGGAL KELUAR dari database2 (rs_rekom)
+        data = RawatInap.objects.using('database2').filter(
+            tgl_keluar__year=info_bulan["tahun"],
+            tgl_keluar__month=info_bulan["bulan"]
+        )
+
+        # Get tempat_tidur from database, default to 65 if empty
+        tempat_tidur_data = data.first()
+        tempat_tidur = tempat_tidur_data.tempat_tidur if tempat_tidur_data and tempat_tidur_data.tempat_tidur else 65
+
+        # TOTAL HARI PERAWATAN
+        total_hari_perawatan = 0
+        for d in data:
+            if d.tgl_keluar and d.tgl_masuk:
+                lama = (d.tgl_keluar - d.tgl_masuk).days
+                total_hari_perawatan += lama
+
+        # PASIEN KELUAR (UNIQUE)
+        pasien_keluar = data.values("no_rawat").distinct().count()
+
+        # PASIEN MENINGGAL
+        pasien_meninggal = data.filter(
+            stts_pulang="Meninggal"
+        ).values("no_rawat").distinct().count()
+
+        # PASIEN MASUK (filter berdasarkan tgl_masuk)
+        data_masuk = RawatInap.objects.using('database2').filter(
+            tgl_masuk__year=info_bulan["tahun"],
+            tgl_masuk__month=info_bulan["bulan"]
+        )
+        pasien_masuk = data_masuk.values("no_rawat").distinct().count()
 
     return render(
         request,
@@ -693,6 +749,12 @@ def rekomendasi(request):
             "indikator": indikator,
             "status": status,
             "info_bulan": info_bulan,
+            "pasien_masuk": pasien_masuk,
+            "pasien_keluar": pasien_keluar,
+            "pasien_meninggal": pasien_meninggal,
+            "total_hari_perawatan": total_hari_perawatan,
+            "tempat_tidur": tempat_tidur,
+            "periode_bulan": periode_bulan,
             "page_name": "Rekomendasi",
             "page_title": "Rekomendasi",
         },
@@ -737,7 +799,7 @@ def riwayat_rekomendasi(request):
         relasi = KasusRekomendasi.objects.filter(kasus=k).select_related("rekomendasi")
 
         # Filter rekomendasi berdasarkan role user
-        if request.user.role == "yangmed":
+        if request.user.role == "yanmed":
             rekom_list = [
                 r.rekomendasi.rekomendasi
                 for r in relasi
@@ -836,7 +898,7 @@ def revise(request):
         }
 
     # Filter semua rekomendasi berdasarkan role user
-    if request.user.role == "yangmed":
+    if request.user.role == "yanmed":
         semua_rekomendasi = Rekomendasi.objects.filter(
             jenis_rekomendasi="pelayanan medis"
         )
@@ -931,7 +993,7 @@ def detail(request, kasus_id):
 
     # Filter rekomendasi berdasarkan role user
     rekomendasi_list = []
-    if request.user.role == "yangmed":
+    if request.user.role == "yanmed":
         rekomendasi_list = [
             r.rekomendasi
             for r in relasi
@@ -971,7 +1033,7 @@ def detail_revise(request, kasus_id):
 
     # Filter rekomendasi berdasarkan role user
     rekomendasi_list = []
-    if request.user.role == "yangmed":
+    if request.user.role == "yanmed":
         rekomendasi_list = [
             r.rekomendasi
             for r in relasi
@@ -1016,8 +1078,8 @@ def evaluasi(request, kasus_id):
     if user_role in ['direktur', 'rs']:
         # Direktur dan RS lihat semua rekomendasi
         semua_rekomendasi = Rekomendasi.objects.all()
-    elif user_role == 'yangmed':
-        # Yangmed lihat rekomendasi jenis 'pelayanan medis'
+    elif user_role == 'yanmed':
+        # Yanmed lihat rekomendasi jenis 'pelayanan medis'
         semua_rekomendasi = Rekomendasi.objects.filter(jenis_rekomendasi='pelayanan medis')
     elif user_role == 'kepegawaian':
         # Kepegawaian lihat rekomendasi jenis 'kepegawaian'

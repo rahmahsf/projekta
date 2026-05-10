@@ -96,7 +96,8 @@ class Command(BaseCommand):
                         'no_rawat': row['no_rawat'],
                         'tgl_masuk': datetime_masuk,
                         'tgl_keluar': datetime_keluar,
-                        'stts_pulang': stts_pulang
+                        'stts_pulang': stts_pulang,
+                        'tempat_tidur': 65
                     }
                     
                     # Insert ke database2 (rs_rekom)
