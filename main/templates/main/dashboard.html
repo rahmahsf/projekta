@@ -239,8 +239,8 @@
 
       {% if latest_rekomendasi %}
       {% for rekom in latest_rekomendasi %}
-      <h6 class="font-semibold mb-3">
-        {{ rekom.rekomendasi }}
+      <h6 class="font-semibold mb-3 text-gray-700">
+        • {{ rekom.rekomendasi }} <span class="text-xs text-gray-500 font-normal">({{ rekom.jenis_rekomendasi }})</span>
       </h6>
       {% if not forloop.last %}<hr class="my-3">{% endif %}
       {% endfor %}

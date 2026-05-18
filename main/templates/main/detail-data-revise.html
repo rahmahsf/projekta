@@ -80,8 +80,8 @@
 
     <div class="rekomendasi-container">
       {% for r in rekomendasi %}
-        <div class="rekomendasi-row mb-2">
-          • {{ r.rekomendasi }}
+        <div class="rekomendasi-row mb-2 text-slate-700">
+          • {{ r.rekomendasi }} <span class="text-xs text-gray-500 font-normal">({{ r.jenis_rekomendasi }})</span>
         </div>
       {% empty %}
         <div class="text-slate-400">

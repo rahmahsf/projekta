@@ -640,13 +640,13 @@ def rekomendasi(request):
                 bor = kasus_bulan_ini.bor
                 los = kasus_bulan_ini.los
                 gdr = kasus_bulan_ini.gdr
-            elif kasus_terakhir:
-                # Gunakan data bulan terakhir
-                revise_bulan = int(kasus_terakhir.bulan)
-                revise_tahun = int(kasus_terakhir.tahun)
-                bor = kasus_terakhir.bor
-                los = kasus_terakhir.los
-                gdr = kasus_terakhir.gdr
+            elif kasus_bulan_sebelumnya:
+                # Gunakan data bulan terakhir (sebelumnya)
+                revise_bulan = int(kasus_bulan_sebelumnya.bulan)
+                revise_tahun = int(kasus_bulan_sebelumnya.tahun)
+                bor = kasus_bulan_sebelumnya.bor
+                los = kasus_bulan_sebelumnya.los
+                gdr = kasus_bulan_sebelumnya.gdr
             else:
                 # Tidak ada data, redirect ke rekomendasi
                 return redirect("rekomendasi")
@@ -830,20 +830,20 @@ def riwayat_rekomendasi(request):
         # Filter rekomendasi berdasarkan role user
         if request.user.role == "yanmed":
             rekom_list = [
-                r.rekomendasi.rekomendasi
+                f"{r.rekomendasi.rekomendasi} ({r.rekomendasi.jenis_rekomendasi})"
                 for r in relasi
                 if r.rekomendasi.jenis_rekomendasi == "pelayanan medis"
             ]
         elif request.user.role == "kepegawaian":
             rekom_list = [
-                r.rekomendasi.rekomendasi
+                f"{r.rekomendasi.rekomendasi} ({r.rekomendasi.jenis_rekomendasi})"
                 for r in relasi
                 if r.rekomendasi.jenis_rekomendasi == "kepegawaian"
             ]
         else:
             # Direktur dan RS bisa melihat semua rekomendasi
             if request.user.role in ['direktur', 'rs']:
-                rekom_list = [r.rekomendasi.rekomendasi for r in relasi]
+                rekom_list = [f"{r.rekomendasi.rekomendasi} ({r.rekomendasi.jenis_rekomendasi})" for r in relasi]
 
         data_riwayat.append(
             {

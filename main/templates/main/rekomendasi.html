@@ -288,23 +288,45 @@
 
     var promptText = `Apa yang harus dilakukan untuk memperbaiki "${rekomendasiText}" dengan nilai indikator BOR: ${borValue}%, LOS: ${losValue} hari, GDR: ${gdrValue}%?`;
 
-    // Salin prompt ke clipboard
-    navigator.clipboard.writeText(promptText).then(function () {
-      // Buka Gemini di tab baru
-      window.open('https://gemini.google.com', '_blank');
-    }).catch(function (err) {
-      console.error('Gagal menyalin teks: ', err);
-      // Fallback untuk browser yang tidak support clipboard API
-      const textArea = document.createElement('textarea');
-      textArea.value = promptText;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
+    // Cek jika menggunakan HTTPS dan API Clipboard didukung
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(promptText).then(function () {
+        window.open('https://gemini.google.com', '_blank');
+      }).catch(function (err) {
+        console.error('Gagal menyalin menggunakan Clipboard API:', err);
+        fallbackCopy(promptText);
+      });
+    } else {
+      // Jika di lingkungan HTTP (non-secure), gunakan fallback secara sinkron
+      // agar tidak diblokir oleh Popup Blocker browser
+      fallbackCopy(promptText);
+    }
+  }
 
-      // Tetap buka Gemini meskipun copy gagal
-      window.open('https://gemini.google.com', '_blank');
-    });
+  function fallbackCopy(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    // Posisikan di luar layar agar tidak merusak tampilan saat proses select
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    
+    try {
+      var successful = document.execCommand('copy');
+      if (!successful) {
+        console.warn('Gagal mengeksekusi perintah salin.');
+      }
+    } catch (err) {
+      console.error('Fallback copy gagal:', err);
+    }
+    
+    document.body.removeChild(textArea);
+    
+    // Buka gemini langsung secara sinkron dalam konteks interaksi user
+    // agar browser tidak memblokir popup tab baru
+    window.open('https://gemini.google.com', '_blank');
   }
 </script>
 

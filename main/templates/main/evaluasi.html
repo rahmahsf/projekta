@@ -124,7 +124,7 @@
                name="rekomendasi"
                value="{{ r.id }}"
                {% if r.id in rekomendasi_terpilih %}checked{% endif %}>
-        <span>{{ r.rekomendasi }}</span>
+        <span>{{ r.rekomendasi }} <span class="text-xs text-gray-500 font-normal">({{ r.jenis_rekomendasi }})</span></span>
       </label>
     {% endfor %}
   </div>
