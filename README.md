@@ -140,4 +140,48 @@ Buka web browser dan akses aplikasi melalui alamat:
 
 ---
 
+## 🐳 Panduan Deployment Production via Docker Compose (VPS)
+
+Untuk mendeploy aplikasi ini ke server VPS (Production), sangat disarankan menggunakan Docker Compose yang sudah disediakan.
+
+### 1. Prasyarat Server
+Pastikan VPS Anda sudah terinstall:
+- **Docker**
+- **Docker Compose**
+- **Git** (untuk mengambil kode dari repositori)
+
+### 2. Langkah Deployment Awal
+1. Clone repository project ini ke dalam VPS Anda:
+   ```bash
+   git clone <URL_REPOSITORY_ANDA>
+   cd projekta-1
+   ```
+2. Pastikan port `80` di VPS sudah dibuka (allow firewall) karena Nginx akan berjalan pada port tersebut.
+3. Build dan jalankan container secara background (detached mode):
+   ```bash
+   docker compose up -d --build
+   ```
+4. **Selesai!** Aplikasi sudah berjalan dan bisa diakses melalui IP VPS atau domain yang Anda arahkan ke IP VPS. 
+   > **Catatan:** Migrasi database (`migrate`), pengumpulan file statis (`collectstatic`), dan _seeding_ data awal (`seed_all`) akan dieksekusi secara **otomatis** oleh script `command` di dalam file `docker-compose.yml` saat container berjalan.
+
+### 3. Cara Melakukan Update Kode di Production
+Jika Anda melakukan perubahan kode di komputer lokal, melakukan *push* ke Git, dan ingin menerapkan pembaruan tersebut di VPS, lakukan langkah berikut:
+
+1. Masuk ke direktori project di VPS:
+   ```bash
+   cd projekta-1
+   ```
+2. Tarik kode terbaru dari repository Git:
+   ```bash
+   git pull origin main
+   ```
+   *(Catatan: Sesuaikan `main` jika menggunakan branch yang berbeda)*
+3. Build ulang image dan jalankan ulang container (tanpa menghapus data pada database):
+   ```bash
+   docker compose up -d --build
+   ```
+4. Docker Compose akan secara otomatis mendeteksi perubahan, mematikan container yang lama, melakukan build ulang (misalnya jika ada library baru di `requirements.txt`), menjalankan migrasi otomatis, dan menghidupkan container yang baru. Data database tetap aman karena menggunakan Docker Volume (`mysql_data` & `mysql2_data`).
+
+---
+
 _Proyek ini merupakan solusi terintegrasi untuk memaksimalkan efisiensi asuhan keperawatan dan administrasi kesehatan melalui indikator saintifik perumahsakitan._
