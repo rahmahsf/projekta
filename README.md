@@ -150,19 +150,31 @@ Pastikan VPS Anda sudah terinstall:
 - **Docker Compose**
 - **Git** (untuk mengambil kode dari repositori)
 
-### 2. Langkah Deployment Awal
+### 2. Langkah Deployment Awal (Production)
+Karena versi production menggunakan HTTPS/SSL, jalankan script inisialisasi Let's Encrypt terlebih dahulu agar konfigurasi sertifikat terbentuk tanpa terjadi *error* pada Nginx.
+
 1. Clone repository project ini ke dalam VPS Anda:
    ```bash
    git clone <URL_REPOSITORY_ANDA>
    cd projekta-1
    ```
-2. Pastikan port `80` di VPS sudah dibuka (allow firewall) karena Nginx akan berjalan pada port tersebut.
-3. Build dan jalankan container secara background (detached mode):
+2. Pastikan port `80` dan `443` di VPS sudah dibuka (allow firewall).
+3. Beri izin eksekusi pada script inisialisasi:
    ```bash
-   docker compose up -d --build
+   chmod +x init-letsencrypt.sh
    ```
-4. **Selesai!** Aplikasi sudah berjalan dan bisa diakses melalui IP VPS atau domain yang Anda arahkan ke IP VPS. 
-   > **Catatan:** Migrasi database (`migrate`), pengumpulan file statis (`collectstatic`), dan _seeding_ data awal (`seed_all`) akan dieksekusi secara **otomatis** oleh script `command` di dalam file `docker-compose.yml` saat container berjalan.
+4. Jalankan script inisialisasi untuk men-generate SSL dan menjalankan container:
+   ```bash
+   ./init-letsencrypt.sh
+   ```
+   > **Catatan:** Jangan lupa mengubah baris `email="admin@nasrulfahmi.my.id"` di dalam file `init-letsencrypt.sh` ke email aktif Anda sebelum menjalankan script.
+
+5. Jika berhasil, jalankan semua services secara penuh menggunakan konfigurasi production:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --build
+   ```
+   
+6. **Selesai!** Aplikasi sudah berjalan secara *secure* (HTTPS) dan bisa diakses melalui domain **https://rahmah.nasrulfahmi.my.id/**. Migrasi dan seeding sudah ter-handle secara otomatis.
 
 ### 3. Cara Melakukan Update Kode di Production
 Jika Anda melakukan perubahan kode di komputer lokal, melakukan *push* ke Git, dan ingin menerapkan pembaruan tersebut di VPS, lakukan langkah berikut:
@@ -175,12 +187,11 @@ Jika Anda melakukan perubahan kode di komputer lokal, melakukan *push* ke Git, d
    ```bash
    git pull origin main
    ```
-   *(Catatan: Sesuaikan `main` jika menggunakan branch yang berbeda)*
-3. Build ulang image dan jalankan ulang container (tanpa menghapus data pada database):
+3. Build ulang image dan jalankan ulang container menggunakan file docker-compose production:
    ```bash
-   docker compose up -d --build
+   docker compose -f docker-compose.prod.yml up -d --build
    ```
-4. Docker Compose akan secara otomatis mendeteksi perubahan, mematikan container yang lama, melakukan build ulang (misalnya jika ada library baru di `requirements.txt`), menjalankan migrasi otomatis, dan menghidupkan container yang baru. Data database tetap aman karena menggunakan Docker Volume (`mysql_data` & `mysql2_data`).
+4. Docker Compose akan secara otomatis mendeteksi perubahan, menjalankan migrasi ulang otomatis, dan me-restart container tanpa mengganggu database. Data database tetap aman karena menggunakan Docker Volume (`mysql_data_prod` & `mysql2_data_prod`).
 
 ---
 
