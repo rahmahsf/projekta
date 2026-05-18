@@ -1,0 +1,65 @@
+  /* Container untuk membungkus kedua tombol agar muncul berdampingan */
+  .button-action-wrapper {
+    display: flex;
+    flex-direction: row; /* Wajib agar berjejer ke samping */
+    align-items: center;
+    gap: 16px;           /* Jarak antar tombol */
+    margin-top: 32px;    /* Jarak dari kotak list */
+  }
+
+  /* Ukuran tombol disesuaikan agar tidak memenuhi layar */
+  .btn-action-primary {
+    min-width: 180px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-action-secondary {
+    min-width: 180px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* List Rekomendasi Box */
+  .rekomendasi-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .rekomendasi-row {
+    display: flex;
+    align-items: center; /* Membuat checkbox dan teks sejajar di tengah */
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+  }
+
+  .rekomendasi-row:last-child {
+    border-bottom: none;
+  }
+
+  .rekomendasi-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 16px; /* Memberi jarak antara kotak dan tulisan */
+    cursor: pointer;
+    flex-shrink: 0;    /* Mencegah checkbox gepeng */
+  }
+
+  .rekomendasi-row span {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
+  }

@@ -1,0 +1,82 @@
+/* SIDENAV RESPONSIVE STYLES */
+
+/* Base sidenav styles */
+aside {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Mobile styles - hidden by default */
+aside {
+  transform: translateX(-100%);
+}
+
+/* Show sidenav when toggled */
+aside.translate-x-0 {
+  transform: translateX(0);
+}
+
+/* Desktop styles - always visible */
+@media (min-width: 1280px) {
+  aside {
+    transform: translateX(0);
+  }
+  
+  aside.-translate-x-full {
+    transform: translateX(0);
+  }
+}
+
+/* Hamburger button - visible on mobile only */
+#hamburger-btn {
+  display: flex;
+}
+
+@media (min-width: 1280px) {
+  #hamburger-btn {
+    display: none !important;
+  }
+}
+
+/* Close button - visible when sidenav is open on mobile */
+[sidenav-close] {
+  display: block;
+}
+
+@media (min-width: 1280px) {
+  [sidenav-close] {
+    display: none !important;
+  }
+}
+
+/* Overlay for mobile */
+@media (max-width: 1279px) {
+  .sidenav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  }
+  
+  .sidenav-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Ensure content doesn't shift when sidenav opens */
+body {
+  overflow-x: hidden;
+}
+
+/* Adjust main content padding when sidenav is open on mobile */
+@media (max-width: 1279px) {
+  body.sidenav-open {
+    overflow: hidden;
+  }
+}

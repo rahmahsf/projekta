@@ -14,15 +14,11 @@
       </p>
     </div>
 
-    {% if request.user.role == 'yanmed' or request.user.role == 'direktur' or request.user.role == 'rs' %}
+    {% if request.user.role == 'yanmed' or request.user.role == 'rs' %}
     <!-- BUTTON GENERATE -->
     <form method="post" style="display: inline-block">
       {% csrf_token %}
-      <button
-        type="submit"
-        name="action"
-        value="generate"
-        style="
+      <button type="submit" name="action" value="generate" style="
           background: linear-gradient(135deg, #2563eb, #1e40af);
           color: white;
           padding: 10px 18px;
@@ -33,16 +29,13 @@
           cursor: pointer;
           transition: all 0.2s ease-in-out;
           box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-        "
-        onmouseover="
+        " onmouseover="
           this.style.transform = 'translateY(-2px)';
           this.style.boxShadow = '0 6px 16px rgba(37, 99, 235, 0.35)';
-        "
-        onmouseout="
+        " onmouseout="
           this.style.transform = 'translateY(0)';
           this.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.25)';
-        "
-      >
+        ">
         🔄 Hitung & Generate Rekomendasi
       </button>
     </form>
@@ -59,8 +52,8 @@
     terakhir yang tersedia) {% endif %} {% else %} Belum ada data rekomendasi.
     Silakan generate rekomendasi terlebih dahulu. {% endif %}
   </div>
- 
-   <!-- DATA PASIEN DINAMIS -->
+
+  <!-- DATA PASIEN DINAMIS -->
   <div class="mb-6 bg-white p-6 rounded-lg shadow-md text-sm text-slate-600">
     <table class="table-pasien table-bordered table-striped w-full">
       <thead>
@@ -75,178 +68,176 @@
       </thead>
       <tbody>
         <tr>
-          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_masuk is not None %}{{ pasien_masuk }}{% else %}—{% endif %}</td>
-          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_keluar is not None %}{{ pasien_keluar }}{% else %}—{% endif %}</td>
-          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_meninggal is not None %}{{ pasien_meninggal }}{% else %}—{% endif %}</td>
-          <td class="text-center font-bold text-black-800 value-indikator">{% if total_hari_perawatan is not None %}{{ total_hari_perawatan }}{% else %}—{% endif %}</td>
-          <td class="text-center font-bold text-black-800 value-indikator">{% if tempat_tidur is not None %}{{ tempat_tidur }}{% else %}—{% endif %}</td>
-          <td class="text-center font-bold text-black-800 value-indikator">{% if periode_bulan is not None %}{{ periode_bulan }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_masuk is not None %}{{
+            pasien_masuk }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_keluar is not None %}{{
+            pasien_keluar }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if pasien_meninggal is not None %}{{
+            pasien_meninggal }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if total_hari_perawatan is not None %}{{
+            total_hari_perawatan }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if tempat_tidur is not None %}{{
+            tempat_tidur }}{% else %}—{% endif %}</td>
+          <td class="text-center font-bold text-black-800 value-indikator">{% if periode_bulan is not None %}{{
+            periode_bulan }}{% else %}—{% endif %}</td>
         </tr>
       </tbody>
     </table>
   </div>
-  </div>
-  <!-- INDIKATOR -->
-  <h6 class="font-semibold mb-3 text-slate-700">Hasil Perhitungan</h6>
+</div>
+<!-- INDIKATOR -->
+<h6 class="font-semibold mb-3 text-slate-700">Hasil Perhitungan</h6>
 
-  <div class="flex flex-wrap -mx-3 mb-6">
-    <!-- BOR -->
-    <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-      <div class="card-indikator">
-        {% if status.bor.warna == "green" %}
-        <span class="badge-normal">{{ status.bor.status }}</span>
-        {% else %}
-        <span class="badge-anormal">{{ status.bor.status }}</span>
-        {% endif %}
+<div class="flex flex-wrap -mx-3 mb-6">
+  <!-- BOR -->
+  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+    <div class="card-indikator">
+      {% if status.bor.warna == "green" %}
+      <span class="badge-normal">{{ status.bor.status }}</span>
+      {% else %}
+      <span class="badge-anormal">{{ status.bor.status }}</span>
+      {% endif %}
 
-        <div class="p-4">
-          <p class="label-indikator">BOR Bulan Ini</p>
-          <h5 class="value-indikator">
-            {% if indikator %} {{ indikator.bor}}% {% else %} — {% endif %}
-          </h5>
-          <p class="text-xs text-slate-400">
-            {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- LOS -->
-    <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-      <div class="card-indikator">
-        {% if status.los.warna == "green" %}
-        <span class="badge-normal">{{ status.los.status }}</span>
-        {% else %}
-        <span class="badge-anormal">{{ status.los.status }}</span>
-        {% endif %}
-
-        <div class="p-4">
-          <p class="label-indikator">LOS Bulan Ini</p>
-          <h5 class="value-indikator">
-            {% if indikator %} {{ indikator.los}} hari {% else %} — {% endif %}
-          </h5>
-          <p class="text-xs text-slate-400">
-            {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- GDR -->
-    <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
-      <div class="card-indikator">
-        {% if status.gdr.warna == "green" %}
-        <span class="badge-normal">{{ status.gdr.status }}</span>
-        {% else %}
-        <span class="badge-anormal">{{ status.gdr.status }}</span>
-        {% endif %}
-
-        <div class="p-4">
-          <p class="label-indikator">GDR Bulan Ini</p>
-          <h5 class="value-indikator">
-            {% if indikator %} {{ indikator.gdr}}% {% else %} — {% endif %}
-          </h5>
-          <p class="text-xs text-slate-400">
-            {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
-          </p>
-        </div>
+      <div class="p-4">
+        <p class="label-indikator">BOR Bulan Ini</p>
+        <h5 class="value-indikator">
+          {% if indikator %} {{ indikator.bor}}% {% else %} — {% endif %}
+        </h5>
+        <p class="text-xs text-slate-400">
+          {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- REKOMENDASI BOX -->
-  <div class="wrapper-blue">
-    <div class="box-white">
-      <div class="flex items-center mb-4">
-        <div class="icon-check">✓</div>
-        <h6 class="title-section">Rekomendasi Operasional</h6>
-      </div>
-
-      {% if hasil %}
-      <ul class="list-rekomendasi">
-        {% for r in hasil.rekomendasi %}
-        <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-          <span class="text-gray-700 flex-1">✓ {{ r.rekomendasi }} ({{ r.jenis }})</span>
-          <button 
-            onclick="copyToGemini('{{ r.rekomendasi|escapejs }}')"
-            class="ml-3 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1"
-            title="Salin ke Gemini"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="#4b5563" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-            </svg>
-         
-          </button>
-        </li>
-        {% endfor %}
-      </ul>
+  <!-- LOS -->
+  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+    <div class="card-indikator">
+      {% if status.los.warna == "green" %}
+      <span class="badge-normal">{{ status.los.status }}</span>
       {% else %}
-      <div class="bg-slate-100 p-3 rounded text-sm text-slate-500">
-        Rekomendasi operasional belum dihitung.
-      </div>
+      <span class="badge-anormal">{{ status.los.status }}</span>
       {% endif %}
 
-      <!-- KASUS TERDEKAT -->
-      <h6 class="title-section mt-6"> Kasus Terdekat</h6>
+      <div class="p-4">
+        <p class="label-indikator">LOS Bulan Ini</p>
+        <h5 class="value-indikator">
+          {% if indikator %} {{ indikator.los}} hari {% else %} — {% endif %}
+        </h5>
+        <p class="text-xs text-slate-400">
+          {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
 
-      <table class="table-kasus">
-        <thead>
-          <tr>
-            <th>Bulan</th>
-            <th>BOR</th>
-            <th>LOS</th>
-            <th>GDR</th>
-            <th>Tingkat Kemiripan Kasus</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if hasil %}
-          <tr>
-            <td>
-              {{ hasil.top_kasus.0.kasus.bulan|bulan_nama }} {{ hasil.top_kasus.0.kasus.tahun }}
-            </td>
-            <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
-            <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2 }}</td>
-            <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>
-            <td>{{ hasil.top_kasus.0.distance|floatformat:3 }}</td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="5" class="text-center text-slate-400">
-              Belum tersedia
-            </td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
-      {% if hasil.top_kasus.0.distance > 0.55 %}
-      <p class="note" style="color: red;">Nilai yang diperoleh tidak berada dalam rentang normal, sehingga perlu menjadi perhatian dan ditindak lanjuti.</p>
+  <!-- GDR -->
+  <div class="w-full px-3 mb-6 sm:w-1/2 lg:w-1/3">
+    <div class="card-indikator">
+      {% if status.gdr.warna == "green" %}
+      <span class="badge-normal">{{ status.gdr.status }}</span>
       {% else %}
-      <p class="note">Nilai perhitungan masih dalam batas aman</p>
+      <span class="badge-anormal">{{ status.gdr.status }}</span>
       {% endif %}
+
+      <div class="p-4">
+        <p class="label-indikator">GDR Bulan Ini</p>
+        <h5 class="value-indikator">
+          {% if indikator %} {{ indikator.gdr}}% {% else %} — {% endif %}
+        </h5>
+        <p class="text-xs text-slate-400">
+          {% if indikator %}Sudah dihitung{% else %}Belum dihitung{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REKOMENDASI BOX -->
+<div class="wrapper-blue">
+  <div class="box-white">
+    <div class="flex items-center mb-4">
+      <div class="icon-check">✓</div>
+      <h6 class="title-section">Rekomendasi Operasional</h6>
     </div>
 
-    <!-- BUTTON -->
     {% if hasil %}
-    <form method="post">
-      {% csrf_token %}
+    <ul class="list-rekomendasi">
+      {% for r in hasil.rekomendasi %}
+      <li class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+        <span class="text-gray-700 flex-1">✓ {{ r.rekomendasi }} ({{ r.jenis }})</span>
+        <button onclick="copyToGemini('{{ r.rekomendasi|escapejs }}')"
+          class="ml-3 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1"
+          title="Salin ke Gemini">
+          <svg class="w-4 h-4" fill="none" stroke="#4b5563" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
 
-      <input type="hidden" name="bor" value="{{ indikator.bor }}" />
-      <input type="hidden" name="los" value="{{ indikator.los }}" />
-      <input type="hidden" name="gdr" value="{{ indikator.gdr }}" />
-      <input
-        type="hidden"
-        name="kasus_id"
-        value="{{ hasil.top_kasus.0.kasus.id }}"
-      />
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="bg-slate-100 p-3 rounded text-sm text-slate-500">
+      Rekomendasi operasional belum dihitung.
+    </div>
+    {% endif %}
 
-      <div class="action-wrapper">
-        <div class="action-buttons">
-          <button
-            type="submit"
-            name="action"
-            value="save"
-            style="
+    <!-- KASUS TERDEKAT -->
+    <h6 class="title-section mt-6"> Kasus Terdekat</h6>
+
+    <table class="table-kasus">
+      <thead>
+        <tr>
+          <th>Bulan</th>
+          <th>BOR</th>
+          <th>LOS</th>
+          <th>GDR</th>
+          <th>Tingkat Kemiripan Kasus</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if hasil %}
+        <tr>
+          <td>
+            {{ hasil.top_kasus.0.kasus.bulan|bulan_nama }} {{ hasil.top_kasus.0.kasus.tahun }}
+          </td>
+          <td>{{ hasil.top_kasus.0.kasus.bor|floatformat:2 }}%</td>
+          <td>{{ hasil.top_kasus.0.kasus.los|floatformat:2 }}</td>
+          <td>{{ hasil.top_kasus.0.kasus.gdr|floatformat:2 }}%</td>
+          <td>{{ hasil.top_kasus.0.distance|floatformat:3 }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center text-slate-400">
+            Belum tersedia
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+    {% if hasil.top_kasus.0.distance > 0.55 %}
+    <p class="note" style="color: red;">Nilai yang diperoleh tidak berada dalam rentang normal, sehingga perlu menjadi
+      perhatian dan ditindak lanjuti.</p>
+    {% else %}
+    <p class="note">Nilai perhitungan masih dalam batas aman</p>
+    {% endif %}
+  </div>
+
+  <!-- BUTTON -->
+  {% if hasil %}
+  <form method="post">
+    {% csrf_token %}
+
+    <input type="hidden" name="bor" value="{{ indikator.bor }}" />
+    <input type="hidden" name="los" value="{{ indikator.los }}" />
+    <input type="hidden" name="gdr" value="{{ indikator.gdr }}" />
+    <input type="hidden" name="kasus_id" value="{{ hasil.top_kasus.0.kasus.id }}" />
+
+    <div class="action-wrapper">
+      <div class="action-buttons">
+        <button type="submit" name="action" value="save" style="
               flex: 1;
               height: 48px;
               border-radius: 12px;
@@ -259,82 +250,68 @@
               justify-content: center;
               cursor: pointer;
               transition: 0.2s;
-            "
-          >
-            Simpan Hasil
-          </button>
+            ">
+          Simpan Hasil
+        </button>
 
-          <button
-            type="submit"
-            name="action"
-            value="revise"
-            class="btn-secondary"
-          >
-            Evaluasi Hasil
-          </button>
-        </div>
+        <button type="submit" name="action" value="revise" class="btn-secondary">
+          Evaluasi Hasil
+        </button>
       </div>
-    </form>
-    {% elif indikator %}
-    <!-- Tombol Evaluasi untuk data yang sudah ada -->
-    <form method="post">
-      {% csrf_token %}
-
-      <input type="hidden" name="bor" value="{{ indikator.bor }}" />
-      <input type="hidden" name="los" value="{{ indikator.los }}" />
-      <input type="hidden" name="gdr" value="{{ indikator.gdr }}" />
-
-      <div class="action-wrapper">
-        <div class="action-buttons">
-          <button
-            type="submit"
-            name="action"
-            value="revise"
-            class="btn-secondary"
-            style="width: 100%"
-          >
-            Evaluasi Hasil
-          </button>
-        </div>
-      </div>
-    </form>
-    {% endif %}
-    <div class="text-center mt-4">
-      <a href="{% url 'riwayat' %}" class="link-riwayat"
-        >Lihat Riwayat Rekomendasi</a
-      >
     </div>
+  </form>
+  {% elif indikator %}
+  <!-- Tombol Evaluasi untuk data yang sudah ada -->
+  <form method="post">
+    {% csrf_token %}
+
+    <input type="hidden" name="bor" value="{{ indikator.bor }}" />
+    <input type="hidden" name="los" value="{{ indikator.los }}" />
+    <input type="hidden" name="gdr" value="{{ indikator.gdr }}" />
+
+    <div class="action-wrapper">
+      <div class="action-buttons">
+        <button type="submit" name="action" value="revise" class="btn-secondary" style="width: 100%">
+          Evaluasi Hasil
+        </button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+  <div class="text-center mt-4">
+    <a href="{% url 'riwayat' %}" class="link-riwayat">Lihat Riwayat Rekomendasi</a>
   </div>
+</div>
 </div>
 
 
 <script>
-function copyToGemini(rekomendasiText) {
-  // Buat prompt khusus dengan rekomendasi dan nilai indikator
-  var borValue = '{{ indikator.bor|default:"-" }}';
-  var losValue = '{{ indikator.los|default:"-" }}';
-  var gdrValue = '{{ indikator.gdr|default:"-" }}';
-  
-  var promptText = `Apa yang harus dilakukan untuk memperbaiki "${rekomendasiText}" dengan nilai indikator BOR: ${borValue}%, LOS: ${losValue} hari, GDR: ${gdrValue}%?`;
-  
-  // Salin prompt ke clipboard
-  navigator.clipboard.writeText(promptText).then(function() {
-    // Buka Gemini di tab baru
-    window.open('https://gemini.google.com', '_blank');
-  }).catch(function(err) {
-    console.error('Gagal menyalin teks: ', err);
-    // Fallback untuk browser yang tidak support clipboard API
-    const textArea = document.createElement('textarea');
-    textArea.value = promptText;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    // Tetap buka Gemini meskipun copy gagal
-    window.open('https://gemini.google.com', '_blank');
-  });
-}
+  function copyToGemini(rekomendasiText) {
+    // Buat prompt khusus dengan rekomendasi dan nilai indikator
+    var borValue = '{{ indikator.bor|default:"-" }}';
+    var losValue = '{{ indikator.los|default:"-" }}';
+    var gdrValue = '{{ indikator.gdr|default:"-" }}';
+
+    var promptText = `Apa yang harus dilakukan untuk memperbaiki "${rekomendasiText}" dengan nilai indikator BOR: ${borValue}%, LOS: ${losValue} hari, GDR: ${gdrValue}%?`;
+
+    // Salin prompt ke clipboard
+    navigator.clipboard.writeText(promptText).then(function () {
+      // Buka Gemini di tab baru
+      window.open('https://gemini.google.com', '_blank');
+    }).catch(function (err) {
+      console.error('Gagal menyalin teks: ', err);
+      // Fallback untuk browser yang tidak support clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = promptText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      // Tetap buka Gemini meskipun copy gagal
+      window.open('https://gemini.google.com', '_blank');
+    });
+  }
 </script>
 
 {% endblock %}
