@@ -267,26 +267,16 @@
 document.addEventListener("DOMContentLoaded", function () {
   
   // Ambil data dari database untuk grafik terpisah
-const allLabels = {{ chart_data.labels|safe }};
-const allBorData = {{ chart_data.bor|safe }};
-const allLosData = {{ chart_data.los|safe }};
-const allGdrData = {{ chart_data.gdr|safe }};
+const allLabels = {{ chart_data2.labels|safe }};
+const allBorData = {{ chart_data2.bor|safe }};
+const allLosData = {{ chart_data2.los|safe }};
+const allGdrData = {{ chart_data2.gdr|safe }};
 
-// Filter data yang valid (tidak null/undefined) dan tampilkan 12 data terakhir
-function filterValidData(dataArray) {
-  return dataArray.filter(item => item !== null && item !== undefined && item !== '');
-}
-
-const validBorData = filterValidData(allBorData);
-const validLosData = filterValidData(allLosData);
-const validGdrData = filterValidData(allGdrData);
-
-// Ambil 12 data terakhir
-const startIndex = Math.max(0, validBorData.length - 12);
-const labels = allLabels.slice(startIndex);
-const borData = validBorData.slice(startIndex);
-const losData = validLosData.slice(startIndex);
-const gdrData = validGdrData.slice(startIndex);
+// Ambil semua data karena sudah difilter per tahun di backend
+const labels = allLabels;
+const borData = allBorData;
+const losData = allLosData;
+const gdrData = allGdrData;
 
 // Fungsi Helper untuk membuat chart agar kode lebih rapi
 function createChart(elementId, data, color) {
@@ -325,7 +315,12 @@ function createChart(elementId, data, color) {
         },
         x: {
           grid: { display: false },
-          ticks: { font: { size: 10 } }
+          ticks: {
+            autoSkip: false, // Tampilkan seluruh 12 bulan lengkap
+            maxRotation: 45, // Rotasi miring 45 derajat agar rapi dan tidak bertumpuk
+            minRotation: 45,
+            font: { size: 10 }
+          }
         }
       }
     }
@@ -338,11 +333,11 @@ createChart('chartLOS', losData, '#be185d', 4);
 createChart('chartGDR', gdrData, '#1f2937', 40);
 
   // Filter tahun
-  const yearFilter = document.getElementById('yearFilter');
-  if (yearFilter) {
-    yearFilter.addEventListener('change', function() {
+  const yearFilter2 = document.getElementById('yearFilter2');
+  if (yearFilter2) {
+    yearFilter2.addEventListener('change', function() {
       const selectedYear = this.value;
-      window.location.href = `?year=${selectedYear}`;
+      window.location.href = `?year2=${selectedYear}`;
     });
   }
 });

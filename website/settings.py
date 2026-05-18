@@ -45,6 +45,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://daniela.nasrulfahmi.my.id',
     'http://localhost:8080',
     'http://127.0.0.1:8080',
+    'http://43.134.102.35:8080',
+    'http://43.134.102.35',
 ]
 
 
