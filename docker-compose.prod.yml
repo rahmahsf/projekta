@@ -64,26 +64,15 @@ services:
     container_name: projekta_nginx_prod
     ports:
       - "8080:80"
-      - "8443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./default.prod.conf:/etc/nginx/conf.d/default.conf
       - staticfiles_prod:/static
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
     depends_on:
       - web
     restart: unless-stopped
     networks:
       - projekta_network_prod
-
-  certbot:
-    image: certbot/certbot
-    container_name: projekta_certbot_prod
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   mysql_data_prod:
