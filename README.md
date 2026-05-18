@@ -158,12 +158,12 @@ Karena versi production menggunakan HTTPS/SSL, jalankan script inisialisasi Let'
    git clone <URL_REPOSITORY_ANDA>
    cd projekta-1
    ```
-2. Pastikan port `80` dan `443` di VPS sudah dibuka (allow firewall).
+2. Aplikasi ini sekarang menggunakan port **8089** (HTTP) dan **8443** (HTTPS) untuk menghindari bentrok dengan port 80/8000 di VPS Anda. Pastikan port tersebut diizinkan pada *firewall* atau dikonfigurasi melalui reverse proxy / Cloudflare tunnel Anda.
 3. Beri izin eksekusi pada script inisialisasi:
    ```bash
    chmod +x init-letsencrypt.sh
    ```
-4. Jalankan script inisialisasi untuk men-generate SSL dan menjalankan container:
+4. Jika Anda menangani SSL langsung di Nginx container ini (tidak menggunakan Cloudflare SSL/Tunnel terpisah), jalankan script inisialisasi:
    ```bash
    ./init-letsencrypt.sh
    ```
