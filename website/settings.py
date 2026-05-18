@@ -35,11 +35,16 @@ ALLOWED_HOSTS = ['*']
 # Konfigurasi agar Django mengenali HTTPS dari Reverse Proxy / Cloudflare
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Daftar domain HTTPS yang dipercaya untuk melewati proteksi CSRF
+# Daftar domain HTTPS & HTTP yang dipercaya untuk melewati proteksi CSRF
 CSRF_TRUSTED_ORIGINS = [
     'https://rahmah.nasrulfahmi.my.id',
     'https://www.rahmah.nasrulfahmi.my.id',
     'https://daniela.nasrulfahmi.my.id',
+    'http://rahmah.nasrulfahmi.my.id',
+    'http://www.rahmah.nasrulfahmi.my.id',
+    'http://daniela.nasrulfahmi.my.id',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
 ]
 
 
