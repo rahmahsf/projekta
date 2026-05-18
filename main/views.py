@@ -1183,6 +1183,11 @@ def tambah_akun(request):
             messages.error(request, "Username sudah digunakan")
             return redirect("tambah_akun")
 
+        # validasi email
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email sudah digunakan")
+            return redirect("tambah_akun")
+
         # buat user
         user = User.objects.create_user(
             username=username, email=email, password=password
@@ -1214,6 +1219,7 @@ def edit_akun(request, user_id):
 
     if request.method == "POST":
         email = request.POST.get("email")
+        username = request.POST.get("username")
         nama_lengkap = request.POST.get("nama_lengkap")
         role = request.POST.get("role")
 
@@ -1236,8 +1242,26 @@ def edit_akun(request, user_id):
             messages.error(request, "Akun direktur lain tidak dapat diubah role-nya")
             return redirect("edit_akun", user_id=user.id)
 
+        # Validasi username tidak boleh kosong
+        if not username or username.strip() == "":
+            messages.error(request, "Username tidak boleh kosong")
+            return redirect("edit_akun", user_id=user.id)
+
+        # Validasi username unik
+        if username != user.username:
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Username sudah digunakan")
+                return redirect("edit_akun", user_id=user.id)
+
+        # Validasi email unik
+        if email != user.email:
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email sudah digunakan")
+                return redirect("edit_akun", user_id=user.id)
+
         # update data dasar
         user.email = email
+        user.username = username
         user.nama_lengkap = nama_lengkap
         user.role = role
 

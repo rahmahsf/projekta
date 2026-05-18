@@ -1,133 +1,80 @@
 from django.core.management.base import BaseCommand
-from main.models import Kasus, Rekomendasi, KasusRekomendasi, RawatInap
-from django.utils import timezone
-from datetime import timedelta
-import pandas as pd
-
+from django.db import transaction
+from main.models import RawatInap
+import csv
+import os
+from datetime import datetime
 
 class Command(BaseCommand):
-    help = 'Seed relasi kasus dan rekomendasi'
+    help = 'Import data_2026.csv into RawatInap table'
 
     def handle(self, *args, **kwargs):
-        # Read CSV with proper parsing
-        df = pd.read_csv('dataset/df_merge.csv')
+        # Path ke file CSV
+        csv_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'dataset', 'data_2026.csv')
         
-        # Parse the first row to get column names properly
-        header_row = df.iloc[0]
-        actual_columns = ['bulan', 'tahun', 'BOR', 'LOS', 'GDR'] + list(header_row[5:].values)
+        if not os.path.exists(csv_file):
+            self.stdout.write(self.style.ERROR(f'File {csv_file} tidak ditemukan!'))
+            return
         
-        # Re-read with proper column names
-        df = pd.read_csv('dataset/df_merge.csv', names=actual_columns, skiprows=1)
+        # Hapus data yang ada
+        with transaction.atomic():
+            RawatInap.objects.all().delete()
+            self.stdout.write('Data RawatInap lama telah dihapus.')
         
-        kolom_rekomendasi = df.columns.difference([
-            'bulan', 'tahun', 'BOR', 'LOS', 'GDR'
-        ])
-
-        for _, row in df.iterrows():
-            try:
-                kasus = Kasus.objects.get(
-                    bulan=str(int(row['bulan'])),
-                    tahun=str(int(row['tahun']))
-                )
-            except Kasus.DoesNotExist:
-                # Create kasus if not exists
-                kasus = Kasus.objects.create(
-                    bulan=str(int(row['bulan'])),
-                    tahun=str(int(row['tahun'])),
-                    bor=float(row['BOR']),
-                    los=float(row['LOS']),
-                    gdr=float(row['GDR'])
-                )
-
-            for kolom in kolom_rekomendasi:
-                if str(row.get(kolom)).lower() in ['true', '1']:
-
+        # Baca dan import data
+        with open(csv_file, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file, delimiter=';')
+            
+            count = 0
+            with transaction.atomic():
+                for row in reader:
                     try:
-                        rekom = Rekomendasi.objects.get(rekomendasi=kolom)
-                    except Rekomendasi.DoesNotExist:
-                        continue
-
-                    KasusRekomendasi.objects.get_or_create(
-                        kasus=kasus,
-                        rekomendasi=rekom
-                    )
-
-        # Seed RawatInap data from dataset.csv to database2 (rs_rekom)
-        self.stdout.write("\n=== Seeding Data RawatInap dari dataset.csv ke rs_rekom ===")
-        
-        try:
-            df_rawat = pd.read_csv('dataset/dataset.csv')
-            created_count = 0
-            updated_count = 0
-            error_count = 0
-            
-            for index, row in df_rawat.iterrows():
-                try:
-                    # Parse tanggal dan jam
-                    tgl_masuk = row['tgl_masuk']
-                    jam_masuk = row['jam_masuk']
-                    tgl_keluar = row['tgl_keluar'] if pd.notna(row['tgl_keluar']) else None
-                    jam_keluar = row['jam_keluar'] if pd.notna(row['jam_keluar']) else None
-                    
-                    # Format datetime untuk masuk
-                    if pd.notna(tgl_masuk) and pd.notna(jam_masuk):
-                        datetime_masuk = pd.to_datetime(f"{tgl_masuk} {jam_masuk}")
-                    else:
-                        continue
-                    
-                    # Format datetime untuk keluar
-                    datetime_keluar = None
-                    if tgl_keluar and jam_keluar:
-                        datetime_keluar = pd.to_datetime(f"{tgl_keluar} {jam_keluar}")
-                    
-                    # Mapping status pulang
-                    stts_pulang_mapping = {
-                        'Atas Persetujuan Dokter': RawatInap.StatusPulang.ATAS_PERSETUJUAN_DOKTER,
-                        'Membaik': RawatInap.StatusPulang.MEMBAIK,
-                        'Sembuh': RawatInap.StatusPulang.SEMBUH,
-                        'Pindah Kamar': RawatInap.StatusPulang.PINDAH_KAMAR,
-                        'Atas Permintaan Sendiri': RawatInap.StatusPulang.ATAS_PERMINTAAN_SENDIRI,
-                        'Meninggal': RawatInap.StatusPulang.MENINGGAL
-                    }
-                    
-                    stts_pulang = stts_pulang_mapping.get(row['stts_pulang'], None)
-                    
-                    rawat_inap_data = {
-                        'no_rawat': row['no_rawat'],
-                        'tgl_masuk': datetime_masuk,
-                        'tgl_keluar': datetime_keluar,
-                        'stts_pulang': stts_pulang,
-                        'tempat_tidur': 65
-                    }
-                    
-                    # Insert ke database2 (rs_rekom)
-                    rawat_inap, created = RawatInap.objects.using('database2').update_or_create(
-                        no_rawat=row['no_rawat'],
-                        defaults=rawat_inap_data
-                    )
-                    
-                    if created:
-                        created_count += 1
-                        self.stdout.write(f"✅ Created: {row['no_rawat']}")
-                    else:
-                        updated_count += 1
-                        self.stdout.write(f"🔄 Updated: {row['no_rawat']}")
+                        # Parse tanggal dan jam
+                        tgl_masuk_str = row['tgl_masuk']
+                        jam_masuk_str = row['jam_masuk']
+                        tgl_keluar_str = row['tgl_keluar']
+                        jam_keluar_str = row['jam_keluar']
                         
-                except Exception as e:
-                    error_count += 1
-                    self.stdout.write(f"❌ Error processing row {index}: {str(e)}")
-                    continue
-            
-            total_rawat_inap = RawatInap.objects.using('database2').count()
-            self.stdout.write(f"\n=== Summary RawatInap ===")
-            self.stdout.write(f"📝 Created: {created_count} records")
-            self.stdout.write(f"🔄 Updated: {updated_count} records")
-            self.stdout.write(f"❌ Errors: {error_count} records")
-            self.stdout.write(f"📊 Total RawatInap di rs_rekom: {total_rawat_inap}")
-            
-        except FileNotFoundError:
-            self.stdout.write(self.style.ERROR('❌ File dataset.csv tidak ditemukan di dataset/'))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'❌ Error reading dataset.csv: {str(e)}'))
+                        # Combine date and time for tgl_masuk
+                        if tgl_masuk_str and jam_masuk_str:
+                            tgl_masuk = datetime.strptime(f"{tgl_masuk_str} {jam_masuk_str}", "%d/%m/%Y %H:%M:%S")
+                        else:
+                            continue
+                        
+                        # Combine date and time for tgl_keluar
+                        tgl_keluar = None
+                        if tgl_keluar_str and jam_keluar_str:
+                            tgl_keluar = datetime.strptime(f"{tgl_keluar_str} {jam_keluar_str}", "%d/%m/%Y %H:%M:%S")
+                        
+                        # Map status pulang
+                        stts_pulang_mapping = {
+                            'APS': 'Atas Persetujuan Dokter',
+                            'Membaik': 'Membaik',
+                            'Atas Persetujuan Dokter': 'Atas Persetujuan Dokter',
+                            'Pindah Kamar': 'Pindah Kamar',
+                            'Sembuh': 'Sembuh',
+                            'Atas Permintaan Sendiri': 'Atas Permintaan Sendiri',
+                            'Meninggal': 'Meninggal'
+                        }
+                        
+                        stts_pulang = stts_pulang_mapping.get(row['stts_pulang'], 'Membaik')
+                        
+                        # Create RawatInap instance
+                        rawat_inap = RawatInap.objects.create(
+                            no_rawat=row['no_rawat'],
+                            tgl_masuk=tgl_masuk,
+                            tgl_keluar=tgl_keluar,
+                            stts_pulang=stts_pulang,
+                            tempat_tidur=65  # Default value
+                        )
+                        
+                        count += 1
+                        
+                        if count % 100 == 0:
+                            self.stdout.write(f'Processed {count} records...')
+                            
+                    except Exception as e:
+                        self.stdout.write(self.style.WARNING(f'Error processing row {count + 1}: {str(e)}'))
+                        continue
         
-        self.stdout.write(self.style.SUCCESS('✨ Seeder relasi Kasus-Rekomendasi dan RawatInap dari dataset.csv berhasil!'))
+        self.stdout.write(self.style.SUCCESS(f'Successfully imported {count} records from data_2026.csv'))

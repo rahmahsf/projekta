@@ -321,7 +321,6 @@ function copyToGemini(rekomendasiText) {
   navigator.clipboard.writeText(promptText).then(function() {
     // Buka Gemini di tab baru
     window.open('https://gemini.google.com', '_blank');
-    alert('Prompt disalin dan membuka Gemini...');
   }).catch(function(err) {
     console.error('Gagal menyalin teks: ', err);
     // Fallback untuk browser yang tidak support clipboard API
