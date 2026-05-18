@@ -1043,9 +1043,14 @@ def tambah_akun(request):
                 messages.error(request, "Hanya boleh ada 1 akun direktur")
                 return redirect("tambah_akun")
 
-        # validasi username
+        # validasi username unik
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username sudah digunakan")
+            messages.error(request, "Username sudah digunakan, silakan gunakan username lain")
+            return redirect("tambah_akun")
+
+        # validasi email unik
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email sudah digunakan, silakan gunakan email lain")
             return redirect("tambah_akun")
 
         # buat user
@@ -1080,6 +1085,7 @@ def edit_akun(request, user_id):
     if request.method == "POST":
         email = request.POST.get("email")
         nama_lengkap = request.POST.get("nama_lengkap")
+        username = request.POST.get("username")
         role = request.POST.get("role")
 
         password_lama = request.POST.get("password_lama")
@@ -1101,9 +1107,28 @@ def edit_akun(request, user_id):
             messages.error(request, "Akun direktur lain tidak dapat diubah role-nya")
             return redirect("edit_akun", user_id=user.id)
 
+        # Validasi username tidak boleh kosong
+        if not username or not username.strip():
+            messages.error(request, "Username tidak boleh kosong")
+            return redirect("edit_akun", user_id=user.id)
+
+        # Validasi username unik (exclude user yang sedang diedit)
+        if username != user.username:
+            if User.objects.filter(username=username).exclude(id=user.id).exists():
+                messages.error(request, "Username sudah digunakan oleh akun lain, silakan gunakan username lain")
+                return redirect("edit_akun", user_id=user.id)
+
+        # Validasi email unik (exclude user yang sedang diedit)
+        if email and email != user.email:
+            if User.objects.filter(email=email).exclude(id=user.id).exists():
+                messages.error(request, "Email sudah digunakan oleh akun lain, silakan gunakan email lain")
+                return redirect("edit_akun", user_id=user.id)
+
         # update data dasar
         user.email = email
         user.nama_lengkap = nama_lengkap
+        if username:
+            user.username = username
         user.role = role
 
         # LOGIKA PASSWORD

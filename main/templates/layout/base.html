@@ -39,7 +39,7 @@
 
     <!-- MESSAGES -->
     {% for message in messages %}
-      <div id="notification" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #4CAF50; color: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 99999; font-size: 16px; font-weight: bold;">
+      <div id="notification" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: {% if message.tags == 'error' %}#e53e3e{% elif message.tags == 'warning' %}#dd6b20{% else %}#4CAF50{% endif %}; color: white; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 99999; font-size: 16px; font-weight: bold;">
         {{ message }}
       </div>
     {% endfor %}
