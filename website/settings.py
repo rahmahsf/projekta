@@ -25,10 +25,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ozf!*q)!#zu@@rkswzefkb5qyn68s)p#_ahci$m1v&yf!=no9b'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+import os
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',')]
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
