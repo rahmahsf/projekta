@@ -42,12 +42,12 @@ services:
              python manage.py migrate --database=database2 &&
              python manage.py seed_all &&
              python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:8000 website.wsgi:application"
+             gunicorn --bind 0.0.0.0:8080 website.wsgi:application"
     volumes:
       - .:/app
       - staticfiles:/app/staticfiles
     ports:
-      - "8000:8000"
+      - "8080:8080"
     depends_on:
       - db
       - db2
