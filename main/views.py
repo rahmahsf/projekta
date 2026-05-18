@@ -818,9 +818,9 @@ def riwayat_rekomendasi(request):
     else:
         daftar_kasus = Kasus.objects.all().order_by("tahun", "bulan")
 
-    # Konversi ke list dan urutkan manual untuk memastikan urutan benar (Januari-Desember)
+    # Konversi ke list dan urutkan manual untuk memastikan urutan benar (terbaru di atas)
     daftar_kasus_list = list(daftar_kasus)
-    daftar_kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
+    daftar_kasus_list.sort(key=lambda x: (int(x.tahun), int(x.bulan)), reverse=True)
 
     data_riwayat = []
 

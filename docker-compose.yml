@@ -40,12 +40,7 @@ services:
     command: >
       sh -c "python manage.py migrate --database=default &&
              python manage.py migrate --database=database2 &&
-             python manage.py seed_users &&
-             python manage.py seed_kasus &&
-             python manage.py seed_rawat_inap &&
-             python manage.py seed_dummy &&
-             python manage.py seed_rekomendasi &&
-             python manage.py seed_kasus_rekomendasi &&
+             python manage.py seed_all &&
              python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:8000 website.wsgi:application"
     volumes:

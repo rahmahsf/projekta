@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         data = [
             (
-                'Meningkatkan kerja sama dengan instansi kesehatan lain melalui kesepakatan',
+                'Meningkatkan kerja sama dengan instansi kesehatan lain melalui kesepakatan formal dan integrasi sistem rujukan untuk mempercepat pelayanan pasien',
                 'pelayanan medis'
             ),
             (
@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 'pelayanan medis'
             ),
             (
-                'Mengoptimalkan sistem rujukan pasien dengan prosedur yang lebih sederhana agar proses lebih cepat dan efisien pada layanan rujukan pasien',
+                'Mengoptimalkan sistem rujukan pasien dengan prosedur yang lebih sederhana dan dukungan teknologi digital agar proses lebih cepat dan efisien',
                 'pelayanan medis'
             ),
             (
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 'kepegawaian'
             ),
             (
-                'Meningkatkan kualitas pelayanan pasien dengan pendekatan yang lebih responsif, komunikatif, dan prioritaskan pada kepuasan pasien',
+                'Meningkatkan kualitas pelayanan pasien dengan pendekatan yang lebih responsif, komunikatif, dan berorientasi pada kepuasan pasien',
                 'pelayanan medis'
             ),
         ]
