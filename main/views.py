@@ -80,6 +80,7 @@ def dashboard(request):
 
     # Data untuk grafik (sesuai filter)
     selected_year = request.GET.get("year", None)
+    selected_year2 = request.GET.get("year2", None)
     
     # Ambil semua data dan urutkan secara manual untuk memastikan urutan benar
     if selected_year:
@@ -124,7 +125,7 @@ def dashboard(request):
                 "gdr": float(latest_kasus_overall.gdr) - float(prev_kasus.gdr),
             }
 
-    # Data untuk grafik (12 bulan terakhir)
+    # Data untuk grafik (12 bulan penuh)
     chart_data = {"labels": [], "bor": [], "los": [], "gdr": []}
 
     for kasus in kasus_list:
@@ -148,6 +149,32 @@ def dashboard(request):
         chart_data["bor"].append(kasus.bor)
         chart_data["los"].append(kasus.los)
         chart_data["gdr"].append(kasus.gdr)
+
+    # Data untuk grafik terpisah (berdasarkan year2 filter, independen dari grafik utama)
+    bulan_names_short = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+
+    # Tentukan tahun default untuk grafik terpisah
+    if not selected_year2:
+        # Gunakan tahun terbaru yang tersedia
+        latest_year = available_years.first() if available_years else None
+        selected_year2 = str(latest_year) if latest_year else None
+
+    if selected_year2:
+        kasus_queryset2 = Kasus.objects.filter(tahun=selected_year2)
+    else:
+        kasus_queryset2 = Kasus.objects.all()
+
+    kasus_list2 = list(kasus_queryset2)
+    kasus_list2.sort(key=lambda x: (int(x.tahun), int(x.bulan)))
+    kasus_list2 = kasus_list2[-12:]  # Maksimal 12 bulan
+
+    chart_data2 = {"labels": [], "bor": [], "los": [], "gdr": []}
+    for kasus in kasus_list2:
+        bulan_int = int(kasus.bulan) if isinstance(kasus.bulan, str) else kasus.bulan
+        chart_data2["labels"].append(f"'{bulan_names_short[bulan_int - 1]}'")
+        chart_data2["bor"].append(kasus.bor)
+        chart_data2["los"].append(kasus.los)
+        chart_data2["gdr"].append(kasus.gdr)
 
     # Data untuk tabel (5 bulan terakhir dengan yang paling baru di paling atas)
     table_data = []
@@ -237,6 +264,7 @@ def dashboard(request):
         "latest_status": latest_status,
         "indikator_changes": indikator_changes,
         "chart_data": chart_data,
+        "chart_data2": chart_data2,
         "table_data": table_data,
         "latest_rekomendasi": latest_rekomendasi,
         "latest_month_year": latest_month_year,
@@ -244,6 +272,7 @@ def dashboard(request):
         "selected_year": selected_year or available_years.first()
         if available_years
         else None,
+        "selected_year2": selected_year2,
         "page_name": "Dashboard",
         "page_title": "Dashboard",
     }

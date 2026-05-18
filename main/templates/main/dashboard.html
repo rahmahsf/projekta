@@ -108,23 +108,17 @@
 </div>
 
 <!-- ===== GRAFIK ===== -->
-  <div class="bg-white rounded-2xl p-6 shadow mb-6 border-t-4 border-blue-500">
-    <div class="flex justify-between items-center mb-4">
-      <h6 class="font-bold text-blue-700">Grafik indikator evaluasi Rawat Inap</h6>
-      <select class="border rounded-lg px-3 py-2 text-sm bg-blue-50 text-blue-700 border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="yearFilter">
-        {% for year in available_years %}
-        <option value="{{ year }}"{% if year == selected_year %} selected{% endif %}>{{ year }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <canvas id="indikatorChart" height="120"></canvas>
-  </div>
+  
 
 <!-- ===== GRAFIK TERPISAH ===== -->
 <div class="bg-white rounded-2xl p-6 shadow mb-6 border-t-4 border-blue-500">
   <div class="flex justify-between items-center mb-4">
     <h6 class="font-bold text-blue-700">Grafik Indikator</h6>
+    <select class="border rounded-lg px-3 py-2 text-sm bg-blue-50 text-blue-700 border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="yearFilter2">
+      {% for year in available_years %}
+      <option value="{{ year }}"{% if year == selected_year2 %} selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
   </div>
   
   <div class="horizontal-charts">
@@ -271,50 +265,14 @@
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const ctx = document.getElementById("indikatorChart").getContext("2d");
-
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: {{ chart_data.labels|safe }},
-      datasets: [
-        {
-          label: "BOR (%)",
-          data: {{ chart_data.bor|safe }},
-          borderColor: "#2563eb",
-          tension: 0.4
-        },
-        {
-          label: "LOS",
-          data: {{ chart_data.los|safe }},
-          borderColor: "#db2777",
-          tension: 0.4
-        },
-        {
-          label: "GDR",
-          data: {{ chart_data.gdr|safe }},
-          borderColor: "#111827",
-          tension: 0.4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "bottom"
-        }
-      }
-    }
-  });
-
+  
   // Ambil data dari database untuk grafik terpisah
 const allLabels = {{ chart_data.labels|safe }};
 const allBorData = {{ chart_data.bor|safe }};
 const allLosData = {{ chart_data.los|safe }};
 const allGdrData = {{ chart_data.gdr|safe }};
 
-// Filter data yang valid (tidak null/undefined) dan tampilkan 6 data terakhir
+// Filter data yang valid (tidak null/undefined) dan tampilkan 12 data terakhir
 function filterValidData(dataArray) {
   return dataArray.filter(item => item !== null && item !== undefined && item !== '');
 }
@@ -323,8 +281,8 @@ const validBorData = filterValidData(allBorData);
 const validLosData = filterValidData(allLosData);
 const validGdrData = filterValidData(allGdrData);
 
-// Ambil 6 data terakhir
-const startIndex = Math.max(0, validBorData.length - 6);
+// Ambil 12 data terakhir
+const startIndex = Math.max(0, validBorData.length - 12);
 const labels = allLabels.slice(startIndex);
 const borData = validBorData.slice(startIndex);
 const losData = validLosData.slice(startIndex);
