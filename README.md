@@ -185,7 +185,7 @@ Jika Anda melakukan perubahan kode di komputer lokal, melakukan *push* ke Git, d
    ```
 2. Tarik kode terbaru dari repository Git:
    ```bash
-   git pull origin main
+   git pull origin rekomendasi
    ```
 3. Build ulang image dan jalankan ulang container menggunakan file docker-compose production:
    ```bash
