@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         rekomendasi_data = [
             {
-                "rekomendasi": "Meningkatkan kerja sama dengan instansi kesehatan lain melalui kesepakatan formal dan integrasi sistem rujukan untuk mempercepat pelayanan pasien",
+                "rekomendasi": "Meningkatkan kerja sama dengan instansi kesehatan lain melalui kesepakatan",
                 "jenis_rekomendasi": "pelayanan medis"
             },
             {
@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 "jenis_rekomendasi": "pelayanan medis"
             },
             {
-                "rekomendasi": "Mengoptimalkan sistem rujukan pasien dengan prosedur yang lebih sederhana dan dukungan teknologi digital agar proses lebih cepat dan efisien",
+                "rekomendasi": "Mengoptimalkan sistem rujukan pasien dengan prosedur yang lebih sederhana agar proses lebih cepat dan efisien pada layanan rujukan pasien",
                 "jenis_rekomendasi": "pelayanan medis"
             },
             {
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 "jenis_rekomendasi": "kepegawaian"
             },
             {
-                "rekomendasi": "Meningkatkan kualitas pelayanan pasien dengan pendekatan yang lebih responsif, komunikatif, dan berorientasi pada kepuasan pasien",
+                "rekomendasi": "Meningkatkan kualitas pelayanan pasien dengan pendekatan yang lebih responsif, komunikatif, dan prioritaskan pada kepuasan pasien",
                 "jenis_rekomendasi": "pelayanan medis"
             },
         ]
