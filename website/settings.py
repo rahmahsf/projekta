@@ -32,6 +32,16 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['*']
 
+# Konfigurasi agar Django mengenali HTTPS dari Reverse Proxy / Cloudflare
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Daftar domain HTTPS yang dipercaya untuk melewati proteksi CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://rahmah.nasrulfahmi.my.id',
+    'https://www.rahmah.nasrulfahmi.my.id',
+    'https://daniela.nasrulfahmi.my.id',
+]
+
 
 # Application definition
 
