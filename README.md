@@ -142,6 +142,9 @@ Buka web browser dan akses aplikasi melalui alamat:
 
 ## 🐳 Panduan Deployment Production via Docker Compose (VPS)
 
+> [!TIP]
+> **PENTING UNTUK SERVER BARU:** Jika Anda ingin melakukan hosting di VPS baru dengan IP atau Domain yang berbeda dari konfigurasi bawaan saat ini, harap ikuti panduan lengkap langkah-demi-langkah pada file **[HOSTING_DOCKER_BARU.md](file:///d:/projekta-1/HOSTING_DOCKER_BARU.md)**.
+
 Untuk mendeploy aplikasi ini ke server VPS (Production), sangat disarankan menggunakan Docker Compose yang sudah disediakan.
 
 ### 1. Prasyarat Server
@@ -196,3 +199,10 @@ Jika Anda melakukan perubahan kode di komputer lokal, melakukan *push* ke Git, d
 ---
 
 _Proyek ini merupakan solusi terintegrasi untuk memaksimalkan efisiensi asuhan keperawatan dan administrasi kesehatan melalui indikator saintifik perumahsakitan._
+cara seeder ulang semua
+python manage.py reset_and_seed
+# 1. Aktifkan virtual environment (venv)
+venv\Scripts\activate.bat
+
+# 2. Install seluruh requirements
+python -m pip install -r requirements.txt

@@ -55,6 +55,7 @@ services:
       - DB_NAME=rs_pku
       - DB2_NAME=rs_rekom
       - ALLOWED_HOSTS=rahmah.nasrulfahmi.my.id,www.rahmah.nasrulfahmi.my.id
+      - CSRF_TRUSTED_ORIGINS=https://rahmah.nasrulfahmi.my.id,https://www.rahmah.nasrulfahmi.my.id,http://localhost:8080
     restart: unless-stopped
     networks:
       - projekta_network_prod
